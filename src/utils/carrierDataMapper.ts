@@ -16,6 +16,51 @@ import type {
 } from '../components/v2/mockData'
 
 // ============================================================
+// INSURANCE SANITIZER — stopgap for upstream MorPro bug
+// ============================================================
+// MorPro /api/carriers/:dot/insurance joins cancel events to active filings
+// by policyNumber alone. When a carrier re-files the same policy number, the
+// cancellation of the predecessor filing bleeds into the active filing's
+// status, producing status:"cancelled" + a bogus gap between predecessor and
+// successor. Strip both out when the cancel pre-dates the active filing.
+// TODO: remove once MorPro API ships the effective-date guard on the join.
+function sanitizeMorProInsurance(insurance: any): any {
+  if (!insurance) return {}
+  const activePolicies = insurance.activePolicies || []
+  if (activePolicies.length === 0) return insurance
+  const history = insurance.history || []
+
+  const ts = (s: any): number => {
+    if (!s) return NaN
+    const d = new Date(s)
+    return isNaN(d.getTime()) ? NaN : d.getTime()
+  }
+
+  const cleaned = activePolicies.map((p: any) => {
+    const eff = ts(p.effectiveDate)
+    if (isNaN(eff)) return p
+    const realCancel = history.some((h: any) =>
+      String(h.policyNumber) === String(p.policyNumber) && ts(h.cancelDate) > eff,
+    )
+    if (!realCancel && (String(p.status || '').toLowerCase() === 'cancelled' || p.cancelDate || p.cancelMethod)) {
+      return { ...p, status: 'active', cancelDate: null, cancelMethod: null }
+    }
+    return p
+  })
+
+  const maxEff = Math.max(
+    ...cleaned.map((p: any) => ts(p.effectiveDate)).filter((n: number) => !isNaN(n)),
+    -Infinity,
+  )
+  const gaps = (insurance.gaps || []).filter((g: any) => {
+    const end = ts(g.gapEnd)
+    return isNaN(end) || end > maxEff
+  })
+
+  return { ...insurance, activePolicies: cleaned, gaps }
+}
+
+// ============================================================
 // INSPECTION RECORD FILTERING — 24-month window + dedup
 // ============================================================
 
@@ -126,7 +171,7 @@ export function calculateCarrierHealthScore(
   const carrier = report?.carrier || {}
   const safety = report?.safety || {}
   const inspections = report?.inspections || {}
-  const insurance = report?.insurance || {}
+  const insurance = sanitizeMorProInsurance(report?.insurance)
   const fleet = report?.fleet || {}
   const authority = report?.authority || {}
   const crashes = report?.crashes || {}
@@ -445,7 +490,7 @@ export function mapToV2CarrierData(report: any, listing?: MCListingExtended): V2
 
   // Insurance status: derived from insurance data
   // Check active policies, renewal urgency, and cancellation status
-  const insurance = report?.insurance || {}
+  const insurance = sanitizeMorProInsurance(report?.insurance)
   const activePolicies = insurance.activePolicies || []
   const renewalTimeline = insurance.renewalTimeline || []
   let insuranceStatus: 'current' | 'expired' | 'pending' = 'expired'
@@ -1217,7 +1262,7 @@ export function mapToV2CrashRecords(report: any): V2CrashRecord[] {
 // INSURANCE
 // ============================================================
 export function mapToV2InsurancePolicies(report: any): V2InsurancePolicy[] {
-  const policies = report?.insurance?.activePolicies || []
+  const policies = sanitizeMorProInsurance(report?.insurance).activePolicies || []
   return policies.map((p: any) => ({
     insurer: p.insurerName || p.insurer || '',
     policyNumber: p.policyNumber || '',
@@ -1278,7 +1323,7 @@ export function mapToV2PolicyHistory(report: any): V2PolicyEvent[] {
 }
 
 export function mapToV2InsuranceGaps(report: any): V2InsuranceGap[] {
-  const gaps = report?.insurance?.gaps || []
+  const gaps = sanitizeMorProInsurance(report?.insurance).gaps || []
   return gaps.map((g: any) => ({
     policyType: g.policyType || g.type || '',
     gapStart: g.gapStart || g.startDate || '',
