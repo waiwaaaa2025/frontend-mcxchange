@@ -1114,6 +1114,64 @@ class ApiService {
     });
   }
 
+  async getInsuranceLeads(params: {
+    insuranceStatus?: 'pending' | 'expiring';
+    expiringWithinDays?: number;
+    state?: string;
+    minUnits?: number;
+    maxUnits?: number;
+    minSafety?: string;
+    sort?: string;
+    page?: number;
+    limit?: number;
+  }) {
+    const sp = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== null && v !== '') sp.set(k, String(v));
+    });
+    return this.request<ApiResponse<{
+      total: number;
+      page: number;
+      limit: number;
+      results: Array<{
+        dotNumber: string;
+        mcNumber: string | null;
+        legalName: string;
+        state: string | null;
+        powerUnits: number | null;
+        safetyRating: string | null;
+        insuranceStatus: 'pending' | 'expiring';
+        insuranceExpiryDate: string | null;
+        daysUntilExpiry: number | null;
+        pendingReason: string | null;
+      }>;
+    }>>(`/buyer/insurance-leads?${sp.toString()}`);
+  }
+
+  async requestBrokerOutreach(dotNumber: string, body: { mcNumber?: string; carrierName?: string; message?: string }) {
+    return this.request<ApiResponse<any>>(`/buyer/insurance-leads/${dotNumber}/request-outreach`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  }
+
+  async getAdminBrokerOutreach(params?: { status?: string; page?: number; limit?: number }) {
+    const sp = new URLSearchParams();
+    if (params?.status) sp.set('status', params.status);
+    if (params?.page) sp.set('page', String(params.page));
+    if (params?.limit) sp.set('limit', String(params.limit));
+    return this.request<{ success: boolean; data: any[]; pagination: any }>(
+      `/admin/broker-outreach?${sp.toString()}`
+    );
+  }
+
+  async updateAdminBrokerOutreach(id: string, body: { status?: string; notes?: string }) {
+    return this.request<ApiResponse<any>>(`/admin/broker-outreach/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    });
+  }
+
   async verifySubscription() {
     return this.request<ApiResponse<{
       fulfilled: boolean;

@@ -18,6 +18,7 @@ import {
   AlertCircle,
   Activity,
   FileSearch,
+  Umbrella,
   Bot,
   DollarSign,
   SquareParking,
@@ -35,6 +36,7 @@ const Navbar = () => {
 
   const toolLinks = [
     { name: 'CarrierPulse', href: '/carrier-pulse-preview', icon: Activity, desc: 'Carrier intelligence platform', comingSoon: false },
+    { name: 'Insurance Leads', href: '/insurance-leads-preview', icon: Umbrella, desc: 'Find carriers with lapsing insurance', comingSoon: false },
     { name: 'Credit Reports', href: '/credit-report-preview', icon: FileSearch, desc: 'Business credit intelligence — $35/report', comingSoon: false },
     { name: 'Eva AI', href: '/eva-ai', icon: Bot, desc: 'AI compliance management — coming soon', comingSoon: false },
   ]

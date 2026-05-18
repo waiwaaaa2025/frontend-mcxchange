@@ -77,6 +77,7 @@ const AdminAllListingsPage = lazy(() => import('./pages/AdminAllListingsPage'))
 const AdminListingDetailPage = lazy(() => import('./pages/AdminListingDetailPage'))
 const AdminPendingReviewPage = lazy(() => import('./pages/AdminPendingReviewPage'))
 const AdminPremiumRequestsPage = lazy(() => import('./pages/AdminPremiumRequestsPage'))
+const AdminBrokerOutreachPage = lazy(() => import('./pages/AdminBrokerOutreachPage'))
 const AdminConsultationsPage = lazy(() => import('./pages/AdminConsultationsPage'))
 const AdminTelegramPage = lazy(() => import('./pages/AdminTelegramPage'))
 const AdminFacebookPage = lazy(() => import('./pages/AdminFacebookPage'))
@@ -98,6 +99,10 @@ const AdminCreateListingPage = lazy(() => import('./pages/AdminCreateListingPage
 
 // CarrierPulse
 const CarrierPulsePage = lazy(() => import('./pages/CarrierPulsePage'))
+
+// Pending Insurance Leads
+const InsuranceLeadsPage = lazy(() => import('./pages/InsuranceLeadsPage'))
+const InsuranceLeadsPreviewPage = lazy(() => import('./pages/InsuranceLeadsPreviewPage'))
 
 // Chameleon Check
 const ChameleonCheckPage = lazy(() => import('./pages/ChameleonCheckPage'))
@@ -154,6 +159,7 @@ function App() {
               <Route path="drivers" element={<DriversLandingPage />} />
               <Route path="carrier-pulse-preview" element={<CarrierPulsePreviewPage />} />
               <Route path="carrier-pulse-preview/:dotNumber" element={<CarrierPulsePreviewPage />} />
+              <Route path="insurance-leads-preview" element={<InsuranceLeadsPreviewPage />} />
               <Route path="credit-report-preview" element={<CreditReportPreviewPage />} />
               <Route path="chameleon-check-preview" element={<ChameleonCheckPreviewPage />} />
               <Route path="safety-report-preview" element={<SafetyReportPreviewPage />} />
@@ -190,6 +196,7 @@ function App() {
               <Route path="payout-setup" element={<SellerPayoutSetupPage />} />
               <Route path="carrier-pulse" element={<CarrierPulsePage />} />
               <Route path="carrier-pulse/:dotNumber" element={<CarrierPulsePage />} />
+              <Route path="insurance-leads" element={<InsuranceLeadsPage />} />
               <Route path="chameleon-check" element={<ChameleonCheckPage />} />
               <Route path="chameleon-check/:dotNumber" element={<ChameleonCheckPage />} />
             </Route>
@@ -226,6 +233,7 @@ function App() {
               <Route path="transactions" element={<VerificationRequiredRoute><BuyerTransactionsPage /></VerificationRequiredRoute>} />
               <Route path="carrier-pulse" element={<CarrierPulsePage />} />
               <Route path="carrier-pulse/:dotNumber" element={<CarrierPulsePage />} />
+              <Route path="insurance-leads" element={<InsuranceLeadsPage />} />
               <Route path="chameleon-check" element={<ChameleonCheckPage />} />
               <Route path="chameleon-check/:dotNumber" element={<ChameleonCheckPage />} />
               <Route path="package-tool" element={<Navigate to="/carrier-pulse-preview" replace />} />
@@ -251,6 +259,7 @@ function App() {
               <Route path="payments" element={<AdminPaymentTracking />} />
               <Route path="pending" element={<AdminPendingReviewPage />} />
               <Route path="premium-requests" element={<AdminPremiumRequestsPage />} />
+              <Route path="broker-outreach" element={<AdminBrokerOutreachPage />} />
               <Route path="consultations" element={<AdminConsultationsPage />} />
               <Route path="reported" element={<div className="p-8"><h1 className="text-2xl font-bold">Reported Items</h1></div>} />
               <Route path="users" element={<AdminUsersPage />} />
@@ -266,6 +275,7 @@ function App() {
               <Route path="reports" element={<div className="p-8"><h1 className="text-2xl font-bold">Reports</h1></div>} />
               <Route path="carrier-pulse" element={<CarrierPulsePage />} />
               <Route path="carrier-pulse/:dotNumber" element={<CarrierPulsePage />} />
+              <Route path="insurance-leads" element={<InsuranceLeadsPage />} />
               <Route path="chameleon-check" element={<ChameleonCheckPage />} />
               <Route path="chameleon-check/:dotNumber" element={<ChameleonCheckPage />} />
               <Route path="safety-report" element={<SafetyImprovementReportPage />} />

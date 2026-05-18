@@ -778,9 +778,14 @@ const AdminDashboard = () => {
           <div className="space-y-4">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-2xl font-bold text-gray-900">Premium Contact Requests</h2>
-              <Button variant="outline" onClick={() => navigate('/admin/premium-requests')}>
-                View All Requests
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => navigate('/admin/broker-outreach')}>
+                  Broker Outreach
+                </Button>
+                <Button variant="outline" onClick={() => navigate('/admin/premium-requests')}>
+                  View All Requests
+                </Button>
+              </div>
             </div>
 
             {premiumRequests.map((request) => (
