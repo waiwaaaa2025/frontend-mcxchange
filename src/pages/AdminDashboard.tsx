@@ -69,7 +69,7 @@ interface DashboardStats {
 
 const AdminDashboard = () => {
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState<'pending' | 'premium' | 'reported' | 'users'>('pending')
+  const [activeTab, setActiveTab] = useState<'pending' | 'premium' | 'outreach' | 'reported' | 'users'>('pending')
 
   // API data state
   const [pendingListings, setPendingListings] = useState<PendingListing[]>([])
@@ -650,6 +650,17 @@ const AdminDashboard = () => {
             Premium Requests
           </button>
           <button
+            onClick={() => setActiveTab('outreach')}
+            className={`px-4 py-2 rounded-xl font-medium transition-colors flex items-center gap-1.5 ${
+              activeTab === 'outreach'
+                ? 'bg-gradient-to-r from-indigo-500 to-violet-600 text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            <Phone className="w-4 h-4" />
+            Broker Outreach
+          </button>
+          <button
             onClick={() => setActiveTab('reported')}
             className={`px-4 py-2 rounded-xl font-medium transition-colors ${
               activeTab === 'reported'
@@ -779,9 +790,6 @@ const AdminDashboard = () => {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-2xl font-bold text-gray-900">Premium Contact Requests</h2>
               <div className="flex gap-2">
-                <Button variant="outline" onClick={() => navigate('/admin/broker-outreach')}>
-                  Broker Outreach
-                </Button>
                 <Button variant="outline" onClick={() => navigate('/admin/premium-requests')}>
                   View All Requests
                 </Button>
@@ -867,6 +875,38 @@ const AdminDashboard = () => {
                 </div>
               </Card>
             ))}
+          </div>
+        )}
+
+        {/* Broker Outreach Tab */}
+        {activeTab === 'outreach' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-gray-900">Broker Outreach</h2>
+              <Button onClick={() => navigate('/admin/broker-outreach')}>
+                Open Outreach Queue
+              </Button>
+            </div>
+            <Card>
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center flex-shrink-0">
+                  <Phone className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-1">
+                    Pending Insurance Leads — Seller Outreach Requests
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Buyers using the Pending Insurance Leads tool can ask Domilea to contact a
+                    carrier owner on their behalf. Those requests land in the outreach queue, where
+                    staff can update status and notes through the full broker workflow.
+                  </p>
+                  <Button variant="outline" onClick={() => navigate('/admin/broker-outreach')}>
+                    Manage Broker Outreach Requests
+                  </Button>
+                </div>
+              </div>
+            </Card>
           </div>
         )}
 
