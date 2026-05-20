@@ -43,7 +43,8 @@ class ApiService {
 
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    isRetry = false
   ): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
 
@@ -72,6 +73,24 @@ class ApiService {
         headers,
         signal: controller.signal,
       });
+
+      // Access-token expired: refresh once and retry the original request
+      if (
+        response.status === 401 &&
+        !isRetry &&
+        endpoint !== '/auth/refresh' &&
+        localStorage.getItem('mcx_refresh_token')
+      ) {
+        try {
+          await this.refreshToken();
+          return this.request<T>(endpoint, options, true);
+        } catch {
+          this.setToken(null);
+          localStorage.removeItem('mcx_refresh_token');
+          localStorage.removeItem('mcx_user');
+          window.dispatchEvent(new CustomEvent('session-expired'));
+        }
+      }
 
       const data = await response.json();
 

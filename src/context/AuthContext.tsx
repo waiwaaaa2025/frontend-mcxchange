@@ -154,6 +154,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     initAuth()
   }, [])
 
+  // Refresh-token flow gave up — clear React state so authenticated effects stop polling.
+  useEffect(() => {
+    const handleSessionExpired = () => {
+      setUser(null)
+      setIsProfileComplete(true)
+      setProfileCompletionPercent(100)
+    }
+    window.addEventListener('session-expired', handleSessionExpired)
+    return () => window.removeEventListener('session-expired', handleSessionExpired)
+  }, [])
+
   const login = async (email: string, password: string): Promise<User> => {
     setIsLoading(true)
     try {
