@@ -63,6 +63,8 @@ import {
   KeyRound,
   Circle,
   Pencil,
+  Search,
+  UserCog,
 } from 'lucide-react'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
@@ -140,6 +142,13 @@ const TransactionRoomPage = () => {
 
   // Admin contract file state
   const [adminContractFile, setAdminContractFile] = useState<File | null>(null)
+
+  // Admin party reassignment state
+  const [reassignRole, setReassignRole] = useState<'buyer' | 'seller' | null>(null)
+  const [reassignQuery, setReassignQuery] = useState('')
+  const [reassignResults, setReassignResults] = useState<Array<{ id: string; name: string; email: string; companyName?: string }>>([])
+  const [reassignSearching, setReassignSearching] = useState(false)
+  const [reassignSubmitting, setReassignSubmitting] = useState(false)
 
   // Purchase agreement state
   const [agreementUploading, setAgreementUploading] = useState(false)
@@ -1469,6 +1478,52 @@ For questions, contact us at payments@domilea.com`
       }
     } catch (err) {
       console.error('Error refreshing transaction:', err)
+    }
+  }
+
+  // Admin: search users when reassigning a transaction party
+  const searchReassignUsers = async (role: 'buyer' | 'seller', query: string) => {
+    setReassignSearching(true)
+    try {
+      const res = await api.getAdminUsers({
+        role: role.toUpperCase(),
+        search: query,
+        limit: 10,
+      })
+      setReassignResults(
+        (res.users || []).map((u: any) => ({
+          id: u.id,
+          name: u.name,
+          email: u.email,
+          companyName: u.companyName,
+        }))
+      )
+    } catch (err: any) {
+      toast.error(err.message || 'Search failed')
+      setReassignResults([])
+    } finally {
+      setReassignSearching(false)
+    }
+  }
+
+  // Admin: submit the reassignment
+  const handleReassignParty = async (newUserId: string, newUserLabel: string) => {
+    if (!transactionId || !reassignRole) return
+    if (!window.confirm(`Reassign ${reassignRole} to ${newUserLabel}? This rewrites who owns this transaction.`)) return
+    setReassignSubmitting(true)
+    try {
+      const payload = reassignRole === 'buyer' ? { buyerId: newUserId } : { sellerId: newUserId }
+      await api.reassignTransactionParty(transactionId, payload)
+      toast.success(`${reassignRole.charAt(0).toUpperCase() + reassignRole.slice(1)} reassigned`)
+      setReassignRole(null)
+      setReassignQuery('')
+      setReassignResults([])
+      // Full reload so all derived state (role checks, sidebar, etc.) re-resolves
+      window.location.reload()
+    } catch (err: any) {
+      toast.error(err.message || 'Reassignment failed')
+    } finally {
+      setReassignSubmitting(false)
     }
   }
 
@@ -3256,6 +3311,115 @@ For questions, contact us at payments@domilea.com`
                     </h4>
 
                     <div className="space-y-3">
+                      {/* Reassign buyer or seller (admin override). Available at any workflow step. */}
+                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                        <h5 className="font-semibold text-amber-900 mb-2 flex items-center gap-2">
+                          <UserCog className="w-4 h-4" />
+                          Reassign Buyer / Seller
+                        </h5>
+                        <p className="text-xs text-amber-800 mb-3">
+                          Swap the buyer or seller on this transaction. Logged to the audit trail.
+                        </p>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                          <div className="bg-white rounded-lg border border-amber-200 p-3">
+                            <div className="text-xs text-gray-500 mb-1">Current Buyer</div>
+                            <div className="text-sm font-medium text-gray-900 truncate">{transaction.buyer?.name || '—'}</div>
+                            <div className="text-xs text-gray-600 truncate">{transaction.buyer?.email || ''}</div>
+                            <Button
+                              variant="outline"
+                              className="mt-2 w-full text-xs"
+                              onClick={() => {
+                                setReassignRole(reassignRole === 'buyer' ? null : 'buyer')
+                                setReassignQuery('')
+                                setReassignResults([])
+                              }}
+                            >
+                              {reassignRole === 'buyer' ? 'Cancel' : 'Change Buyer'}
+                            </Button>
+                          </div>
+                          <div className="bg-white rounded-lg border border-amber-200 p-3">
+                            <div className="text-xs text-gray-500 mb-1">Current Seller</div>
+                            <div className="text-sm font-medium text-gray-900 truncate">{transaction.seller?.name || '—'}</div>
+                            <div className="text-xs text-gray-600 truncate">{transaction.seller?.email || ''}</div>
+                            <Button
+                              variant="outline"
+                              className="mt-2 w-full text-xs"
+                              onClick={() => {
+                                setReassignRole(reassignRole === 'seller' ? null : 'seller')
+                                setReassignQuery('')
+                                setReassignResults([])
+                              }}
+                            >
+                              {reassignRole === 'seller' ? 'Cancel' : 'Change Seller'}
+                            </Button>
+                          </div>
+                        </div>
+
+                        {reassignRole && (
+                          <div className="bg-white border border-amber-300 rounded-lg p-3">
+                            <div className="text-xs font-semibold text-amber-900 mb-2 capitalize">
+                              Search for new {reassignRole}
+                            </div>
+                            <div className="flex gap-2 mb-2">
+                              <div className="relative flex-1">
+                                <Search className="w-4 h-4 absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" />
+                                <input
+                                  type="text"
+                                  value={reassignQuery}
+                                  onChange={(e) => setReassignQuery(e.target.value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      e.preventDefault()
+                                      searchReassignUsers(reassignRole, reassignQuery)
+                                    }
+                                  }}
+                                  placeholder="Name or email"
+                                  className="w-full pl-8 pr-2 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+                                />
+                              </div>
+                              <Button
+                                variant="primary"
+                                className="text-xs px-3"
+                                disabled={reassignSearching || !reassignQuery.trim()}
+                                onClick={() => searchReassignUsers(reassignRole, reassignQuery)}
+                              >
+                                {reassignSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Search'}
+                              </Button>
+                            </div>
+
+                            {reassignResults.length > 0 && (
+                              <div className="max-h-60 overflow-y-auto border border-gray-200 rounded divide-y divide-gray-100">
+                                {reassignResults.map((u) => (
+                                  <div key={u.id} className="flex items-center justify-between gap-2 p-2 hover:bg-gray-50">
+                                    <div className="min-w-0">
+                                      <div className="text-sm font-medium text-gray-900 truncate">{u.name}</div>
+                                      <div className="text-xs text-gray-600 truncate">
+                                        {u.email}{u.companyName ? ` · ${u.companyName}` : ''}
+                                      </div>
+                                    </div>
+                                    <Button
+                                      variant="outline"
+                                      className="text-xs px-2 py-1 flex-shrink-0"
+                                      disabled={reassignSubmitting}
+                                      onClick={() => handleReassignParty(u.id, `${u.name} (${u.email})`)}
+                                    >
+                                      {reassignSubmitting ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Select'}
+                                    </Button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+
+                            {!reassignSearching && reassignQuery && reassignResults.length === 0 && (
+                              <div className="text-xs text-gray-500 text-center py-2">
+                                No matching users. Try a different search.
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
                       {/* Step 1-3: Waiting for buyer to complete initial steps */}
                       {['confirm-intent', 'terms-agreement', 'deposit-payment'].includes(transaction.workflow.currentStep) && (
                         <div className="bg-gray-50 rounded-lg p-4">

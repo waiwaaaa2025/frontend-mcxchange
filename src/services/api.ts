@@ -1879,6 +1879,20 @@ class ApiService {
     });
   }
 
+  // Admin reassign buyer and/or seller on a transaction
+  async reassignTransactionParty(
+    transactionId: string,
+    payload: { buyerId?: string; sellerId?: string }
+  ) {
+    return this.request<{
+      success: boolean;
+      data: any;
+    }>(`/admin/transactions/${transactionId}/parties`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  }
+
   // Admin update transaction status
   async updateTransactionStatus(transactionId: string, status: string, notes?: string) {
     return this.request<{
