@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ChevronLeft, Loader2, Plus, Trash2 } from 'lucide-react'
-import complianceApi, { type DriverRow, type DriverDocumentRow } from '../../services/complianceApi'
+import complianceApi, {
+  type DriverRow,
+  type DriverDocumentRow,
+} from '../../services/complianceApi'
 import ExpiryBadge from '../../components/compliance/ExpiryBadge'
 import AddDocumentModal from '../../components/compliance/AddDocumentModal'
 
@@ -13,7 +16,9 @@ export default function CompDriverDetailPage() {
   const [loading, setLoading] = useState(true)
   const [showAddDoc, setShowAddDoc] = useState(false)
 
-  useEffect(() => { void load() }, [id])
+  useEffect(() => {
+    void load()
+  }, [id])
 
   async function load() {
     setLoading(true)
@@ -24,7 +29,9 @@ export default function CompDriverDetailPage() {
       ])
       setDriver(d.data)
       setDocs(ds.data)
-    } finally { setLoading(false) }
+    } finally {
+      setLoading(false)
+    }
   }
   async function handleAdd(body: any) {
     await complianceApi.createDriverDocument(id, body)
@@ -42,75 +49,124 @@ export default function CompDriverDetailPage() {
   }
 
   if (loading && !driver) {
-    return <div className="min-h-screen flex items-center justify-center text-gray-400"><Loader2 className="w-5 h-5 animate-spin" /></div>
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center" style={{ color: 'var(--linq-muted)' }}>
+        <Loader2 className="w-5 h-5 animate-spin" />
+      </div>
+    )
   }
   if (!driver) {
-    return <div className="min-h-screen flex items-center justify-center text-gray-500">Driver not found.</div>
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center" style={{ color: 'var(--linq-muted)' }}>
+        Driver not found.
+      </div>
+    )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-4xl mx-auto">
-        <button onClick={() => navigate(-1)} className="text-sm text-gray-600 hover:text-gray-900 mb-4 flex items-center gap-1">
+    <div className="p-4 sm:p-6 lg:p-8">
+      <div className="max-w-4xl mx-auto fadein">
+        <button
+          onClick={() => navigate(-1)}
+          className="text-sm mb-4 inline-flex items-center gap-1 hover:text-slate-900"
+          style={{ color: 'var(--linq-muted)' }}
+        >
           <ChevronLeft className="w-4 h-4" /> Back
         </button>
 
-        <div className="bg-white border rounded-xl p-6 mb-4">
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">{driver.fullName}</h1>
-              <div className="text-sm text-gray-500 mt-1">
-                {driver.cdlNumber ? <>CDL {driver.cdlState ? `${driver.cdlState}-` : ''}{driver.cdlNumber}</> : 'No CDL on file'}
+        <div className="card p-6 mb-4">
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div className="min-w-0">
+              <div className="text-xs uppercase tracking-widest" style={{ color: 'var(--linq-muted)' }}>
+                Driver profile
               </div>
-              <div className="flex items-center gap-3 mt-3">
-                <span className={`uppercase tracking-wider px-2 py-0.5 rounded text-[10px] ${
-                  driver.status === 'ACTIVE' ? 'bg-green-50 text-green-700'
-                  : driver.status === 'ONBOARDING' ? 'bg-blue-50 text-blue-700'
-                  : driver.status === 'INACTIVE' ? 'bg-gray-100 text-gray-600'
-                  : 'bg-red-50 text-red-700'
-                }`}>{driver.status}</span>
-                <span className="text-xs text-gray-500">
+              <h1 className="text-2xl font-semibold text-slate-900 mt-1">{driver.fullName}</h1>
+              <div className="text-sm mt-1" style={{ color: 'var(--linq-muted)' }}>
+                {driver.cdlNumber ? (
+                  <>
+                    CDL {driver.cdlState ? `${driver.cdlState}-` : ''}
+                    {driver.cdlNumber}
+                  </>
+                ) : (
+                  'No CDL on file'
+                )}
+              </div>
+              <div className="flex items-center gap-3 mt-3 flex-wrap">
+                <DriverStatusChip status={driver.status} />
+                <span className="text-xs inline-flex items-center gap-1" style={{ color: 'var(--linq-muted)' }}>
                   CDL expires: <ExpiryBadge expiresOn={driver.cdlExpiresOn || null} />
                 </span>
-                {driver.hireDate && <span className="text-xs text-gray-500">Hired {new Date(driver.hireDate).toLocaleDateString()}</span>}
+                {driver.hireDate && (
+                  <span className="text-xs" style={{ color: 'var(--linq-muted)' }}>
+                    Hired {new Date(driver.hireDate).toLocaleDateString()}
+                  </span>
+                )}
               </div>
-              {driver.notes && <p className="text-sm text-gray-600 mt-3 italic">{driver.notes}</p>}
+              {driver.notes && (
+                <p className="text-sm text-slate-600 mt-3 italic">{driver.notes}</p>
+              )}
             </div>
-            <button onClick={handleDeleteDriver} className="text-xs text-red-600 hover:bg-red-50 px-3 py-1.5 rounded flex items-center gap-1">
+            <button
+              onClick={handleDeleteDriver}
+              className="text-xs text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg inline-flex items-center gap-1"
+            >
               <Trash2 className="w-3.5 h-3.5" /> Delete driver
             </button>
           </div>
         </div>
 
-        <div className="bg-white border rounded-xl">
-          <div className="flex items-center justify-between p-4 border-b">
-            <h2 className="font-semibold text-gray-900">Documents</h2>
-            <button onClick={() => setShowAddDoc(true)} className="text-sm bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded inline-flex items-center gap-1">
+        <div className="card overflow-hidden">
+          <div
+            className="flex items-center justify-between p-4 border-b"
+            style={{ borderColor: 'var(--linq-border)' }}
+          >
+            <h2 className="font-semibold text-slate-900">Documents</h2>
+            <button
+              onClick={() => setShowAddDoc(true)}
+              className="text-sm bg-gradient-to-br from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white px-3 py-1.5 rounded-lg inline-flex items-center gap-1 shadow-sm"
+            >
               <Plus className="w-4 h-4" /> Add document
             </button>
           </div>
           {docs.length === 0 ? (
-            <div className="p-8 text-center text-sm text-gray-400">No documents tracked yet. Add a medical card, MVR, drug test, etc.</div>
+            <div className="p-8 text-center text-sm" style={{ color: 'var(--linq-muted)' }}>
+              No documents tracked yet. Add a medical card, MVR, drug test, etc.
+            </div>
           ) : (
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-gray-600 text-left">
-                <tr>
-                  <th className="px-4 py-2">Kind</th>
-                  <th className="px-4 py-2">Title</th>
-                  <th className="px-4 py-2">Expiry</th>
-                  <th className="px-4 py-2">Notes</th>
+              <thead style={{ background: 'var(--linq-surface-2)' }}>
+                <tr className="text-left" style={{ color: 'var(--linq-muted)' }}>
+                  <th className="px-4 py-2 text-xs uppercase tracking-wider">Kind</th>
+                  <th className="px-4 py-2 text-xs uppercase tracking-wider">Title</th>
+                  <th className="px-4 py-2 text-xs uppercase tracking-wider">Expiry</th>
+                  <th className="px-4 py-2 text-xs uppercase tracking-wider">Notes</th>
                   <th className="px-4 py-2"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y">
-                {docs.map(d => (
-                  <tr key={d.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-2"><span className="text-[10px] uppercase tracking-wider bg-gray-100 px-2 py-0.5 rounded">{d.kind.replace(/_/g, ' ')}</span></td>
-                    <td className="px-4 py-2 font-medium text-gray-900">{d.title}</td>
-                    <td className="px-4 py-2"><ExpiryBadge expiresOn={d.expiresOn || null} /></td>
-                    <td className="px-4 py-2 text-xs text-gray-600 max-w-[300px] truncate" title={d.notes || ''}>{d.notes || '—'}</td>
+              <tbody className="divide-y" style={{ borderColor: 'var(--linq-border)' }}>
+                {docs.map((d) => (
+                  <tr key={d.id} className="hover:bg-slate-50">
+                    <td className="px-4 py-2">
+                      <span className="chip chip-neu">{d.kind.replace(/_/g, ' ')}</span>
+                    </td>
+                    <td className="px-4 py-2 font-medium text-slate-900">{d.title}</td>
+                    <td className="px-4 py-2">
+                      <ExpiryBadge expiresOn={d.expiresOn || null} />
+                    </td>
+                    <td
+                      className="px-4 py-2 text-xs max-w-[300px] truncate"
+                      style={{ color: 'var(--linq-muted)' }}
+                      title={d.notes || ''}
+                    >
+                      {d.notes || '—'}
+                    </td>
                     <td className="px-4 py-2 text-right">
-                      <button onClick={() => handleDelete(d.id)} className="text-xs text-red-600 hover:underline">Delete</button>
+                      <button
+                        onClick={() => handleDelete(d.id)}
+                        className="text-xs text-red-600 hover:underline"
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -120,13 +176,35 @@ export default function CompDriverDetailPage() {
         </div>
 
         {driver.company && (
-          <div className="mt-4 text-xs text-gray-500">
-            Part of <Link to={`/compliance/companies/${driver.company.id}`} className="text-indigo-600 hover:underline">{driver.company.label || `DOT ${driver.company.dotNumber}`}</Link>
+          <div className="mt-4 text-xs" style={{ color: 'var(--linq-muted)' }}>
+            Part of{' '}
+            <Link
+              to={`/compliance/companies/${driver.company.id}`}
+              className="text-cyan-700 hover:underline font-medium"
+            >
+              {driver.company.label || `DOT ${driver.company.dotNumber}`}
+            </Link>
           </div>
         )}
 
-        {showAddDoc && <AddDocumentModal scope="driver" onCancel={() => setShowAddDoc(false)} onSubmit={handleAdd} />}
+        {showAddDoc && (
+          <AddDocumentModal
+            scope="driver"
+            onCancel={() => setShowAddDoc(false)}
+            onSubmit={handleAdd}
+          />
+        )}
       </div>
     </div>
   )
+}
+
+function DriverStatusChip({ status }: { status: string }) {
+  const map: Record<string, string> = {
+    ACTIVE: 'chip-good',
+    ONBOARDING: 'chip-accent',
+    INACTIVE: 'chip-neu',
+  }
+  const tone = map[status] || 'chip-bad'
+  return <span className={`chip ${tone}`}>{status}</span>
 }

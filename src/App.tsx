@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './context/AuthContext'
 import MainLayout from './layouts/MainLayout'
 import DashboardLayout from './layouts/DashboardLayout'
+import ComplianceLayout from './layouts/ComplianceLayout'
 import AIChatWidget from './components/AIChatWidget'
 import ProtectedRoute from './components/ProtectedRoute'
 import AuthRequiredRoute from './components/AuthRequiredRoute'
@@ -310,12 +311,12 @@ function App() {
               <Route path="safety-report" element={<SafetyImprovementReportPage />} />
             </Route>
 
-            {/* Compliance Manager Routes */}
+            {/* Compliance Manager Routes — LINQ-style shell */}
             <Route
               path="compliance"
               element={
                 <ProtectedRoute allowedRoles={['compliance_manager', 'admin']}>
-                  <DashboardLayout />
+                  <ComplianceLayout />
                 </ProtectedRoute>
               }
             >
