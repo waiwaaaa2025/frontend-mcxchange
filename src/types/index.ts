@@ -1,4 +1,4 @@
-export type UserRole = 'buyer' | 'seller' | 'admin'
+export type UserRole = 'buyer' | 'seller' | 'admin' | 'compliance_manager'
 
 // ============================================
 // API Response Types (matching backend structure)
@@ -109,6 +109,7 @@ export interface User {
   usedCredits?: number
   identityVerified: boolean
   identityVerificationStatus?: string | null
+  trialEndsAt?: Date | null
 }
 
 export type TrustLevel = 'high' | 'medium' | 'low'

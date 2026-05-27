@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import EvaDrawer, { EvaTriggerButton } from '../components/agents/EvaDrawer'
 import {
   LayoutDashboard,
   Package,
@@ -41,6 +42,9 @@ import {
   ClipboardList,
   User,
   Banknote,
+  Bot,
+  Sparkles,
+  Building2,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { DomileaLogoFull, DomileaIcon } from '../components/ui/DomileaLogo'
@@ -84,6 +88,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps = {}) => {
   const [activeClosingsCount, setActiveClosingsCount] = useState(0)
   const [paidConsultationsCount, setPaidConsultationsCount] = useState(0)
   const [pendingAdminOffersCount, setPendingAdminOffersCount] = useState(0)
+  const [evaDrawerOpen, setEvaDrawerOpen] = useState(false)
 
   const handleLogout = () => {
     logout()
@@ -250,10 +255,32 @@ const DashboardLayout = ({ children }: DashboardLayoutProps = {}) => {
             ]
           },
         ]
+      case 'compliance_manager':
+        return [
+          { icon: LayoutDashboard, label: 'Dashboard', path: '/compliance/dashboard' },
+          { icon: Building2, label: 'Companies', path: '/compliance/companies' },
+          { icon: UserSearch, label: 'Drivers', path: '/compliance/drivers' },
+          { icon: ClipboardList, label: 'Documents', path: '/compliance/documents' },
+          { icon: Sparkles, label: 'Dia', path: '/compliance/dia' },
+        ]
       case 'admin':
         return [
-          // Dashboard, Create Listing, and CarrierPulse are standalone
+          // Dashboard, Create Listing, CarrierPulse standalone
           { icon: LayoutDashboard, label: 'Dashboard', path: '/admin/dashboard' },
+          // Team — expanded with sub-items so the AI workspace is one collapsible section
+          {
+            label: 'Team',
+            icon: Bot,
+            items: [
+              { icon: Bot, label: 'Overview', path: '/admin/team' },
+              { icon: Sparkles, label: 'Eva', path: '/admin/team/eva' },
+              { icon: UserSearch, label: 'Scout', path: '/admin/team/scout' },
+              { icon: Activity, label: 'Activity', path: '/admin/team/activity' },
+              { icon: ClipboardList, label: 'Jobs', path: '/admin/team/jobs' },
+              { icon: Briefcase, label: 'Catalog', path: '/admin/team/catalog' },
+              { icon: Banknote, label: 'Spend', path: '/admin/team/spend' },
+            ]
+          },
           { icon: Plus, label: 'Create Listing', path: '/admin/create-listing' },
           { icon: Activity, label: 'CarrierPulse', path: '/admin/carrier-pulse' },
           // Sales Pipeline category
@@ -293,7 +320,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps = {}) => {
             label: 'Tools',
             icon: Search,
             items: [
-              { icon: Search, label: 'AI Due Diligence', path: '/admin/ai-due-diligence' },
+              { icon: UserSearch, label: 'Leads', path: '/admin/leads' },
+              { icon: Search, label: 'Due Diligence', path: '/admin/due-diligence' },
               { icon: CreditCard, label: 'Credit Reports', path: '/admin/creditsafe' },
               { icon: Send, label: 'Telegram Channel', path: '/admin/telegram' },
               { icon: Users, label: 'Facebook Groups', path: '/admin/facebook' },
@@ -622,6 +650,25 @@ const DashboardLayout = ({ children }: DashboardLayoutProps = {}) => {
                 </span>
               )}
             </button>
+            {/* Trial badge for compliance managers */}
+            {user?.trialEndsAt && (() => {
+              const ms = new Date(user.trialEndsAt).getTime() - Date.now()
+              const days = Math.ceil(ms / 86_400_000)
+              const expired = days <= 0
+              return (
+                <span
+                  title={`Trial ${expired ? 'expired' : 'ends'} ${new Date(user.trialEndsAt).toLocaleDateString()}`}
+                  className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded ${
+                    expired ? 'bg-red-50 text-red-700 border border-red-200'
+                    : days <= 3 ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                    : 'bg-indigo-50 text-indigo-700 border border-indigo-200'
+                  }`}
+                >
+                  {expired ? 'Trial expired' : `Trial · ${days}d left`}
+                </span>
+              )
+            })()}
+            <EvaTriggerButton onClick={() => setEvaDrawerOpen(true)} />
             <div className="h-8 w-px bg-gray-200 hidden sm:block" />
             <div className="relative group">
               <button className="flex items-center space-x-3 cursor-pointer">
@@ -650,6 +697,9 @@ const DashboardLayout = ({ children }: DashboardLayoutProps = {}) => {
             </div>
           </div>
         </header>
+
+        {/* Eva drawer — global slide-over from the right */}
+        <EvaDrawer open={evaDrawerOpen} onClose={() => setEvaDrawerOpen(false)} />
 
         {/* Page content */}
         <main className="p-4 sm:p-6 lg:p-8">

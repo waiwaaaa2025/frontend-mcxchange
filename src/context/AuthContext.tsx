@@ -33,7 +33,7 @@ interface AuthProviderProps {
 // Helper to convert backend role (uppercase) to frontend role (lowercase)
 const normalizeRole = (role: string): UserRole => {
   const lowerRole = role.toLowerCase()
-  if (lowerRole === 'buyer' || lowerRole === 'seller' || lowerRole === 'admin') {
+  if (lowerRole === 'buyer' || lowerRole === 'seller' || lowerRole === 'admin' || lowerRole === 'compliance_manager') {
     return lowerRole as UserRole
   }
   return 'buyer' // default fallback
@@ -60,7 +60,8 @@ const transformUser = (apiUser: any): User => {
     totalCredits: apiUser.totalCredits || 0,
     usedCredits: apiUser.usedCredits || 0,
     identityVerified: apiUser.identityVerified || false,
-    identityVerificationStatus: apiUser.identityVerificationStatus || null
+    identityVerificationStatus: apiUser.identityVerificationStatus || null,
+    trialEndsAt: apiUser.trialEndsAt ? new Date(apiUser.trialEndsAt) : null,
   }
 }
 

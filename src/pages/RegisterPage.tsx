@@ -55,8 +55,11 @@ const RegisterPage = () => {
   const [searchParams] = useSearchParams()
   const roleParam = searchParams.get('role')
   const redirectUrl = searchParams.get('redirect')
-  // Only allow buyer or seller from URL params
-  const initialRole: UserRole = (roleParam === 'seller' || roleParam === 'buyer') ? roleParam : 'buyer'
+  // Only allow buyer, seller, or compliance_manager from URL params
+  const initialRole: UserRole =
+    roleParam === 'seller' ? 'seller'
+    : roleParam === 'compliance' || roleParam === 'compliance_manager' ? 'compliance_manager'
+    : 'buyer'
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -162,6 +165,9 @@ const RegisterPage = () => {
         case 'admin':
           navigate('/admin/dashboard')
           break
+        case 'compliance_manager':
+          navigate('/compliance/dashboard')
+          break
         default:
           navigate('/')
       }
@@ -206,8 +212,9 @@ const RegisterPage = () => {
                 setTermsAccepted(false)
               }}
               options={[
-                { value: 'buyer', label: 'Buy' },
-                { value: 'seller', label: 'Sell' },
+                { value: 'buyer', label: 'Buy a trucking business' },
+                { value: 'seller', label: 'Sell my trucking business' },
+                { value: 'compliance_manager', label: 'Manage compliance for one or more carriers' },
               ]}
             />
 

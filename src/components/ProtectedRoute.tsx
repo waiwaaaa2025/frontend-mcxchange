@@ -17,6 +17,8 @@ const getDashboardPath = (role: UserRole): string => {
       return '/buyer/dashboard'
     case 'admin':
       return '/admin/dashboard'
+    case 'compliance_manager':
+      return '/compliance/dashboard'
     default:
       return '/'
   }

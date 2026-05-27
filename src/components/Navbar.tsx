@@ -1,465 +1,396 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { motion, AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
 import {
-  User,
-  LogOut,
-  LayoutDashboard,
+  Search,
+  Activity,
+  ShieldCheck,
+  Bot,
+  Sparkles,
+  Briefcase,
+  Database,
+  Cpu,
+  AlertTriangle,
+  Network,
+  Send,
+  GraduationCap,
+  BookOpen,
+  HelpCircle,
+  Users,
+  Building2,
+  Handshake,
+  LineChart,
+  Wrench,
+  Mail,
+  ChevronDown,
   Menu,
   X,
-  ChevronDown,
-  Fuel,
-  Shield,
-  Users,
-  Truck,
-  FileText,
-  Search,
-  CheckCircle,
-  AlertCircle,
-  Activity,
-  FileSearch,
-  Umbrella,
-  Bot,
-  DollarSign,
-  SquareParking,
+  LogOut,
+  LayoutDashboard,
 } from 'lucide-react'
-import { useState } from 'react'
-import Button from './ui/Button'
 import { DomileaMainLogo } from './ui/DomileaLogo'
 
+type IconType = typeof Search
+
+interface MenuItem {
+  name: string
+  desc?: string
+  href: string
+  icon?: IconType
+  external?: boolean
+}
+
+const solutionsByProduct: MenuItem[] = [
+  { name: 'Carrier Search', desc: 'Search 63M+ trucking data records to discover carriers and operating signals.', href: '/carrier-pulse-preview', icon: Search },
+  { name: 'Company Health', desc: 'Monitor safety, SMS, compliance, insurance, and operating signals for your carrier.', href: '/eva-ai', icon: Activity },
+  { name: 'AI Due Diligence', desc: 'Summarize carrier risk, compliance, and fit with AI.', href: '/carrier-pulse-preview', icon: Sparkles },
+  { name: 'Compliance Monitor', desc: 'Track authority, insurance gaps, SMS changes, and red flags.', href: '/eva-ai', icon: ShieldCheck },
+  { name: 'Domilea Exclusives', desc: 'Selected opportunities reviewed directly by Domilea.', href: '/marketplace', icon: Briefcase },
+  { name: 'Deal Support', desc: 'Request Domilea to review, contact, and support an opportunity.', href: '/contact', icon: Handshake },
+]
+
+const solutionsByUseCase: MenuItem[] = [
+  { name: 'Buyers & Strategic Acquirers', desc: 'Find companies worth pursuing and start with confidence.', href: '/contact', icon: Briefcase },
+  { name: 'Current Carrier Owners', desc: 'Monitor your company’s health and value over time.', href: '/contact', icon: Building2 },
+  { name: 'Investors', desc: 'Identify market trends and acquisition targets.', href: '/contact', icon: LineChart },
+  { name: 'Dispatch & Safety Teams', desc: 'SMS, compliance, and operational health in one place.', href: '/contact', icon: Wrench },
+  { name: 'Enterprise & API', desc: 'MorPro-powered intelligence APIs and trucking data infrastructure.', href: '/contact', icon: Network },
+]
+
+const productItems: MenuItem[] = [
+  { name: 'Intelligence Dashboard', desc: 'Command center for search, health, alerts, AI summaries, and deal requests.', href: '/register', icon: LayoutDashboard },
+  { name: 'Carrier Database', desc: 'Search 63M+ carrier data records.', href: '/carrier-pulse-preview', icon: Database },
+  { name: 'AI Company Analyzer', desc: 'AI summaries of risk, compliance, SMS, insurance, and opportunity fit.', href: '/carrier-pulse-preview', icon: Cpu },
+  { name: 'SMS & Safety Intelligence', desc: 'Inspections, violations, safety patterns, OOS trends.', href: '/carrier-pulse-preview', icon: AlertTriangle },
+  { name: 'Compliance Layer', desc: 'Authority status, insurance, filings, FMCSA changes.', href: '/eva-ai', icon: ShieldCheck },
+  { name: 'Deal Request Tool', desc: 'Request Domilea to review and pursue a company.', href: '/contact', icon: Send },
+  { name: 'MorPro API Layer', desc: 'MorPro-powered APIs behind Domilea’s intelligence stack.', href: '/contact', icon: Network },
+]
+
+const resourcesLearn: MenuItem[] = [
+  { name: 'How Domilea Works', href: '/contact', icon: BookOpen },
+  { name: 'Due Diligence Guide', href: '/resources/how-to-buy-a-trucking-business', icon: GraduationCap },
+  { name: 'Carrier Health Score Guide', href: '/contact', icon: Activity },
+  { name: 'SMS & Compliance Guide', href: '/contact', icon: ShieldCheck },
+  { name: 'Trucking Acquisition Education', href: '/contact', icon: GraduationCap },
+]
+
+const resourcesCompany: MenuItem[] = [
+  { name: 'About Domilea', href: '/contact' },
+  { name: 'Contact', href: '/contact' },
+  { name: 'Partners', href: '/contact' },
+]
+
+const resourcesSupport: MenuItem[] = [
+  { name: 'Help Center', href: '/contact', icon: HelpCircle },
+  { name: 'Request Support', href: '/contact', icon: Mail },
+  { name: 'Compliance Disclaimer', href: '/terms', icon: ShieldCheck },
+]
+
+type MenuKey = 'solutions' | 'product' | 'resources' | null
+
 const Navbar = () => {
-  const { user, logout, isAuthenticated, isIdentityVerified } = useAuth()
+  const { user, logout, isAuthenticated } = useAuth()
   const navigate = useNavigate()
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [servicesDropdownOpen, setServicesDropdownOpen] = useState(false)
-  const [toolsDropdownOpen, setToolsDropdownOpen] = useState(false)
+  const [openMenu, setOpenMenu] = useState<MenuKey>(null)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const closeTimer = useRef<number | null>(null)
 
-  const toolLinks = [
-    { name: 'CarrierPulse', href: '/carrier-pulse-preview', icon: Activity, desc: 'Carrier intelligence platform', comingSoon: false },
-    { name: 'Insurance Leads', href: '/insurance-leads-preview', icon: Umbrella, desc: 'Find carriers with lapsing insurance', comingSoon: false },
-    { name: 'Credit Reports', href: '/credit-report-preview', icon: FileSearch, desc: 'Business credit intelligence — $35/report', comingSoon: false },
-    { name: 'Eva AI', href: '/eva-ai', icon: Bot, desc: 'AI compliance management — coming soon', comingSoon: false },
-  ]
-
-  const serviceLinks = [
-    { name: 'Parking', href: 'https://www.gospotty.com/', icon: SquareParking, desc: 'List or find truck parking', external: true },
-    { name: 'Fuel Program', href: '/services/fuel-program', icon: Fuel, desc: 'Save on fuel costs' },
-    { name: 'Safety Services', href: '/services/safety', icon: Shield, desc: 'DOT compliance' },
-    { name: 'Recruiting', href: '/services/recruiting', icon: Users, desc: 'Find qualified drivers' },
-    { name: 'Dispatch', href: '/services/dispatch', icon: Truck, desc: 'Keep trucks loaded' },
-    { name: 'Admin Services', href: '/services/admin', icon: FileText, desc: 'Back office support' }
-  ]
-
-  const handleLogout = () => {
-    logout()
-    navigate('/')
+  // Hover-open with a small grace period so the panel doesn't flicker
+  // when the cursor crosses the gap between trigger and dropdown.
+  function openMenuWithDelay(key: MenuKey) {
+    if (closeTimer.current) {
+      window.clearTimeout(closeTimer.current)
+      closeTimer.current = null
+    }
+    setOpenMenu(key)
+  }
+  function scheduleClose() {
+    if (closeTimer.current) window.clearTimeout(closeTimer.current)
+    closeTimer.current = window.setTimeout(() => setOpenMenu(null), 150)
   }
 
-  const getDashboardLink = () => {
+  useEffect(() => {
+    const onEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpenMenu(null) }
+    window.addEventListener('keydown', onEsc)
+    return () => window.removeEventListener('keydown', onEsc)
+  }, [])
+
+  function handleLogout() {
+    logout()
+    navigate('/')
+    setMobileOpen(false)
+  }
+
+  function dashboardLink(): string {
     if (!user) return '/'
-    switch (user.role) {
-      case 'seller':
-        return '/seller/dashboard'
-      case 'buyer':
-        return '/buyer/dashboard'
-      case 'admin':
-        return '/admin/dashboard'
-      default:
-        return '/'
-    }
+    if (user.role === 'admin') return '/admin/dashboard'
+    if (user.role === 'seller') return '/seller/dashboard'
+    if (user.role === 'buyer') return '/buyer/dashboard'
+    return '/'
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-gray-100">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-domilea-line">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="flex items-center text-gray-900"
-            >
-              <DomileaMainLogo height={36} />
-            </motion.div>
+          <Link to="/" className="flex items-center" onClick={() => setOpenMenu(null)}>
+            <DomileaMainLogo />
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            <Link
-              to="/marketplace"
-              className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
-            >
-              Marketplace
-            </Link>
-
-            {/* Tools Dropdown */}
-            <div
-              className="relative"
-              onMouseEnter={() => setToolsDropdownOpen(true)}
-              onMouseLeave={() => setToolsDropdownOpen(false)}
-            >
-              <button
-                className="flex items-center space-x-1 text-indigo-600 hover:text-indigo-800 font-semibold transition-colors"
-              >
-                <span>Tools</span>
-                <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide bg-indigo-100 text-indigo-600 leading-none">New</span>
-                <ChevronDown className={`w-4 h-4 transition-transform ${toolsDropdownOpen ? 'rotate-180' : ''}`} />
-              </button>
-
-              <AnimatePresence>
-                {toolsDropdownOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute top-full left-1/2 -translate-x-1/2 pt-4 w-80"
-                  >
-                    <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-                      <div className="p-2">
-                        {toolLinks.map((tool) => (
-                          <Link
-                            key={tool.name}
-                            to={tool.href}
-                            className={`flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors group ${tool.comingSoon ? 'opacity-60 pointer-events-none' : ''}`}
-                          >
-                            <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center group-hover:bg-gray-900 transition-colors">
-                              <tool.icon className="w-5 h-5 text-gray-600 group-hover:text-white transition-colors" />
-                            </div>
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium text-gray-900">{tool.name}</span>
-                                {tool.comingSoon && (
-                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-purple-100 text-purple-600">Coming Soon</span>
-                                )}
-                              </div>
-                              <div className="text-sm text-gray-500">{tool.desc}</div>
-                            </div>
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* Pricing Link */}
-            <Link
-              to="/pricing"
-              className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
-            >
-              Pricing
-            </Link>
-
-            {/* Services Dropdown */}
-            <div
-              className="relative"
-              onMouseEnter={() => setServicesDropdownOpen(true)}
-              onMouseLeave={() => setServicesDropdownOpen(false)}
-            >
-              <button
-                className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 font-medium transition-colors"
-              >
-                <span>Services</span>
-                <ChevronDown className={`w-4 h-4 transition-transform ${servicesDropdownOpen ? 'rotate-180' : ''}`} />
-              </button>
-
-              <AnimatePresence>
-                {servicesDropdownOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute top-full left-1/2 -translate-x-1/2 pt-4 w-72"
-                  >
-                    <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-                      <div className="p-2">
-                        {serviceLinks.map((service) => {
-                          const itemInner = (
-                            <>
-                              <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center group-hover:bg-gray-900 transition-colors">
-                                <service.icon className="w-5 h-5 text-gray-600 group-hover:text-white transition-colors" />
-                              </div>
-                              <div>
-                                <div className="font-medium text-gray-900">{service.name}</div>
-                                <div className="text-sm text-gray-500">{service.desc}</div>
-                              </div>
-                            </>
-                          )
-                          const itemClass = "flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors group"
-                          return service.external ? (
-                            <a
-                              key={service.name}
-                              href={service.href}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className={itemClass}
-                            >
-                              {itemInner}
-                            </a>
-                          ) : (
-                            <Link
-                              key={service.name}
-                              to={service.href}
-                              className={itemClass}
-                            >
-                              {itemInner}
-                            </Link>
-                          )
-                        })}
-                      </div>
-                      <div className="border-t border-gray-100 p-3">
-                        <Link
-                          to="/services"
-                          className="flex items-center justify-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
-                        >
-                          View all services
-                          <ChevronDown className="w-4 h-4 -rotate-90" />
-                        </Link>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* Carrier Search CTA Button */}
-            <Link to="/services">
-              <Button
-                size="sm"
-                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md"
-              >
-                <Search className="w-4 h-4 mr-2" />
-                Carrier Search
-              </Button>
-            </Link>
-
-            {isAuthenticated ? (
-              <>
-                <Link
-                  to={getDashboardLink()}
-                  className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 font-medium transition-colors"
-                >
-                  <LayoutDashboard className="w-4 h-4" />
-                  <span>Dashboard</span>
-                </Link>
-
-                <Link
-                  to="/profile"
-                  className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 font-medium transition-colors"
-                >
-                  <User className="w-4 h-4" />
-                  <span>{user?.name}</span>
-                  {isAuthenticated && user?.role !== 'admin' && (
-                    isIdentityVerified ? (
-                      <span title="Identity Verified"><CheckCircle className="w-4 h-4 text-emerald-500" /></span>
-                    ) : (
-                      <Link to="/settings" onClick={(e) => e.stopPropagation()} title="Identity Not Verified">
-                        <AlertCircle className="w-4 h-4 text-amber-500" />
-                      </Link>
-                    )
-                  )}
-                </Link>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleLogout}
-                  className="flex items-center space-x-2"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span>Logout</span>
-                </Button>
-              </>
-            ) : (
-              <div className="flex items-center space-x-4">
-                <Link to="/login">
-                  <Button variant="ghost">Sign In</Button>
-                </Link>
-                <Link to="/register">
-                  <Button>Get Started</Button>
-                </Link>
-              </div>
-            )}
+          {/* Desktop nav */}
+          <div className="hidden lg:flex items-center gap-1">
+            <NavTrigger label="Solutions" isOpen={openMenu === 'solutions'} onEnter={() => openMenuWithDelay('solutions')} onLeave={scheduleClose} />
+            <NavTrigger label="Product" isOpen={openMenu === 'product'} onEnter={() => openMenuWithDelay('product')} onLeave={scheduleClose} />
+            <NavTrigger label="Resources" isOpen={openMenu === 'resources'} onEnter={() => openMenuWithDelay('resources')} onLeave={scheduleClose} />
+            <Link to="/pricing" className="px-3 py-2 text-sm font-medium text-domilea-ink/80 hover:text-domilea-ink rounded-lg" onMouseEnter={() => setOpenMenu(null)}>Pricing</Link>
+            <Link to="/contact" className="px-3 py-2 text-sm font-medium text-domilea-ink/80 hover:text-domilea-ink rounded-lg" onMouseEnter={() => setOpenMenu(null)}>Contact</Link>
           </div>
 
-          {/* Mobile Sign In button */}
-          {!isAuthenticated && (
-            <Link to="/login" className="md:hidden">
-              <Button variant="ghost" size="sm">Sign In</Button>
-            </Link>
-          )}
-
-          {/* Mobile Dashboard button when logged in */}
-          {isAuthenticated && (
-            <Link to={getDashboardLink()} className="md:hidden p-2 rounded-xl hover:bg-gray-100 transition-colors">
-              <LayoutDashboard className="h-5 w-5 text-gray-600" />
-            </Link>
-          )}
-
-          {/* Mobile menu button */}
-          <button
-            className="md:hidden p-2 rounded-xl hover:bg-gray-100 transition-colors"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? (
-              <X className="h-6 w-6 text-gray-600" />
-            ) : (
-              <Menu className="h-6 w-6 text-gray-600" />
+          {/* Right side auth — always shows Log in + Sign up; adds Dashboard/Sign out when authed */}
+          <div className="hidden lg:flex items-center gap-3">
+            {isAuthenticated && (
+              <>
+                <Link to={dashboardLink()} className="text-sm font-medium text-domilea-ink/80 hover:text-domilea-ink flex items-center gap-1.5">
+                  <LayoutDashboard className="w-4 h-4" />
+                  Dashboard
+                </Link>
+                <button onClick={handleLogout} className="text-sm text-domilea-muted hover:text-domilea-ink flex items-center gap-1.5" title="Sign out">
+                  <LogOut className="w-4 h-4" />
+                </button>
+                <span className="h-5 w-px bg-domilea-line" aria-hidden />
+              </>
             )}
+            <Link to="/login" className="text-sm font-semibold text-indigo-600 hover:text-indigo-700 px-3 py-2 transition-colors">Log in</Link>
+            <Link to="/register" className="text-sm font-semibold text-white bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 rounded-lg px-4 py-2 shadow-lg shadow-indigo-500/30 transition-all">
+              Sign up
+            </Link>
+          </div>
+
+          {/* Mobile burger */}
+          <button
+            className="lg:hidden text-domilea-ink p-2 -mr-2"
+            onClick={() => setMobileOpen(o => !o)}
+            aria-label="Toggle menu"
+          >
+            {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
+      </nav>
 
-        {/* Mobile Navigation */}
-        {mobileMenuOpen && (
+      {/* Mega menu panels */}
+      <AnimatePresence>
+        {openMenu && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="md:hidden py-4 border-t border-gray-100"
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.15 }}
+            className="absolute left-0 right-0 top-16 bg-white border-b border-domilea-line shadow-[0_8px_24px_-12px_rgba(11,18,32,0.12)]"
+            onMouseEnter={() => openMenuWithDelay(openMenu)}
+            onMouseLeave={scheduleClose}
           >
-            <div className="flex flex-col space-y-4">
-              <Link
-                to="/marketplace"
-                className="text-gray-600 hover:text-gray-900 font-medium px-2 py-1"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Marketplace
-              </Link>
-
-              {/* Mobile Tools */}
-              <div className="px-2">
-                <span className="text-indigo-600 font-semibold py-1 flex items-center gap-2">Tools <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide bg-indigo-100 text-indigo-600 leading-none">New</span></span>
-                <div className="mt-2 space-y-1 pl-4 border-l-2 border-gray-100">
-                  {toolLinks.map((tool) => (
-                    <Link
-                      key={tool.name}
-                      to={tool.href}
-                      className={`flex items-center gap-2 py-2 text-sm text-gray-500 hover:text-gray-900 ${tool.comingSoon ? 'opacity-60 pointer-events-none' : ''}`}
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <tool.icon className="w-4 h-4" />
-                      {tool.name}
-                      {tool.comingSoon && (
-                        <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-purple-100 text-purple-600">Soon</span>
-                      )}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              {/* Mobile Pricing */}
-              <Link
-                to="/pricing"
-                className="text-gray-600 hover:text-gray-900 font-medium px-2 py-1"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Pricing
-              </Link>
-
-              {/* Carrier Search CTA - Mobile */}
-              <div className="px-2">
-                <Link
-                  to="/services"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <Button
-                    fullWidth
-                    className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white"
-                  >
-                    <Search className="w-4 h-4 mr-2" />
-                    Carrier Search
-                  </Button>
-                </Link>
-              </div>
-
-              {/* Mobile Services */}
-              <div className="px-2">
-                <Link
-                  to="/services"
-                  className="text-gray-600 hover:text-gray-900 font-medium py-1 block"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Services
-                </Link>
-                <div className="mt-2 space-y-1 pl-4 border-l-2 border-gray-100">
-                  {serviceLinks.map((service) => {
-                    const itemClass = "flex items-center gap-2 py-2 text-sm text-gray-500 hover:text-gray-900"
-                    return service.external ? (
-                      <a
-                        key={service.name}
-                        href={service.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={itemClass}
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <service.icon className="w-4 h-4" />
-                        {service.name}
-                      </a>
-                    ) : (
-                      <Link
-                        key={service.name}
-                        to={service.href}
-                        className={itemClass}
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <service.icon className="w-4 h-4" />
-                        {service.name}
-                      </Link>
-                    )
-                  })}
-                </div>
-              </div>
-
-              {isAuthenticated ? (
-                <>
-                  <Link
-                    to={getDashboardLink()}
-                    className="text-gray-600 hover:text-gray-900 font-medium px-2 py-1"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Dashboard
-                  </Link>
-
-                  <Link
-                    to="/profile"
-                    className="text-gray-600 hover:text-gray-900 font-medium px-2 py-1"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Profile
-                  </Link>
-
-                  <div className="pt-4 border-t border-gray-100">
-                    <button
-                      onClick={() => {
-                        handleLogout()
-                        setMobileMenuOpen(false)
-                      }}
-                      className="w-full flex items-center space-x-2 px-2 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      <span>Logout</span>
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <div className="pt-4 border-t border-gray-100 flex flex-col space-y-3">
-                  <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant="outline" fullWidth>Sign In</Button>
-                  </Link>
-                  <Link to="/register" onClick={() => setMobileMenuOpen(false)}>
-                    <Button fullWidth>Get Started</Button>
-                  </Link>
-                </div>
-              )}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              {openMenu === 'solutions' && <SolutionsMega onPick={() => setOpenMenu(null)} />}
+              {openMenu === 'product' && <ProductMega onPick={() => setOpenMenu(null)} />}
+              {openMenu === 'resources' && <ResourcesMega onPick={() => setOpenMenu(null)} />}
             </div>
           </motion.div>
         )}
-      </nav>
+      </AnimatePresence>
+
+      {/* Mobile sheet */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="lg:hidden border-t border-domilea-line bg-white overflow-hidden"
+          >
+            <div className="px-4 py-4 space-y-1 max-h-[calc(100vh-4rem)] overflow-y-auto">
+              <MobileSection label="Solutions">
+                <MobileGroup title="By Product" items={solutionsByProduct} onPick={() => setMobileOpen(false)} />
+                <MobileGroup title="By Use Case" items={solutionsByUseCase} onPick={() => setMobileOpen(false)} />
+              </MobileSection>
+              <MobileSection label="Product">
+                <MobileGroup items={productItems} onPick={() => setMobileOpen(false)} />
+              </MobileSection>
+              <MobileSection label="Resources">
+                <MobileGroup title="Learn" items={resourcesLearn} onPick={() => setMobileOpen(false)} />
+                <MobileGroup title="Company" items={resourcesCompany} onPick={() => setMobileOpen(false)} />
+                <MobileGroup title="Support" items={resourcesSupport} onPick={() => setMobileOpen(false)} />
+              </MobileSection>
+              <Link to="/pricing" className="block px-3 py-2.5 text-sm font-medium text-domilea-ink" onClick={() => setMobileOpen(false)}>Pricing</Link>
+              <Link to="/contact" className="block px-3 py-2.5 text-sm font-medium text-domilea-ink" onClick={() => setMobileOpen(false)}>Contact</Link>
+              <div className="pt-3 mt-3 border-t border-domilea-line space-y-2">
+                {isAuthenticated && (
+                  <>
+                    <Link to={dashboardLink()} onClick={() => setMobileOpen(false)} className="block w-full text-center bg-domilea-soft text-domilea-ink px-4 py-2.5 rounded-lg text-sm font-medium">Dashboard</Link>
+                    <button onClick={handleLogout} className="block w-full text-center text-domilea-muted px-4 py-2.5 text-sm">Sign out</button>
+                  </>
+                )}
+                <Link to="/login" onClick={() => setMobileOpen(false)} className="block w-full text-center border border-indigo-200 bg-indigo-50 text-indigo-700 px-4 py-2.5 rounded-lg text-sm font-semibold">Log in</Link>
+                <Link to="/register" onClick={() => setMobileOpen(false)} className="block w-full text-center bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-4 py-2.5 rounded-lg text-sm font-semibold shadow-lg shadow-indigo-500/25">Sign up</Link>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
+  )
+}
+
+function NavTrigger({ label, isOpen, onEnter, onLeave }: { label: string; isOpen: boolean; onEnter: () => void; onLeave: () => void }) {
+  return (
+    <button
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
+      onFocus={onEnter}
+      className={`px-3 py-2 text-sm font-medium rounded-lg flex items-center gap-1 transition-colors ${isOpen ? 'text-domilea-ink' : 'text-domilea-ink/80 hover:text-domilea-ink'}`}
+      aria-expanded={isOpen}
+    >
+      {label}
+      <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+    </button>
+  )
+}
+
+function SolutionsMega({ onPick }: { onPick: () => void }) {
+  return (
+    <div className="grid grid-cols-12 gap-8">
+      <div className="col-span-7">
+        <SectionLabel>Solution by Product</SectionLabel>
+        <div className="grid grid-cols-2 gap-2 mt-4">
+          {solutionsByProduct.map(item => <MegaCard key={item.name} item={item} onClick={onPick} />)}
+        </div>
+      </div>
+      <div className="col-span-5 border-l border-domilea-line pl-8">
+        <SectionLabel>Solution by Use Case</SectionLabel>
+        <div className="grid grid-cols-1 gap-1.5 mt-4">
+          {solutionsByUseCase.map(item => <MegaCard key={item.name} item={item} compact onClick={onPick} />)}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ProductMega({ onPick }: { onPick: () => void }) {
+  return (
+    <div>
+      <SectionLabel>Domilea Platform</SectionLabel>
+      <div className="grid grid-cols-3 gap-2 mt-4">
+        {productItems.map(item => <MegaCard key={item.name} item={item} onClick={onPick} />)}
+      </div>
+    </div>
+  )
+}
+
+function ResourcesMega({ onPick }: { onPick: () => void }) {
+  return (
+    <div className="grid grid-cols-3 gap-8">
+      <div>
+        <SectionLabel>Learn</SectionLabel>
+        <ul className="mt-4 space-y-2">
+          {resourcesLearn.map(item => (
+            <li key={item.name}>
+              <Link to={item.href} onClick={onPick} className="text-sm text-domilea-ink/80 hover:text-domilea-ink flex items-center gap-2 py-1">
+                {item.icon && <item.icon className="w-4 h-4 text-domilea-muted" />}
+                {item.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <SectionLabel>Company</SectionLabel>
+        <ul className="mt-4 space-y-2">
+          {resourcesCompany.map(item => (
+            <li key={item.name}>
+              <Link to={item.href} onClick={onPick} className="text-sm text-domilea-ink/80 hover:text-domilea-ink py-1 block">{item.name}</Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <SectionLabel>Support</SectionLabel>
+        <ul className="mt-4 space-y-2">
+          {resourcesSupport.map(item => (
+            <li key={item.name}>
+              <Link to={item.href} onClick={onPick} className="text-sm text-domilea-ink/80 hover:text-domilea-ink flex items-center gap-2 py-1">
+                {item.icon && <item.icon className="w-4 h-4 text-domilea-muted" />}
+                {item.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+function MegaCard({ item, compact, onClick }: { item: MenuItem; compact?: boolean; onClick: () => void }) {
+  const Icon = item.icon
+  return (
+    <Link
+      to={item.href}
+      onClick={onClick}
+      className={`group flex items-start gap-3 p-3 rounded-lg hover:bg-domilea-soft transition-colors ${compact ? '' : 'min-h-[68px]'}`}
+    >
+      {Icon && (
+        <div className="w-9 h-9 rounded-lg bg-domilea-soft group-hover:bg-white border border-domilea-line flex items-center justify-center shrink-0 transition-colors">
+          <Icon className="w-4 h-4 text-domilea-blue" />
+        </div>
+      )}
+      <div className="min-w-0">
+        <div className="text-sm font-semibold text-domilea-ink">{item.name}</div>
+        {item.desc && <div className="text-xs text-domilea-muted mt-0.5 leading-relaxed">{item.desc}</div>}
+      </div>
+    </Link>
+  )
+}
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return <div className="text-[11px] font-semibold uppercase tracking-wider text-domilea-blue">{children}</div>
+}
+
+function MobileSection({ label, children }: { label: string; children: React.ReactNode }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="border-b border-domilea-line last:border-b-0">
+      <button onClick={() => setOpen(o => !o)} className="w-full flex items-center justify-between px-3 py-3 text-sm font-medium text-domilea-ink">
+        {label}
+        <ChevronDown className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+            <div className="pb-3 space-y-3">{children}</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+function MobileGroup({ title, items, onPick }: { title?: string; items: MenuItem[]; onPick: () => void }) {
+  return (
+    <div>
+      {title && <div className="px-3 text-[11px] font-semibold uppercase tracking-wider text-domilea-blue mb-1">{title}</div>}
+      <ul>
+        {items.map(item => (
+          <li key={item.name}>
+            <Link to={item.href} onClick={onPick} className="flex items-center gap-2 px-3 py-2 text-sm text-domilea-ink/85 hover:bg-domilea-soft rounded">
+              {item.icon && <item.icon className="w-4 h-4 text-domilea-muted shrink-0" />}
+              {item.name}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
   )
 }
 

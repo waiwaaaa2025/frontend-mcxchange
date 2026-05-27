@@ -89,6 +89,25 @@ const AdminActiveClosingsPage = lazy(() => import('./pages/AdminActiveClosingsPa
 const AdminUsersPage = lazy(() => import('./pages/AdminUsersPage'))
 const AdminDisputesPage = lazy(() => import('./pages/AdminDisputesPage'))
 const AdminActivityLogPage = lazy(() => import('./pages/AdminActivityLogPage'))
+const AdminLeadsPage = lazy(() => import('./pages/AdminLeadsPage'))
+const TeamPage = lazy(() => import('./pages/agents/TeamPage'))
+const ScoutAgentPage = lazy(() => import('./pages/agents/ScoutAgentPage'))
+const EvaChatPage = lazy(() => import('./pages/agents/EvaChatPage'))
+const AgentActivityPage = lazy(() => import('./pages/agents/AgentActivityPage'))
+const AgentJobQueuePage = lazy(() => import('./pages/agents/AgentJobQueuePage'))
+const AgentPolicyPage = lazy(() => import('./pages/agents/AgentPolicyPage'))
+const CatalogPage = lazy(() => import('./pages/agents/CatalogPage'))
+const SpendDashboardPage = lazy(() => import('./pages/agents/SpendDashboardPage'))
+
+// Compliance module (Block G)
+const CompDashboardPage = lazy(() => import('./pages/compliance/CompDashboardPage'))
+const CompCompaniesPage = lazy(() => import('./pages/compliance/CompCompaniesPage'))
+const CompAddCompanyPage = lazy(() => import('./pages/compliance/CompAddCompanyPage'))
+const CompCompanyWorkspacePage = lazy(() => import('./pages/compliance/CompCompanyWorkspacePage'))
+const CompDriversPage = lazy(() => import('./pages/compliance/CompDriversPage'))
+const CompDriverDetailPage = lazy(() => import('./pages/compliance/CompDriverDetailPage'))
+const CompDocumentsPage = lazy(() => import('./pages/compliance/CompDocumentsPage'))
+const CompDiaChatPage = lazy(() => import('./pages/compliance/CompDiaChatPage'))
 const SafetyImprovementReportPage = lazy(() => import('./pages/SafetyImprovementReportPage'))
 const CarrierPulsePreviewPage = lazy(() => import('./pages/CarrierPulsePreviewPage'))
 const CreditReportPreviewPage = lazy(() => import('./pages/CreditReportPreviewPage'))
@@ -251,7 +270,8 @@ function App() {
               <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="messages" element={<AdminMessagesPage />} />
               <Route path="review/:id" element={<AdminReviewPage />} />
-              <Route path="ai-due-diligence" element={<AdminAIDueDiligence />} />
+              <Route path="ai-due-diligence" element={<Navigate to="/admin/due-diligence" replace />} />
+              <Route path="due-diligence" element={<AdminAIDueDiligence />} />
               <Route path="creditsafe" element={<AdminCreditsafePage />} />
               <Route path="telegram" element={<AdminTelegramPage />} />
               <Route path="facebook" element={<AdminFacebookPage />} />
@@ -278,7 +298,35 @@ function App() {
               <Route path="insurance-leads" element={<InsuranceLeadsPage />} />
               <Route path="chameleon-check" element={<ChameleonCheckPage />} />
               <Route path="chameleon-check/:dotNumber" element={<ChameleonCheckPage />} />
+              <Route path="leads" element={<AdminLeadsPage />} />
+              <Route path="team" element={<TeamPage />} />
+              <Route path="team/scout" element={<ScoutAgentPage />} />
+              <Route path="team/eva" element={<EvaChatPage />} />
+              <Route path="team/activity" element={<AgentActivityPage />} />
+              <Route path="team/jobs" element={<AgentJobQueuePage />} />
+              <Route path="team/:slug/policies" element={<AgentPolicyPage />} />
+              <Route path="team/catalog" element={<CatalogPage />} />
+              <Route path="team/spend" element={<SpendDashboardPage />} />
               <Route path="safety-report" element={<SafetyImprovementReportPage />} />
+            </Route>
+
+            {/* Compliance Manager Routes */}
+            <Route
+              path="compliance"
+              element={
+                <ProtectedRoute allowedRoles={['compliance_manager', 'admin']}>
+                  <DashboardLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="dashboard" element={<CompDashboardPage />} />
+              <Route path="companies" element={<CompCompaniesPage />} />
+              <Route path="companies/new" element={<CompAddCompanyPage />} />
+              <Route path="companies/:id" element={<CompCompanyWorkspacePage />} />
+              <Route path="drivers" element={<CompDriversPage />} />
+              <Route path="drivers/:id" element={<CompDriverDetailPage />} />
+              <Route path="documents" element={<CompDocumentsPage />} />
+              <Route path="dia" element={<CompDiaChatPage />} />
             </Route>
 
             {/* Public Dispute Page - No auth required */}

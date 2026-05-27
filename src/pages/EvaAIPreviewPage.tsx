@@ -112,6 +112,13 @@ export default function EvaAIPreviewPage() {
   const [visibleMessages, setVisibleMessages] = useState(0)
   const [isTyping, setIsTyping] = useState(false)
 
+  // Authed admins → real Eva chat instead of the marketing teaser
+  useEffect(() => {
+    if (user?.role === 'admin') {
+      navigate('/admin/team/eva', { replace: true })
+    }
+  }, [user, navigate])
+
   // Animate chat messages appearing one by one
   useEffect(() => {
     if (visibleMessages >= chatDemo.length) return

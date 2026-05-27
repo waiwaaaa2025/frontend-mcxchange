@@ -47,6 +47,9 @@ const LoginPage = () => {
         case 'admin':
           navigate('/admin/dashboard')
           break
+        case 'compliance_manager':
+          navigate('/compliance/dashboard')
+          break
         default:
           navigate('/')
       }

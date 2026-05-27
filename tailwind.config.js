@@ -76,6 +76,27 @@ export default {
           secondary: '#6b7280',
           tertiary: '#9ca3af',
         },
+        // Domilea light-theme tokens (added for the AI-intelligence repositioning).
+        // Use these via class names like `bg-domilea-soft`, `text-domilea-ink`,
+        // `border-domilea-line`, `text-domilea-blue`. Existing palette above is untouched.
+        domilea: {
+          bg: '#FFFFFF',
+          soft: '#F7F9FC',
+          card: '#FFFFFF',
+          ink: '#0B1220',
+          muted: '#5B6472',
+          line: '#E5EAF0',
+          // MorPro-aligned blue ramp (deep → bright → cyan).
+          // Use `domilea-blue` for primary CTAs/accents, `domilea-blue-bright` for highlights, `domilea-cyan` for gradient endcaps.
+          blue: '#0066FF',
+          'blue-bright': '#34CCFF',
+          cyan: '#00D4FF',
+          'blue-soft': '#E6F0FF',
+          navy: '#07111F',
+          good: '#16A34A',
+          warn: '#F59E0B',
+          risk: '#EF4444',
+        },
       },
       fontFamily: {
         sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'Segoe UI', 'Roboto', 'sans-serif'],

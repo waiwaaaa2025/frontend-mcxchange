@@ -3629,6 +3629,105 @@ class ApiService {
       `/buyer/creditsafe/purchased-report/${connectId}`
     );
   }
+
+  // ============================================
+  // Leads (LINQ-powered admin tool)
+  // ============================================
+  async leadsSearchCarriers(params: Record<string, string | number | undefined>) {
+    const qs = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== '' && v !== null) qs.set(k, String(v));
+    });
+    return this.request<{
+      success: boolean;
+      data: {
+        carriers: Array<Record<string, any>>;
+        page: number;
+        limit: number;
+        hasMore: boolean;
+      };
+    }>(`/admin/leads/carriers/search?${qs}`);
+  }
+
+  async leadsGetCarrier(dot: string) {
+    return this.request<{
+      success: boolean;
+      data: { snapshot: Record<string, any> | null; report: Record<string, any> | null; warning?: string };
+    }>(`/admin/leads/carriers/${dot}`);
+  }
+
+  leadsCsvExportUrl(params: Record<string, string | number | undefined>): string {
+    const qs = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== '' && v !== null) qs.set(k, String(v));
+    });
+    return `${API_BASE_URL}/admin/leads/carriers/export.csv?${qs}`;
+  }
+
+  async leadsList(all = false, status?: string) {
+    const qs = new URLSearchParams();
+    if (all) qs.set('all', 'true');
+    if (status) qs.set('status', status);
+    return this.request<{ success: boolean; data: Array<Record<string, any>> }>(
+      `/admin/leads?${qs}`
+    );
+  }
+
+  async leadsCreate(body: { dotNumber: string; assignedToUserId?: string; notes?: string; status?: string }) {
+    return this.request<{ success: boolean; data: Record<string, any>; alreadyExisted?: boolean }>(
+      `/admin/leads`,
+      { method: 'POST', body: JSON.stringify(body) }
+    );
+  }
+
+  async leadsUpdate(id: string, patch: Record<string, any>) {
+    return this.request<{ success: boolean; data: Record<string, any> }>(
+      `/admin/leads/${id}`,
+      { method: 'PATCH', body: JSON.stringify(patch) }
+    );
+  }
+
+  async leadsDelete(id: string) {
+    return this.request<{ success: boolean }>(`/admin/leads/${id}`, { method: 'DELETE' });
+  }
+
+  async leadsListReps() {
+    return this.request<{ success: boolean; data: Array<{ id: string; name: string; email: string }> }>(
+      `/admin/leads/meta/reps`
+    );
+  }
+
+  async leadsPipelineStats() {
+    return this.request<{
+      success: boolean;
+      data: { needsFollowUp: number; expiring: number; activePipeline: number; wonThisMonth: number };
+    }>(`/admin/leads/pipeline/stats`);
+  }
+
+  async leadsGetActivity(id: string) {
+    return this.request<{
+      success: boolean;
+      data: {
+        activity: Array<{
+          id: string;
+          agentSlug: string;
+          actionType: string;
+          inputData: Record<string, any> | null;
+          outputData: Record<string, any> | null;
+          triggeredBy: string | null;
+          actor: { id: string; name: string; email: string } | null;
+          createdAt: string;
+        }>;
+      };
+    }>(`/admin/leads/${id}/activity`);
+  }
+
+  async leadsLogActivity(id: string, body: { kind: 'call' | 'email' | 'voicemail' | 'note'; body?: string; outcome?: string }) {
+    return this.request<{ success: boolean }>(
+      `/admin/leads/${id}/activity`,
+      { method: 'POST', body: JSON.stringify(body) }
+    );
+  }
 }
 
 export const api = new ApiService();
