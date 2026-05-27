@@ -27,6 +27,17 @@ export interface ManagedCompany {
   notes?: string | null
   createdAt: string
   updatedAt: string
+  // Enriched by GET /compliance/companies — undefined on responses that don't include the snapshot join.
+  mcDocket?: string | null
+  snapshot?: {
+    operatingStatus: string | null
+    safetyRating: string | null
+    chameleonScore: number | null
+    chameleonRiskLevel: string | null
+    lastFetchedAt: string
+    mcs150DaysAgo: number | null
+  } | null
+  alertsCount?: number
 }
 
 export interface ComplianceDocumentRow {
