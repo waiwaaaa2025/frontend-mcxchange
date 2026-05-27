@@ -41,10 +41,12 @@ import {
   Truck,
   ClipboardList,
   User,
+  Phone,
   Banknote,
   Bot,
   Sparkles,
   Building2,
+  Umbrella,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { DomileaLogoFull, DomileaIcon } from '../components/ui/DomileaLogo'
@@ -265,7 +267,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps = {}) => {
         ]
       case 'admin':
         return [
-          // Dashboard, Create Listing, CarrierPulse standalone
+          { icon: Umbrella, label: 'Insurance Leads', path: '/admin/insurance-leads' },
           { icon: LayoutDashboard, label: 'Dashboard', path: '/admin/dashboard' },
           // Team — expanded with sub-items so the AI workspace is one collapsible section
           {
@@ -312,6 +314,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps = {}) => {
               { icon: Shield, label: 'Reported Items', path: '/admin/reported' },
               { icon: ShieldAlert, label: 'Account Disputes', path: '/admin/disputes' },
               { icon: Crown, label: 'Premium Requests', path: '/admin/premium-requests' },
+              { icon: Phone, label: 'Broker Outreach', path: '/admin/broker-outreach' },
               { icon: MessageSquare, label: 'Consultations', path: '/admin/consultations', ...(paidConsultationsCount > 0 ? { badge: String(paidConsultationsCount), badgeColor: 'bg-red-500' } : {}) },
             ]
           },

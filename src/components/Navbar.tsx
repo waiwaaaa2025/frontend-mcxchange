@@ -97,8 +97,6 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false)
   const closeTimer = useRef<number | null>(null)
 
-  // Hover-open with a small grace period so the panel doesn't flicker
-  // when the cursor crosses the gap between trigger and dropdown.
   function openMenuWithDelay(key: MenuKey) {
     if (closeTimer.current) {
       window.clearTimeout(closeTimer.current)

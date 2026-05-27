@@ -192,9 +192,10 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
         <div className="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center mx-auto mb-5">
           <Lock className="w-7 h-7 text-indigo-600" />
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Pending Insurance Leads</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">Company Leads</h1>
         <p className="text-gray-600 mb-6">
-          Find motor carriers whose insurance is lapsing — strong acquisition signals.
+          Search companies whose insurance is pending cancellation or expiring soon,
+          and have Domilea reach the company owners directly on your behalf.
           Included with any active subscription.
         </p>
         <Link to="/buyer/subscription">
@@ -211,13 +212,24 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
           <Umbrella className="w-6 h-6 text-white" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Pending Insurance Leads</h1>
-          <p className="text-sm text-gray-500">Carriers with lapsing insurance — potential acquisition targets</p>
+          <h1 className="text-2xl font-bold text-gray-900">Company Leads</h1>
+          <p className="text-sm text-gray-500">Companies with pending insurance — potential acquisition targets</p>
         </div>
       </div>
 
+      {/* What this tool does */}
+      <div className="bg-indigo-50 border border-indigo-200 text-indigo-900 rounded-2xl p-4 mt-6 flex items-start gap-3">
+        <Umbrella className="w-5 h-5 shrink-0 mt-0.5 text-indigo-600" />
+        <p className="text-sm leading-relaxed">
+          Search companies whose insurance is <strong>pending cancellation</strong> or
+          <strong> expiring soon</strong> — strong signals an owner may be ready to sell.
+          Filter by state, fleet size and safety, then have Domilea
+          <strong> reach the company owners directly</strong> on your behalf.
+        </p>
+      </div>
+
       {/* Filter bar */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-5 mt-6 mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="bg-white border border-gray-200 rounded-2xl p-5 mt-4 mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <Select
           label="Insurance status"
           options={STATUS_OPTIONS}
