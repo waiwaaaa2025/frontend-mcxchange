@@ -3728,6 +3728,120 @@ class ApiService {
       { method: 'POST', body: JSON.stringify(body) }
     );
   }
+
+  // ============================================
+  // Lead Generator (standalone product — separate from the admin Lead CRM above)
+  // ============================================
+  async leadGeneratorSearch(params: Record<string, string | number | undefined>) {
+    const qs = new URLSearchParams();
+    for (const [k, v] of Object.entries(params)) {
+      if (v !== undefined && v !== null && v !== '') qs.set(k, String(v));
+    }
+    return this.request<{
+      success: boolean;
+      data: {
+        carriers: Array<{
+          dotNumber: string;
+          legalName: string | null;
+          dba: string | null;
+          state: string | null;
+          totalPowerUnits: number | null;
+          totalDrivers: number | null;
+          authorityStatus: string | null;
+          safetyRating: string | null;
+        }>;
+        page: number;
+        limit: number;
+        hasMore: boolean;
+        tier: 'BUYER' | 'BROKER' | 'ADMIN';
+      };
+    }>(`/lead-generator/search?${qs.toString()}`);
+  }
+
+  async leadGeneratorListSaves() {
+    return this.request<{
+      success: boolean;
+      data: Array<{
+        id: string;
+        userId: string;
+        dotNumber: string;
+        carrierName: string | null;
+        carrierStateCode: string | null;
+        notes: string | null;
+        createdAt: string;
+        updatedAt: string;
+      }>;
+    }>('/lead-generator/saves');
+  }
+
+  async leadGeneratorCreateSave(body: {
+    dotNumber: string;
+    carrierName?: string | null;
+    carrierStateCode?: string | null;
+    notes?: string | null;
+  }) {
+    return this.request<{ success: boolean; data: { id: string; dotNumber: string } }>(
+      '/lead-generator/saves',
+      { method: 'POST', body: JSON.stringify(body) }
+    );
+  }
+
+  async leadGeneratorDeleteSave(id: string) {
+    return this.request<{ success: boolean }>(`/lead-generator/saves/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Fetches the CSV stream with the auth header and triggers a browser download.
+  // Can't go through `request()` because it parses JSON.
+  async leadGeneratorExportCsv(params: Record<string, string | number | undefined>) {
+    const qs = new URLSearchParams();
+    for (const [k, v] of Object.entries(params)) {
+      if (v !== undefined && v !== null && v !== '') qs.set(k, String(v));
+    }
+    const token = this.token || localStorage.getItem('mcx_token');
+    const res = await fetch(`${API_BASE_URL}/lead-generator/export.csv?${qs.toString()}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (!res.ok) {
+      throw new Error(`Export failed (${res.status})`);
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `lead-generator-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  async leadGeneratorAdminListAllSaves(params: { userId?: string; dotNumber?: string; from?: string; to?: string; page?: number; limit?: number } = {}) {
+    const qs = new URLSearchParams();
+    for (const [k, v] of Object.entries(params)) {
+      if (v !== undefined && v !== null && v !== '') qs.set(k, String(v));
+    }
+    return this.request<{
+      success: boolean;
+      data: {
+        saves: Array<{
+          id: string;
+          userId: string;
+          dotNumber: string;
+          carrierName: string | null;
+          carrierStateCode: string | null;
+          notes: string | null;
+          createdAt: string;
+          user?: { id: string; name: string; email: string } | null;
+        }>;
+        page: number;
+        limit: number;
+        total: number;
+        totalPages: number;
+      };
+    }>(`/lead-generator/admin/saves?${qs.toString()}`);
+  }
 }
 
 export const api = new ApiService();

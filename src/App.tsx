@@ -116,6 +116,9 @@ const ChameleonCheckPreviewPage = lazy(() => import('./pages/ChameleonCheckPrevi
 const SafetyReportPreviewPage = lazy(() => import('./pages/SafetyReportPreviewPage'))
 const EvaAIPreviewPage = lazy(() => import('./pages/EvaAIPreviewPage'))
 const AdminCreateListingPage = lazy(() => import('./pages/AdminCreateListingPage'))
+const LeadGeneratorLandingPage = lazy(() => import('./pages/LeadGeneratorLandingPage'))
+const LeadGeneratorToolPage = lazy(() => import('./pages/LeadGeneratorToolPage'))
+const AdminLeadGeneratorSavesPage = lazy(() => import('./pages/AdminLeadGeneratorSavesPage'))
 
 // CarrierPulse
 const CarrierPulsePage = lazy(() => import('./pages/CarrierPulsePage'))
@@ -180,6 +183,7 @@ function App() {
               <Route path="carrier-pulse-preview" element={<CarrierPulsePreviewPage />} />
               <Route path="carrier-pulse-preview/:dotNumber" element={<CarrierPulsePreviewPage />} />
               <Route path="insurance-leads-preview" element={<InsuranceLeadsPreviewPage />} />
+              <Route path="lead-generator" element={<LeadGeneratorLandingPage />} />
               <Route path="credit-report-preview" element={<CreditReportPreviewPage />} />
               <Route path="chameleon-check-preview" element={<ChameleonCheckPreviewPage />} />
               <Route path="safety-report-preview" element={<SafetyReportPreviewPage />} />
@@ -254,6 +258,7 @@ function App() {
               <Route path="carrier-pulse" element={<CarrierPulsePage />} />
               <Route path="carrier-pulse/:dotNumber" element={<CarrierPulsePage />} />
               <Route path="insurance-leads" element={<InsuranceLeadsPage />} />
+              <Route path="lead-generator" element={<LeadGeneratorToolPage />} />
               <Route path="chameleon-check" element={<ChameleonCheckPage />} />
               <Route path="chameleon-check/:dotNumber" element={<ChameleonCheckPage />} />
               <Route path="package-tool" element={<Navigate to="/carrier-pulse-preview" replace />} />
@@ -300,6 +305,7 @@ function App() {
               <Route path="chameleon-check" element={<ChameleonCheckPage />} />
               <Route path="chameleon-check/:dotNumber" element={<ChameleonCheckPage />} />
               <Route path="leads" element={<AdminLeadsPage />} />
+              <Route path="lead-generator" element={<AdminLeadGeneratorSavesPage />} />
               <Route path="team" element={<TeamPage />} />
               <Route path="team/scout" element={<ScoutAgentPage />} />
               <Route path="team/eva" element={<EvaChatPage />} />

@@ -21,7 +21,9 @@ import {
   ShoppingBag,
   Mail,
   X,
-  Send
+  Send,
+  UserSearch,
+  Megaphone
 } from 'lucide-react'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
@@ -74,6 +76,20 @@ const planStyles = {
     color: 'from-amber-500 to-red-500',
     bgColor: 'from-amber-50 to-red-50',
     borderColor: 'border-amber-300',
+    popular: false,
+  },
+  lead_generator_buyer: {
+    icon: UserSearch,
+    color: 'from-cyan-500 to-blue-500',
+    bgColor: 'from-cyan-50 to-blue-50',
+    borderColor: 'border-cyan-200',
+    popular: false,
+  },
+  lead_generator_broker: {
+    icon: Megaphone,
+    color: 'from-fuchsia-500 to-purple-500',
+    bgColor: 'from-fuchsia-50 to-purple-50',
+    borderColor: 'border-fuchsia-200',
     popular: false,
   },
 }

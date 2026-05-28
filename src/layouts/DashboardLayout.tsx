@@ -204,6 +204,14 @@ const DashboardLayout = ({ children }: DashboardLayoutProps = {}) => {
     // CarrierPulse is included with any active subscription
     const hasPulseAccess = isActive || hasStandaloneCarrierPulse
 
+    // Lead Generator is its own product (separate from the admin Leads CRM).
+    // Either tier (Buyer / Broker) — or VIP_ACCESS — grants access.
+    const hasLeadGenAccess =
+      (planLower === 'lead_generator_buyer' ||
+        planLower === 'lead_generator_broker' ||
+        planLower === 'vip_access') &&
+      isActive
+
     switch (user?.role) {
       case 'seller':
         return [
@@ -245,6 +253,9 @@ const DashboardLayout = ({ children }: DashboardLayoutProps = {}) => {
           hasPulseAccess
             ? { icon: Activity, label: 'CarrierPulse', path: '/buyer/carrier-pulse' }
             : { icon: Activity, label: 'CarrierPulse', path: '/buyer/carrier-pulse', badge: 'New' as const },
+          hasLeadGenAccess
+            ? { icon: UserSearch, label: 'Lead Generator', path: '/buyer/lead-generator' }
+            : { icon: UserSearch, label: 'Lead Generator', path: '/buyer/lead-generator', badge: 'New' as const },
           {
             label: 'Services',
             icon: Briefcase,
@@ -340,6 +351,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps = {}) => {
               { icon: Users, label: 'Users', path: '/admin/users' },
               { icon: Activity, label: 'Activity Log', path: '/admin/activity-log' },
               { icon: Package, label: 'Listings', path: '/admin/listings' },
+              { icon: UserSearch, label: 'Lead Generator Saves', path: '/admin/lead-generator' },
               { icon: FileText, label: 'Reports', path: '/admin/reports' },
               { icon: Settings, label: 'Settings', path: '/admin/settings' },
             ]
