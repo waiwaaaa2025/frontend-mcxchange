@@ -3780,6 +3780,15 @@ class ApiService {
     }>(`/lead-generator/search?${qs.toString()}`);
   }
 
+  // Phone/email for one carrier — fetched on demand for click-to-call.
+  // Available to both Buyer and Broker tiers.
+  async leadGeneratorGetContact(dot: string) {
+    return this.request<{
+      success: boolean;
+      data: { dotNumber: string; phone: string | null; email: string | null };
+    }>(`/lead-generator/carrier/${encodeURIComponent(dot)}/contact`);
+  }
+
   async leadGeneratorListSaves() {
     return this.request<{
       success: boolean;

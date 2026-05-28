@@ -215,6 +215,15 @@ const BuyerSubscriptionPage = () => {
       // NOTE: Credits are granted via webhook (customer.subscription.created), not via this endpoint
       // We just refresh the subscription data to show updated credits from the webhook
       if (searchParams.get('success') === 'true' && user) {
+        // Run verifyAndFulfill so the Subscription row is synced from Stripe even
+        // if the webhook hasn't landed yet (webhook arrival is not guaranteed
+        // before redirect).
+        try {
+          await api.verifySubscription()
+        } catch (err) {
+          console.error('verifySubscription failed (continuing):', err)
+        }
+
         // Refresh subscription data to show updated credits (granted via webhook)
         try {
           const subResponse = await api.getSubscription()
@@ -224,6 +233,13 @@ const BuyerSubscriptionPage = () => {
           }
         } catch (err) {
           console.error('Failed to fetch subscription:', err)
+        }
+
+        // Lead Generator buyers get redirected straight into the tool — that's
+        // the whole point of the purchase. Skip identity verification gate.
+        if (searchParams.get('tool') === 'lead_generator') {
+          window.location.href = '/buyer/lead-generator'
+          return
         }
 
         // Auto-trigger Stripe Identity verification if not yet verified

@@ -11,6 +11,7 @@ import {
   Lock,
   Loader2,
   Crown,
+  Phone,
 } from 'lucide-react'
 import Button from '../components/ui/Button'
 import { useAuth } from '../context/AuthContext'
@@ -81,8 +82,25 @@ export default function LeadGeneratorToolPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [exporting, setExporting] = useState(false)
+  // Phone/email fetched on demand per DOT — search results don't carry contact info.
+  const [contacts, setContacts] = useState<
+    Record<string, { phone: string | null; email: string | null; loading: boolean }>
+  >({})
 
   const isBroker = tier === 'BROKER' || tier === 'ADMIN'
+
+  const fetchContact = useCallback(async (dot: string) => {
+    setContacts((c) => ({ ...c, [dot]: { phone: null, email: null, loading: true } }))
+    try {
+      const res = await api.leadGeneratorGetContact(dot)
+      setContacts((c) => ({
+        ...c,
+        [dot]: { phone: res.data.phone, email: res.data.email, loading: false },
+      }))
+    } catch {
+      setContacts((c) => ({ ...c, [dot]: { phone: null, email: null, loading: false } }))
+    }
+  }, [])
 
   // Detect access on mount: a tiny search call returns the tier or 403.
   useEffect(() => {
@@ -360,13 +378,14 @@ export default function LeadGeneratorToolPage() {
               <th className="px-3 py-3">Units</th>
               <th className="px-3 py-3">Authority</th>
               <th className="px-3 py-3">Safety</th>
+              <th className="px-3 py-3">Phone</th>
               <th className="px-3 py-3"></th>
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 && !searching && (
               <tr>
-                <td colSpan={isBroker ? 8 : 7} className="px-3 py-12 text-center text-slate-500">
+                <td colSpan={isBroker ? 9 : 8} className="px-3 py-12 text-center text-slate-500">
                   Set filters and hit Search to see carriers.
                 </td>
               </tr>
@@ -395,6 +414,12 @@ export default function LeadGeneratorToolPage() {
                 <td className="px-3 py-3">{r.totalPowerUnits ?? '—'}</td>
                 <td className="px-3 py-3">{r.authorityStatus || '—'}</td>
                 <td className="px-3 py-3">{r.safetyRating || '—'}</td>
+                <td className="px-3 py-3">
+                  <CallAction
+                    contact={contacts[r.dotNumber]}
+                    onReveal={() => fetchContact(r.dotNumber)}
+                  />
+                </td>
                 <td className="px-3 py-3 text-right">
                   {savedDots.has(r.dotNumber) ? (
                     <span className="inline-flex items-center gap-1 text-xs text-emerald-600">
@@ -456,6 +481,12 @@ export default function LeadGeneratorToolPage() {
                     </button>
                   </div>
                   {s.notes && <p className="mt-2 text-xs text-slate-600">{s.notes}</p>}
+                  <div className="mt-2">
+                    <CallAction
+                      contact={contacts[s.dotNumber]}
+                      onReveal={() => fetchContact(s.dotNumber)}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
@@ -464,4 +495,41 @@ export default function LeadGeneratorToolPage() {
       )}
     </div>
   )
+}
+
+// Click-to-call control. Reveals the carrier's phone on demand, then renders a
+// `tel:` link so subscribers can dial straight from their phone. Used in both
+// the search results and the saved-leads drawer; available to all paid tiers.
+function CallAction({
+  contact,
+  onReveal,
+}: {
+  contact: { phone: string | null; email: string | null; loading: boolean } | undefined
+  onReveal: () => void
+}) {
+  if (!contact) {
+    return (
+      <button
+        onClick={onReveal}
+        className="inline-flex items-center gap-1 text-xs font-medium text-cyan-600 hover:text-cyan-800"
+      >
+        <Phone className="h-4 w-4" /> Show phone
+      </button>
+    )
+  }
+  if (contact.loading) {
+    return <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+  }
+  if (contact.phone) {
+    return (
+      <a
+        href={`tel:${contact.phone}`}
+        onClick={(e) => e.stopPropagation()}
+        className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 hover:text-emerald-800"
+      >
+        <Phone className="h-4 w-4" /> {contact.phone}
+      </a>
+    )
+  }
+  return <span className="text-xs text-slate-400">No phone on file</span>
 }

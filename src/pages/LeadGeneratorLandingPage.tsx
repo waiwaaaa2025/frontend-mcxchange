@@ -13,6 +13,7 @@ import {
   CheckCircle,
   ArrowRight,
   Sparkles,
+  Phone,
 } from 'lucide-react'
 import Button from '../components/ui/Button'
 import { useAuth } from '../context/AuthContext'
@@ -37,6 +38,7 @@ const TIERS: Tier[] = [
     price: 99,
     bullets: [
       'Carrier search with core filters: state, fleet size, insurance expiry window, authority status, safety rating',
+      'Click-to-call phone numbers — tap to dial any carrier straight from your phone',
       'Save carriers to your personal Lead Generator list',
       'Private notes on every saved lead',
       'Open the tool from your buyer dashboard',
@@ -50,7 +52,7 @@ const TIERS: Tier[] = [
     price: 499,
     popular: true,
     bullets: [
-      'Everything in the Buyer tier',
+      'Everything in the Buyer tier, including click-to-call phone numbers',
       'Advanced filters: power-units range, authority age, cargo type, multi-state',
       'Bulk select + CSV download of every carrier matching your filter',
       'No row cap on exports — built for high-volume outreach',
@@ -72,6 +74,13 @@ const featureSections = [
     description:
       'Buyer tier covers the essentials. Broker tier unlocks the advanced filters that turn a list into a campaign.',
     color: 'from-emerald-500 to-emerald-600',
+  },
+  {
+    icon: Phone,
+    title: 'Call leads directly',
+    description:
+      'Every tier reveals the carrier’s phone number on demand and turns it into a tap-to-dial link — call your next lead straight from your phone, no copy-paste.',
+    color: 'from-teal-500 to-teal-600',
   },
   {
     icon: Save,
@@ -134,7 +143,8 @@ export default function LeadGeneratorLandingPage() {
     }
     try {
       setSubmitting(planId)
-      const res = await api.createSubscriptionCheckout(planId, false)
+      // Backend validates lowercase plan keys.
+      const res = await api.createSubscriptionCheckout(planId.toLowerCase(), false)
       const url = res.data?.url
       if (url) window.location.href = url
     } catch (err) {
