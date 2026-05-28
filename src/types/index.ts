@@ -37,9 +37,18 @@ export interface AuthTokens {
 export interface AuthLoginResponse {
   user: UserResponse
   tokens: AuthTokens
+  // Set when the caller passed a roleHint they don't have access to yet —
+  // login still succeeds (using their primary role) and the frontend uses
+  // this to route them to the right subscribe page.
+  needsSubscription?: 'buyer' | 'compliance_manager'
 }
 
 export interface AuthRegisterResponse {
+  user: UserResponse
+  tokens: AuthTokens
+}
+
+export interface AuthSwitchRoleResponse {
   user: UserResponse
   tokens: AuthTokens
 }
@@ -58,6 +67,7 @@ export interface UserResponse {
   usedCredits: number
   identityVerified: boolean
   identityVerificationStatus?: string | null
+  availableRoles?: string[]
 }
 
 // Subscription Types — `package_tool` and `enterprise` are grandfathered
@@ -110,6 +120,7 @@ export interface User {
   identityVerified: boolean
   identityVerificationStatus?: string | null
   trialEndsAt?: Date | null
+  availableRoles?: UserRole[]
 }
 
 export type TrustLevel = 'high' | 'medium' | 'low'

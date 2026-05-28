@@ -2,10 +2,20 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { User, UserRole } from '../types'
 import api from '../services/api'
 
+type RoleHint = 'buyer' | 'compliance_manager'
+
+interface LoginResult {
+  user: User
+  // When set, the caller asked to sign in as this role but didn't have it —
+  // the LoginPage uses this to route them into the right subscribe flow.
+  needsSubscription?: RoleHint
+}
+
 interface AuthContextType {
   user: User | null
-  login: (email: string, password: string) => Promise<User>
+  login: (email: string, password: string, roleHint?: RoleHint) => Promise<LoginResult>
   register: (email: string, password: string, name: string, role: UserRole, phone?: string) => Promise<User>
+  switchRole: (role: RoleHint) => Promise<User>
   logout: () => void
   isAuthenticated: boolean
   isLoading: boolean
@@ -62,6 +72,9 @@ const transformUser = (apiUser: any): User => {
     identityVerified: apiUser.identityVerified || false,
     identityVerificationStatus: apiUser.identityVerificationStatus || null,
     trialEndsAt: apiUser.trialEndsAt ? new Date(apiUser.trialEndsAt) : null,
+    availableRoles: Array.isArray(apiUser.availableRoles)
+      ? apiUser.availableRoles.map((r: string) => normalizeRole(r))
+      : undefined,
   }
 }
 
@@ -166,10 +179,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return () => window.removeEventListener('session-expired', handleSessionExpired)
   }, [])
 
-  const login = async (email: string, password: string): Promise<User> => {
+  const login = async (
+    email: string,
+    password: string,
+    roleHint?: RoleHint
+  ): Promise<LoginResult> => {
     setIsLoading(true)
     try {
-      const response = await api.login(email, password)
+      const response = await api.login(email, password, roleHint)
 
       const transformedUser = transformUser(response.user)
       setUser(transformedUser)
@@ -189,13 +206,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
       }
 
-      return transformedUser
+      return {
+        user: transformedUser,
+        needsSubscription: response.needsSubscription as RoleHint | undefined,
+      }
     } catch (error: any) {
       console.error('Login failed:', error)
       throw new Error(error.message || 'Login failed. Please check your credentials.')
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const switchRole = async (role: RoleHint): Promise<User> => {
+    const response = await api.switchRole(role)
+    const transformedUser = transformUser(response.user)
+    setUser(transformedUser)
+    localStorage.setItem('mcx_user', JSON.stringify(transformedUser))
+    return transformedUser
   }
 
   const register = async (email: string, password: string, name: string, role: UserRole, phone?: string): Promise<User> => {
@@ -270,6 +298,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         user,
         login,
         register,
+        switchRole,
         logout,
         isAuthenticated: !!user,
         isLoading,

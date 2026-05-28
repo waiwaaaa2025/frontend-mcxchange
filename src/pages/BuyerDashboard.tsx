@@ -26,7 +26,8 @@ import {
   ChevronDown,
   ChevronRight,
   ArrowRight,
-  Lock
+  Lock,
+  ShieldCheck
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import IdentityVerificationBanner from '../components/IdentityVerificationBanner'
@@ -681,6 +682,33 @@ const BuyerDashboard = () => {
                 </motion.div>
               ))}
             </div>
+
+            {/* Add Compliance Access CTA — only when the buyer doesn't already
+                have compliance on the same account. */}
+            {!user?.availableRoles?.includes('compliance_manager') && (
+              <div className="mb-8">
+                <div className="rounded-2xl border border-indigo-200 bg-gradient-to-r from-indigo-50 to-purple-50 p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2.5 rounded-xl bg-white border border-indigo-100">
+                      <ShieldCheck className="w-5 h-5 text-indigo-600" />
+                    </div>
+                    <div>
+                      <div className="text-lg font-semibold text-gray-900">Need compliance tools?</div>
+                      <div className="text-sm text-gray-600 mt-1">
+                        Add Compliance access to monitor authority, insurance, SMS, and FMCSA
+                        signals — same account, paid subscription.
+                      </div>
+                    </div>
+                  </div>
+                  <Link to="/carrier-pulse-preview">
+                    <Button>
+                      Add Compliance Access
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            )}
 
             <div className="grid lg:grid-cols-3 gap-6">
               {/* My Offers */}

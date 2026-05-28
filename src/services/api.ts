@@ -3,6 +3,7 @@ import type {
   BuyerPreferencesData,
   AuthLoginResponse,
   AuthRegisterResponse,
+  AuthSwitchRoleResponse,
   AuthTokens,
   SubscriptionResponse,
   CheckoutSessionResponse,
@@ -111,10 +112,10 @@ class ApiService {
   }
 
   // Auth endpoints
-  async login(email: string, password: string) {
+  async login(email: string, password: string, roleHint?: 'buyer' | 'compliance_manager') {
     const response = await this.request<ApiResponse<AuthLoginResponse>>('/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, ...(roleHint ? { roleHint } : {}) }),
     });
 
     if (!response.data) {
@@ -126,6 +127,27 @@ class ApiService {
     localStorage.setItem('mcx_refresh_token', response.data.tokens.refreshToken);
 
     // Return flattened structure for compatibility with rest of app
+    return {
+      user: response.data.user,
+      accessToken: response.data.tokens.accessToken,
+      refreshToken: response.data.tokens.refreshToken,
+      needsSubscription: response.data.needsSubscription,
+    };
+  }
+
+  async switchRole(role: 'buyer' | 'compliance_manager') {
+    const response = await this.request<ApiResponse<AuthSwitchRoleResponse>>('/auth/switch-role', {
+      method: 'POST',
+      body: JSON.stringify({ role }),
+    });
+
+    if (!response.data) {
+      throw new Error('Invalid response from server');
+    }
+
+    this.setToken(response.data.tokens.accessToken);
+    localStorage.setItem('mcx_refresh_token', response.data.tokens.refreshToken);
+
     return {
       user: response.data.user,
       accessToken: response.data.tokens.accessToken,

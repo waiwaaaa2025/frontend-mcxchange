@@ -29,6 +29,7 @@ import {
   LogOut,
   LayoutDashboard,
   UserSearch,
+  ArrowLeftRight,
 } from 'lucide-react'
 import { DomileaMainLogo } from './ui/DomileaLogo'
 
@@ -93,8 +94,9 @@ const resourcesSupport: MenuItem[] = [
 type MenuKey = 'solutions' | 'product' | 'resources' | null
 
 const Navbar = () => {
-  const { user, logout, isAuthenticated } = useAuth()
+  const { user, logout, isAuthenticated, switchRole } = useAuth()
   const navigate = useNavigate()
+  const [switching, setSwitching] = useState(false)
   const [openMenu, setOpenMenu] = useState<MenuKey>(null)
   const [mobileOpen, setMobileOpen] = useState(false)
   const closeTimer = useRef<number | null>(null)
@@ -128,7 +130,34 @@ const Navbar = () => {
     if (user.role === 'admin') return '/admin/dashboard'
     if (user.role === 'seller') return '/seller/dashboard'
     if (user.role === 'buyer') return '/buyer/dashboard'
+    if (user.role === 'compliance_manager') return '/compliance/dashboard'
     return '/'
+  }
+
+  // If the current account can act as more than one role, show the *other*
+  // role here so a single click flips the active session.
+  function alternateRole(): 'buyer' | 'compliance_manager' | null {
+    if (!user?.availableRoles) return null
+    if (user.role === 'buyer' && user.availableRoles.includes('compliance_manager')) {
+      return 'compliance_manager'
+    }
+    if (user.role === 'compliance_manager' && user.availableRoles.includes('buyer')) {
+      return 'buyer'
+    }
+    return null
+  }
+
+  async function handleSwitchRole(target: 'buyer' | 'compliance_manager') {
+    if (switching) return
+    setSwitching(true)
+    try {
+      const updated = await switchRole(target)
+      navigate(updated.role === 'compliance_manager' ? '/compliance/dashboard' : '/buyer/dashboard')
+    } catch (err) {
+      console.error('Role switch failed', err)
+    } finally {
+      setSwitching(false)
+    }
   }
 
   return (
@@ -157,6 +186,22 @@ const Navbar = () => {
                   <LayoutDashboard className="w-4 h-4" />
                   Dashboard
                 </Link>
+                {(() => {
+                  const alt = alternateRole()
+                  if (!alt) return null
+                  const label = alt === 'compliance_manager' ? 'Switch to Compliance' : 'Switch to Buyer'
+                  return (
+                    <button
+                      onClick={() => handleSwitchRole(alt)}
+                      disabled={switching}
+                      className="text-sm font-medium text-indigo-600 hover:text-indigo-700 flex items-center gap-1.5 disabled:opacity-50"
+                      title={label}
+                    >
+                      <ArrowLeftRight className="w-4 h-4" />
+                      {label}
+                    </button>
+                  )
+                })()}
                 <button onClick={handleLogout} className="text-sm text-domilea-muted hover:text-domilea-ink flex items-center gap-1.5" title="Sign out">
                   <LogOut className="w-4 h-4" />
                 </button>
