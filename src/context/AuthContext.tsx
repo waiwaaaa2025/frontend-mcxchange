@@ -2,7 +2,12 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { User, UserRole } from '../types'
 import api from '../services/api'
 
+// Roles a user can switch their session into post-login (acquired via
+// subscription). Seller is not switch-into, so it's excluded here.
 type RoleHint = 'buyer' | 'compliance_manager'
+// Roles selectable on the login page. Seller is a valid login hint but never a
+// switch-into role, so login accepts a wider set than switchRole.
+type LoginRoleHint = 'buyer' | 'seller' | 'compliance_manager'
 
 interface LoginResult {
   user: User
@@ -13,7 +18,7 @@ interface LoginResult {
 
 interface AuthContextType {
   user: User | null
-  login: (email: string, password: string, roleHint?: RoleHint) => Promise<LoginResult>
+  login: (email: string, password: string, roleHint?: LoginRoleHint) => Promise<LoginResult>
   register: (email: string, password: string, name: string, role: UserRole, phone?: string) => Promise<User>
   switchRole: (role: RoleHint) => Promise<User>
   logout: () => void
@@ -182,7 +187,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const login = async (
     email: string,
     password: string,
-    roleHint?: RoleHint
+    roleHint?: LoginRoleHint
   ): Promise<LoginResult> => {
     setIsLoading(true)
     try {

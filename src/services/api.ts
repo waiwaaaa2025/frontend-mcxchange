@@ -112,7 +112,7 @@ class ApiService {
   }
 
   // Auth endpoints
-  async login(email: string, password: string, roleHint?: 'buyer' | 'compliance_manager') {
+  async login(email: string, password: string, roleHint?: 'buyer' | 'seller' | 'compliance_manager') {
     const response = await this.request<ApiResponse<AuthLoginResponse>>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password, ...(roleHint ? { roleHint } : {}) }),
