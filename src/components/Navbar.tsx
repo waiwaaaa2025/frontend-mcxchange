@@ -59,6 +59,7 @@ const solutionsByUseCase: MenuItem[] = [
   { name: 'Investors', desc: 'Identify market trends and acquisition targets.', href: '/contact', icon: LineChart },
   { name: 'Dispatch & Safety Teams', desc: 'SMS, compliance, and operational health in one place.', href: '/contact', icon: Wrench },
   { name: 'Enterprise & API', desc: 'MorPro-powered intelligence APIs and trucking data infrastructure.', href: '/contact', icon: Network },
+  { name: 'Drivers', desc: 'Driver recruiting and opportunities for carriers and drivers.', href: '/drivers', icon: Truck },
 ]
 
 const productItems: MenuItem[] = [
