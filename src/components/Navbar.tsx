@@ -30,6 +30,7 @@ import {
   LayoutDashboard,
   UserSearch,
   ArrowLeftRight,
+  Truck,
 } from 'lucide-react'
 import { DomileaMainLogo } from './ui/DomileaLogo'
 
@@ -172,7 +173,7 @@ const Navbar = () => {
           {/* Desktop nav */}
           <div className="hidden lg:flex items-center gap-1">
             <NavTrigger label="Solutions" isOpen={openMenu === 'solutions'} onEnter={() => openMenuWithDelay('solutions')} onLeave={scheduleClose} />
-            <NavTrigger label="Product" isOpen={openMenu === 'product'} onEnter={() => openMenuWithDelay('product')} onLeave={scheduleClose} />
+            <NavTrigger label="Services" isOpen={openMenu === 'product'} onEnter={() => openMenuWithDelay('product')} onLeave={scheduleClose} />
             <NavTrigger label="Resources" isOpen={openMenu === 'resources'} onEnter={() => openMenuWithDelay('resources')} onLeave={scheduleClose} />
             <Link to="/pricing" className="px-3 py-2 text-sm font-medium text-domilea-ink/80 hover:text-domilea-ink rounded-lg" onMouseEnter={() => setOpenMenu(null)}>Pricing</Link>
             <Link to="/contact" className="px-3 py-2 text-sm font-medium text-domilea-ink/80 hover:text-domilea-ink rounded-lg" onMouseEnter={() => setOpenMenu(null)}>Contact</Link>
@@ -261,7 +262,7 @@ const Navbar = () => {
                 <MobileGroup title="By Product" items={solutionsByProduct} onPick={() => setMobileOpen(false)} />
                 <MobileGroup title="By Use Case" items={solutionsByUseCase} onPick={() => setMobileOpen(false)} />
               </MobileSection>
-              <MobileSection label="Product">
+              <MobileSection label="Services">
                 <MobileGroup items={productItems} onPick={() => setMobileOpen(false)} />
               </MobileSection>
               <MobileSection label="Resources">
