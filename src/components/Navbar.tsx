@@ -45,7 +45,7 @@ interface MenuItem {
 }
 
 const solutionsByProduct: MenuItem[] = [
-  { name: 'Carrier Search', desc: 'Search 63M+ trucking data records to discover carriers and operating signals.', href: '/carrier-pulse-preview', icon: Search },
+  { name: 'Carrier Pulse', desc: 'Search 63M+ trucking data records to discover carriers and operating signals.', href: '/carrier-pulse-preview', icon: Search },
   { name: 'Company Health', desc: 'Monitor safety, SMS, compliance, insurance, and operating signals for your carrier.', href: '/eva-ai', icon: Activity },
   { name: 'AI Due Diligence', desc: 'Summarize carrier risk, compliance, and fit with AI.', href: '/carrier-pulse-preview', icon: Sparkles },
   { name: 'Compliance Monitor', desc: 'Track authority, insurance gaps, SMS changes, and red flags.', href: '/eva-ai', icon: ShieldCheck },
@@ -54,13 +54,13 @@ const solutionsByProduct: MenuItem[] = [
 ]
 
 const solutionsByUseCase: MenuItem[] = [
-  { name: 'Buyers & Strategic Acquirers', desc: 'Find companies worth pursuing and start with confidence.', href: '/contact', icon: Briefcase },
+  { name: 'Buyers & Strategic Acquirers', desc: 'Find companies worth pursuing and start with confidence.', href: '/marketplace', icon: Briefcase },
   { name: 'Current Carrier Owners', desc: 'Monitor your company’s health and value over time.', href: '/contact', icon: Building2 },
   { name: 'Investors', desc: 'Identify market trends and acquisition targets.', href: '/contact', icon: LineChart },
-  { name: 'Dispatch & Safety Teams', desc: 'SMS, compliance, and operational health in one place.', href: '/contact', icon: Wrench },
+  { name: 'Safety & Compliance', desc: 'SMS, compliance, and operational health in one place.', href: '/contact', icon: Wrench },
   { name: 'Enterprise & API', desc: 'MorPro-powered intelligence APIs and trucking data infrastructure.', href: '/contact', icon: Network },
   { name: 'Drivers', desc: 'Driver recruiting and opportunities for carriers and drivers.', href: '/drivers', icon: Truck },
-  { name: 'Driver Recruiting', desc: 'Hire qualified company drivers and owner-operators for your fleet.', href: '/services/recruiting', icon: Users },
+  { name: 'Driver Recruiting', desc: 'Hire qualified company drivers and owner-operators for your fleet.', href: '/product/recruiting', icon: Users },
 ]
 
 const productItems: MenuItem[] = [
@@ -176,7 +176,7 @@ const Navbar = () => {
           <div className="hidden lg:flex items-center gap-1">
             <Link to="/marketplace" className="px-3 py-2 text-sm font-medium text-domilea-ink/80 hover:text-domilea-ink rounded-lg" onMouseEnter={() => setOpenMenu(null)}>Marketplace</Link>
             <NavTrigger label="Solutions" isOpen={openMenu === 'solutions'} onEnter={() => openMenuWithDelay('solutions')} onLeave={scheduleClose} />
-            <NavTrigger label="Services" isOpen={openMenu === 'product'} onEnter={() => openMenuWithDelay('product')} onLeave={scheduleClose} />
+            <NavTrigger label="Product" isOpen={openMenu === 'product'} onEnter={() => openMenuWithDelay('product')} onLeave={scheduleClose} />
             <NavTrigger label="Resources" isOpen={openMenu === 'resources'} onEnter={() => openMenuWithDelay('resources')} onLeave={scheduleClose} />
             <Link to="/pricing" className="px-3 py-2 text-sm font-medium text-domilea-ink/80 hover:text-domilea-ink rounded-lg" onMouseEnter={() => setOpenMenu(null)}>Pricing</Link>
             <Link to="/contact" className="px-3 py-2 text-sm font-medium text-domilea-ink/80 hover:text-domilea-ink rounded-lg" onMouseEnter={() => setOpenMenu(null)}>Contact</Link>
@@ -265,7 +265,7 @@ const Navbar = () => {
               <MobileSection label="Solutions">
                 <MobileGroup items={[...solutionsByProduct, ...solutionsByUseCase]} onPick={() => setMobileOpen(false)} />
               </MobileSection>
-              <MobileSection label="Services">
+              <MobileSection label="Product">
                 <MobileGroup items={productItems} onPick={() => setMobileOpen(false)} />
               </MobileSection>
               <MobileSection label="Resources">
