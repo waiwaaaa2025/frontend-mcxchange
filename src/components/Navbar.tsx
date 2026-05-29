@@ -57,7 +57,7 @@ const solutionsByUseCase: MenuItem[] = [
   { name: 'Buyers & Strategic Acquirers', desc: 'Find companies worth pursuing and start with confidence.', href: '/marketplace', icon: Briefcase },
   { name: 'Current Carrier Owners', desc: 'Monitor your company’s health and value over time.', href: '/contact', icon: Building2 },
   { name: 'Investors', desc: 'Identify market trends and acquisition targets.', href: '/contact', icon: LineChart },
-  { name: 'Safety & Compliance', desc: 'SMS, compliance, and operational health in one place.', href: '/contact', icon: Wrench },
+  { name: 'Safety & Compliance', desc: 'SMS, compliance, and operational health in one place.', href: '/product/safety', icon: Wrench },
   { name: 'Enterprise & API', desc: 'MorPro-powered intelligence APIs and trucking data infrastructure.', href: '/contact', icon: Network },
   { name: 'Drivers', desc: 'Driver recruiting and opportunities for carriers and drivers.', href: '/drivers', icon: Truck },
   { name: 'Driver Recruiting', desc: 'Hire qualified company drivers and owner-operators for your fleet.', href: '/product/recruiting', icon: Users },
