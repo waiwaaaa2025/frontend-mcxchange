@@ -60,6 +60,7 @@ const solutionsByUseCase: MenuItem[] = [
   { name: 'Dispatch & Safety Teams', desc: 'SMS, compliance, and operational health in one place.', href: '/contact', icon: Wrench },
   { name: 'Enterprise & API', desc: 'MorPro-powered intelligence APIs and trucking data infrastructure.', href: '/contact', icon: Network },
   { name: 'Drivers', desc: 'Driver recruiting and opportunities for carriers and drivers.', href: '/drivers', icon: Truck },
+  { name: 'Driver Recruiting', desc: 'Hire qualified company drivers and owner-operators for your fleet.', href: '/services/recruiting', icon: Users },
 ]
 
 const productItems: MenuItem[] = [
