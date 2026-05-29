@@ -260,7 +260,7 @@ const Navbar = () => {
           >
             <div className="px-4 py-4 space-y-1 max-h-[calc(100vh-4rem)] overflow-y-auto">
               <MobileSection label="Solutions">
-                <MobileGroup title="By Product" items={solutionsByProduct} onPick={() => setMobileOpen(false)} />
+                <MobileGroup title="By Services" items={solutionsByProduct} onPick={() => setMobileOpen(false)} />
                 <MobileGroup title="By Use Case" items={solutionsByUseCase} onPick={() => setMobileOpen(false)} />
               </MobileSection>
               <MobileSection label="Services">
@@ -310,7 +310,7 @@ function SolutionsMega({ onPick }: { onPick: () => void }) {
   return (
     <div className="grid grid-cols-12 gap-8">
       <div className="col-span-7">
-        <SectionLabel>Solution by Product</SectionLabel>
+        <SectionLabel>Solution by Services</SectionLabel>
         <div className="grid grid-cols-2 gap-2 mt-4">
           {solutionsByProduct.map(item => <MegaCard key={item.name} item={item} onClick={onPick} />)}
         </div>
