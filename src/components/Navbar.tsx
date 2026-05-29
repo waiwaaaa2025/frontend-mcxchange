@@ -263,8 +263,7 @@ const Navbar = () => {
             <div className="px-4 py-4 space-y-1 max-h-[calc(100vh-4rem)] overflow-y-auto">
               <Link to="/marketplace" className="block px-3 py-2.5 text-sm font-medium text-domilea-ink" onClick={() => setMobileOpen(false)}>Marketplace</Link>
               <MobileSection label="Solutions">
-                <MobileGroup title="By Services" items={solutionsByProduct} onPick={() => setMobileOpen(false)} />
-                <MobileGroup title="By Use Case" items={solutionsByUseCase} onPick={() => setMobileOpen(false)} />
+                <MobileGroup items={[...solutionsByProduct, ...solutionsByUseCase]} onPick={() => setMobileOpen(false)} />
               </MobileSection>
               <MobileSection label="Services">
                 <MobileGroup items={productItems} onPick={() => setMobileOpen(false)} />
@@ -311,18 +310,12 @@ function NavTrigger({ label, isOpen, onEnter, onLeave }: { label: string; isOpen
 
 function SolutionsMega({ onPick }: { onPick: () => void }) {
   return (
-    <div className="grid grid-cols-12 gap-8">
-      <div className="col-span-7">
-        <SectionLabel>Solution by Services</SectionLabel>
-        <div className="grid grid-cols-2 gap-2 mt-4">
-          {solutionsByProduct.map(item => <MegaCard key={item.name} item={item} onClick={onPick} />)}
-        </div>
-      </div>
-      <div className="col-span-5 border-l border-domilea-line pl-8">
-        <SectionLabel>Solution by Use Case</SectionLabel>
-        <div className="grid grid-cols-1 gap-1.5 mt-4">
-          {solutionsByUseCase.map(item => <MegaCard key={item.name} item={item} compact onClick={onPick} />)}
-        </div>
+    <div>
+      <SectionLabel>Solutions</SectionLabel>
+      <div className="grid grid-cols-3 gap-2 mt-4">
+        {[...solutionsByProduct, ...solutionsByUseCase].map(item => (
+          <MegaCard key={item.name} item={item} onClick={onPick} />
+        ))}
       </div>
     </div>
   )
