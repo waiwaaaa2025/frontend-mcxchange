@@ -174,6 +174,7 @@ const Navbar = () => {
 
           {/* Desktop nav */}
           <div className="hidden lg:flex items-center gap-1">
+            <Link to="/marketplace" className="px-3 py-2 text-sm font-medium text-domilea-ink/80 hover:text-domilea-ink rounded-lg" onMouseEnter={() => setOpenMenu(null)}>Marketplace</Link>
             <NavTrigger label="Solutions" isOpen={openMenu === 'solutions'} onEnter={() => openMenuWithDelay('solutions')} onLeave={scheduleClose} />
             <NavTrigger label="Services" isOpen={openMenu === 'product'} onEnter={() => openMenuWithDelay('product')} onLeave={scheduleClose} />
             <NavTrigger label="Resources" isOpen={openMenu === 'resources'} onEnter={() => openMenuWithDelay('resources')} onLeave={scheduleClose} />
@@ -260,6 +261,7 @@ const Navbar = () => {
             className="lg:hidden border-t border-domilea-line bg-white overflow-hidden"
           >
             <div className="px-4 py-4 space-y-1 max-h-[calc(100vh-4rem)] overflow-y-auto">
+              <Link to="/marketplace" className="block px-3 py-2.5 text-sm font-medium text-domilea-ink" onClick={() => setMobileOpen(false)}>Marketplace</Link>
               <MobileSection label="Solutions">
                 <MobileGroup title="By Services" items={solutionsByProduct} onPick={() => setMobileOpen(false)} />
                 <MobileGroup title="By Use Case" items={solutionsByUseCase} onPick={() => setMobileOpen(false)} />
