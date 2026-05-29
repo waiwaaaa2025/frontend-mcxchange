@@ -12,6 +12,8 @@ import {
   Loader2,
   Crown,
   Phone,
+  ShieldAlert,
+  Handshake,
 } from 'lucide-react'
 import Button from '../components/ui/Button'
 import { useAuth } from '../context/AuthContext'
@@ -65,6 +67,119 @@ const EMPTY_FILTERS: Filters = {
   cargoType: '',
   addedAfter: '',
   addedBefore: '',
+}
+
+// The 3-step pitch shown on the tool page and the upsell gate: filter distressed
+// carriers → reach out and offer to buy → hire Domilea if you can't close it yourself.
+const HOW_IT_WORKS = [
+  {
+    icon: ShieldAlert,
+    color: 'from-amber-500 to-orange-600',
+    title: 'Find insurance pending cancellation',
+    desc: 'Filter the carrier database for companies whose insurance is pending cancellation or about to expire — often a strong signal the owner is ready to sell their authority.',
+  },
+  {
+    icon: Phone,
+    color: 'from-cyan-500 to-cyan-600',
+    title: 'Reach out and offer to buy',
+    desc: 'Reveal the carrier’s phone number, contact the owner directly, and make an offer to purchase their company and operating authority.',
+  },
+  {
+    icon: Handshake,
+    color: 'from-emerald-500 to-emerald-600',
+    title: 'Can’t close it yourself? Hire Domilea',
+    desc: 'If you can’t reach a deal directly with the seller, hire Domilea to step in and help broker and close the sale for you.',
+  },
+]
+
+// Illustrative rows only — never sent to the API. Used to preview what live
+// results look like before the user runs a search (and on the upsell gate).
+const PREVIEW_ROWS = [
+  { dotNumber: '2841097', legalName: 'Lone Star Freight LLC', state: 'TX', units: 14, insurance: 'Pending cancellation · 6 days', phone: '(214) 555-0142' },
+  { dotNumber: '3019574', legalName: 'Cascade Hauling Inc', state: 'OR', units: 7, insurance: 'Pending cancellation · 11 days', phone: '(503) 555-0188' },
+  { dotNumber: '1764223', legalName: 'Great Lakes Logistics Co', state: 'MI', units: 22, insurance: 'Expires in 19 days', phone: '(313) 555-0117' },
+  { dotNumber: '2298410', legalName: 'Sunbelt Carriers LLC', state: 'FL', units: 5, insurance: 'Pending cancellation · 3 days', phone: '(305) 555-0164' },
+]
+
+function HowItWorks() {
+  return (
+    <section className="mb-6 rounded-xl border border-slate-200 bg-white p-5">
+      <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+        <Sparkles className="h-4 w-4 text-cyan-500" /> How the Lead Generator works
+      </h2>
+      <p className="mt-1 text-sm text-slate-500">
+        Turn carriers whose insurance is lapsing into acquisition opportunities — reach out, make an offer, and lean on Domilea when you need help closing the deal.
+      </p>
+      <div className="mt-4 grid gap-4 md:grid-cols-3">
+        {HOW_IT_WORKS.map((step, i) => {
+          const Icon = step.icon
+          return (
+            <div key={i} className="rounded-xl border border-slate-100 bg-slate-50/60 p-4">
+              <div className={`mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${step.color}`}>
+                <Icon className="h-5 w-5 text-white" />
+              </div>
+              <div className="text-xs font-bold text-slate-400">STEP {i + 1}</div>
+              <h3 className="mt-1 font-semibold text-slate-900">{step.title}</h3>
+              <p className="mt-1 text-sm leading-relaxed text-slate-600">{step.desc}</p>
+            </div>
+          )
+        })}
+      </div>
+    </section>
+  )
+}
+
+function PreviewTable() {
+  return (
+    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-4 py-3">
+        <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+          <Search className="h-4 w-4 text-slate-400" /> Example results
+        </div>
+        <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">
+          Sample data — run a search for live carriers
+        </span>
+      </div>
+      <table className="w-full text-sm">
+        <thead className="bg-slate-50 text-left text-xs font-semibold uppercase text-slate-500">
+          <tr>
+            <th className="px-3 py-3">DOT</th>
+            <th className="px-3 py-3">Carrier</th>
+            <th className="px-3 py-3">State</th>
+            <th className="px-3 py-3">Units</th>
+            <th className="px-3 py-3">Insurance</th>
+            <th className="px-3 py-3">Phone</th>
+            <th className="px-3 py-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {PREVIEW_ROWS.map((r) => (
+            <tr key={r.dotNumber} className="border-t border-slate-100">
+              <td className="px-3 py-3 font-mono text-xs">{r.dotNumber}</td>
+              <td className="px-3 py-3 font-medium text-slate-900">{r.legalName}</td>
+              <td className="px-3 py-3">{r.state}</td>
+              <td className="px-3 py-3">{r.units}</td>
+              <td className="px-3 py-3">
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">
+                  <ShieldAlert className="h-3 w-3" /> {r.insurance}
+                </span>
+              </td>
+              <td className="px-3 py-3">
+                <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600">
+                  <Phone className="h-4 w-4" /> {r.phone}
+                </span>
+              </td>
+              <td className="px-3 py-3 text-right">
+                <span className="inline-flex items-center gap-1 text-xs text-cyan-600">
+                  <BookmarkPlus className="h-4 w-4" /> Save
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  )
 }
 
 export default function LeadGeneratorToolPage() {
@@ -187,19 +302,30 @@ export default function LeadGeneratorToolPage() {
   // Gate: not subscribed → upsell screen
   if (accessChecked && !tier) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-16 text-center">
-        <Lock className="mx-auto h-12 w-12 text-slate-400" />
-        <h1 className="mt-6 text-3xl font-bold text-slate-900">Lead Generator access required</h1>
-        <p className="mt-3 text-slate-600">
-          Pick a tier to start prospecting. Buyer ($99/mo) covers the basics; Broker ($499/mo) unlocks advanced filters and bulk CSV export.
-        </p>
-        <div className="mt-6 flex justify-center gap-3">
-          <Button variant="primary" onClick={() => navigate('/lead-generator')}>
-            See plans
-          </Button>
-          <Button variant="secondary" onClick={() => navigate('/buyer/subscription')}>
-            Manage subscription
-          </Button>
+      <div className="mx-auto max-w-5xl px-4 py-12">
+        <div className="text-center">
+          <Lock className="mx-auto h-12 w-12 text-slate-400" />
+          <h1 className="mt-6 text-3xl font-bold text-slate-900">Lead Generator access required</h1>
+          <p className="mx-auto mt-3 max-w-2xl text-slate-600">
+            Filter the carrier database for companies whose insurance is pending cancellation, reach out to owners,
+            and offer to buy their authority. Can’t close it yourself? Hire Domilea to help with the sale.
+          </p>
+          <p className="mt-3 text-slate-600">
+            Pick a tier to start prospecting. Buyer ($99/mo) covers the basics; Broker ($499/mo) unlocks advanced filters and bulk CSV export.
+          </p>
+          <div className="mt-6 flex justify-center gap-3">
+            <Button variant="primary" onClick={() => navigate('/lead-generator')}>
+              See plans
+            </Button>
+            <Button variant="secondary" onClick={() => navigate('/buyer/subscription')}>
+              Manage subscription
+            </Button>
+          </div>
+        </div>
+
+        <div className="mt-10">
+          <HowItWorks />
+          <PreviewTable />
         </div>
       </div>
     )
@@ -238,6 +364,9 @@ export default function LeadGeneratorToolPage() {
           Saved ({saves.length})
         </Button>
       </header>
+
+      {/* How it works */}
+      <HowItWorks />
 
       {/* Filter panel */}
       <section className="mb-6 rounded-xl border border-slate-200 bg-white p-5">
@@ -386,7 +515,7 @@ export default function LeadGeneratorToolPage() {
             {rows.length === 0 && !searching && (
               <tr>
                 <td colSpan={isBroker ? 9 : 8} className="px-3 py-12 text-center text-slate-500">
-                  Set filters and hit Search to see carriers.
+                  Set filters and hit Search to see live carriers — here’s an example of what you’ll get:
                 </td>
               </tr>
             )}
@@ -447,6 +576,13 @@ export default function LeadGeneratorToolPage() {
           </div>
         )}
       </section>
+
+      {/* Preview of sample results before the first live search */}
+      {rows.length === 0 && !searching && (
+        <div className="mt-6">
+          <PreviewTable />
+        </div>
+      )}
 
       {/* Saved drawer */}
       {drawerOpen && (

@@ -1,9 +1,16 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import {
   Search, Download, X, Phone, Mail, Building2, Calendar, Loader2,
   Clock, AlertTriangle, ListChecks, Trophy, ArrowRight, Sparkles, Pencil, UserCog,
+  Activity, ExternalLink,
 } from 'lucide-react'
 import api from '../services/api'
+
+// Carrier Pulse detail route for the full MC profile (safety, authority,
+// insurance, fleet, chameleon, etc.). Admin Leads lives under /admin, so the
+// pulse page is the sibling /admin/carrier-pulse/:dotNumber.
+const pulseUrl = (dot: string | number) => `/admin/carrier-pulse/${dot}`
 
 const LEAD_STATUSES = ['NEW', 'CONTACTED', 'INTERESTED', 'NOT_INTERESTED', 'CALLBACK', 'WON', 'DEAD'] as const
 type LeadStatus = typeof LEAD_STATUSES[number]
@@ -275,7 +282,19 @@ export default function AdminLeadsPage() {
                       )}
                       {results.map(c => (
                         <tr key={c.dotNumber} className="hover:bg-gray-50 cursor-pointer" onClick={() => openDetail(c.dotNumber)}>
-                          <td className="px-3 py-2 font-mono text-xs">{c.dotNumber}</td>
+                          <td className="px-3 py-2 font-mono text-xs">
+                            <Link
+                              to={pulseUrl(c.dotNumber)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              title="Open full profile in Carrier Pulse"
+                              className="text-blue-600 hover:underline inline-flex items-center gap-1"
+                            >
+                              {c.dotNumber}
+                              <ExternalLink className="w-3 h-3 opacity-60" />
+                            </Link>
+                          </td>
                           <td className="px-3 py-2 font-medium text-gray-900">{c.legalName || '—'}</td>
                           <td className="px-3 py-2">{c.state || '—'}</td>
                           <td className="px-3 py-2 text-right">{c.totalPowerUnits ?? '—'}</td>
@@ -369,7 +388,19 @@ export default function AdminLeadsPage() {
                     )}
                     {filteredLeads.map(l => (
                       <tr key={l.id} className="hover:bg-gray-50 cursor-pointer" onClick={()=>openLeadActivity(l.id)}>
-                        <td className="px-3 py-2 font-mono text-xs">{l.dotNumber}</td>
+                        <td className="px-3 py-2 font-mono text-xs">
+                          <Link
+                            to={pulseUrl(l.dotNumber)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            title="Open full profile in Carrier Pulse"
+                            className="text-blue-600 hover:underline inline-flex items-center gap-1"
+                          >
+                            {l.dotNumber}
+                            <ExternalLink className="w-3 h-3 opacity-60" />
+                          </Link>
+                        </td>
                         <td className="px-3 py-2 font-medium">{l.carrierNameSnapshot || '—'}</td>
                         <td className="px-3 py-2">{l.phoneSnapshot
                           ? <a onClick={e=>e.stopPropagation()} href={`tel:${l.phoneSnapshot}`} className="text-blue-600 hover:underline">{l.phoneSnapshot}</a>
@@ -413,6 +444,18 @@ export default function AdminLeadsPage() {
               </div>
               <button onClick={()=>setSelectedLeadId(null)} className="text-gray-400 hover:text-gray-700"><X className="w-5 h-5"/></button>
             </div>
+
+            {lead?.dotNumber && (
+              <Link
+                to={pulseUrl(lead.dotNumber)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full border border-blue-600 text-blue-600 py-2 rounded-lg font-medium hover:bg-blue-50 flex items-center justify-center gap-2 mb-4"
+              >
+                <Activity className="w-4 h-4" /> View full details in Carrier Pulse
+                <ExternalLink className="w-3.5 h-3.5" />
+              </Link>
+            )}
 
             {/* Quick actions */}
             <div className="grid grid-cols-3 gap-2 mb-4">
@@ -486,6 +529,15 @@ export default function AdminLeadsPage() {
                 <summary className="cursor-pointer text-gray-600">Raw LINQ payload</summary>
                 <pre className="bg-gray-900 text-gray-100 p-3 rounded overflow-x-auto mt-2 max-h-96">{JSON.stringify({ carrier: detail.carrier, insurance: detail.insurance }, null, 2)}</pre>
               </details>
+              <Link
+                to={pulseUrl(selectedDot)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full border border-blue-600 text-blue-600 py-2 rounded-lg font-medium hover:bg-blue-50 flex items-center justify-center gap-2"
+              >
+                <Activity className="w-4 h-4" /> View full details in Carrier Pulse
+                <ExternalLink className="w-3.5 h-3.5" />
+              </Link>
               <button onClick={()=>saveAsLead(selectedDot)} className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700">+ Save to My Pipeline</button>
             </div>
           )}

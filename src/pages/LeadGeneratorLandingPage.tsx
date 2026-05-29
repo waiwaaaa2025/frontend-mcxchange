@@ -136,6 +136,10 @@ export default function LeadGeneratorLandingPage() {
     currentPlan === 'LEAD_GENERATOR_BROKER' ||
     currentPlan === 'VIP_ACCESS'
 
+  // Buyers open the tool inside their dashboard; every other role (seller,
+  // compliance, admin) uses the role-agnostic /lead-generator/app route.
+  const toolPath = user?.role === 'buyer' ? '/buyer/lead-generator' : '/lead-generator/app'
+
   const handleSubscribe = async (planId: Tier['id']) => {
     if (!user) {
       navigate(`/register?next=/lead-generator`)
@@ -179,7 +183,7 @@ export default function LeadGeneratorLandingPage() {
               <CheckCircle className="h-4 w-4" />
               You already have access.
               <button
-                onClick={() => navigate('/buyer/lead-generator')}
+                onClick={() => navigate(toolPath)}
                 className="ml-2 inline-flex items-center gap-1 font-semibold underline-offset-2 hover:underline"
               >
                 Open the tool <ArrowRight className="h-3.5 w-3.5" />
@@ -239,7 +243,7 @@ export default function LeadGeneratorLandingPage() {
                       <Button
                         variant="primary"
                         className="w-full"
-                        onClick={() => navigate('/buyer/lead-generator')}
+                        onClick={() => navigate(toolPath)}
                       >
                         Open the tool
                       </Button>

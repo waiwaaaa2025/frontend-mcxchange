@@ -184,6 +184,10 @@ function App() {
               <Route path="carrier-pulse-preview/:dotNumber" element={<CarrierPulsePreviewPage />} />
               <Route path="insurance-leads-preview" element={<InsuranceLeadsPreviewPage />} />
               <Route path="lead-generator" element={<LeadGeneratorLandingPage />} />
+              {/* Role-agnostic tool route — any authenticated subscriber (seller,
+                  compliance, etc.) can use Lead Generator. Buyers keep their
+                  in-dashboard route at /buyer/lead-generator. */}
+              <Route path="lead-generator/app" element={<ProtectedRoute><LeadGeneratorToolPage /></ProtectedRoute>} />
               <Route path="credit-report-preview" element={<CreditReportPreviewPage />} />
               <Route path="chameleon-check-preview" element={<ChameleonCheckPreviewPage />} />
               <Route path="safety-report-preview" element={<SafetyReportPreviewPage />} />
