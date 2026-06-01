@@ -717,7 +717,7 @@ const BuyerSubscriptionPage = () => {
                       <div className="flex items-center gap-3 p-3 rounded-xl bg-green-50 border border-green-200">
                         <TrendingUp className="w-6 h-6 text-green-500 flex-shrink-0" />
                         <div className="text-sm">
-                          <span className="font-semibold text-green-700">$399 applied to your purchase</span>
+                          <span className="font-semibold text-green-700">$399.99 applied to your purchase</span>
                           <span className="text-gray-600"> — credited toward your final MC price</span>
                         </div>
                       </div>
@@ -941,8 +941,8 @@ const BuyerSubscriptionPage = () => {
                 <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-3 mb-6">
                   <Sparkles className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
                   <div className="text-sm">
-                    <p className="font-semibold text-amber-700 mb-1">$399 one-time — credited toward your MC purchase</p>
-                    <p className="text-gray-600">VIP / Deal Access Pass is a one-time payment, not a subscription. Get unlimited unlocks until you purchase, admin full support, a 1-on-1 consultation, and AI+ Reports. Your $399 is credited toward the final MC purchase price.</p>
+                    <p className="font-semibold text-amber-700 mb-1">$399.99 one-time — credited toward your MC purchase</p>
+                    <p className="text-gray-600">VIP / Deal Access Pass is a one-time payment, not a subscription. Get unlimited unlocks until you purchase, CarrierPulse with 20 company credit reports/mo, admin full support, a 1-on-1 consultation, and AI+ Reports. Your $399.99 is credited toward the final MC purchase price.</p>
                   </div>
                 </div>
               )}
@@ -966,7 +966,7 @@ const BuyerSubscriptionPage = () => {
               >
                 <Sparkles className="w-5 h-5 mr-2" />
                 {selectedPlan === 'vip_access'
-                  ? 'Get the Pass — $399 one-time'
+                  ? 'Get the Pass — $399.99 one-time'
                   : hasActiveSubscription ? 'Upgrade Now' : 'Subscribe Now'}
               </Button>
 

@@ -216,7 +216,7 @@ export default function PricingPage() {
                       <div className="flex items-center gap-3 p-3 rounded-xl bg-green-50 border border-green-200">
                         <TrendingUp className="w-5 h-5 text-green-500 flex-shrink-0" />
                         <div className="text-xs">
-                          <span className="font-semibold text-green-700">$399 applied to your purchase</span>
+                          <span className="font-semibold text-green-700">$399.99 applied to your purchase</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-3 p-3 rounded-xl bg-purple-50 border border-purple-200">
@@ -384,7 +384,7 @@ export default function PricingPage() {
             { q: 'Do unused credits roll over?', a: 'No, credits reset each billing period. You start fresh with your plan\'s credit allocation each month.' },
             { q: 'Can I upgrade or downgrade my plan?', a: 'Yes, you can change your plan at any time. Contact support and we\'ll help you switch plans.' },
             { q: 'What is CarrierPulse?', a: 'CarrierPulse is our carrier intelligence tool. Look up any carrier by DOT or MC number and get instant safety scores, inspection history, insurance details, and more.' },
-            { q: 'What\'s included in the VIP / Deal Access Pass?', a: 'A one-time $399 pass (not a subscription) — unlimited listing unlocks until you purchase, $399 credited toward your final MC purchase, admin full support, a 1-on-1 consultation, and AI+ Reports.' },
+            { q: 'What\'s included in the VIP / Deal Access Pass?', a: 'A one-time $399.99 pass (not a subscription) — unlimited listing unlocks until you purchase, CarrierPulse with 20 company credit reports per month, $399.99 credited toward your final MC purchase, admin full support, a 1-on-1 consultation, and AI+ Reports.' },
           ].map((faq, i) => (
             <div key={i} className="bg-white rounded-xl border border-gray-200 p-5">
               <h3 className="font-semibold text-gray-900 mb-2">{faq.q}</h3>
