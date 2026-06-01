@@ -48,7 +48,7 @@ const solutionsByProduct: MenuItem[] = [
   { name: 'Carrier Pulse', desc: 'Search 63M+ trucking data records to discover carriers and operating signals.', href: '/carrier-pulse-preview', icon: Search },
   { name: 'Company Health', desc: 'Monitor safety, SMS, compliance, insurance, and operating signals for your carrier.', href: '/eva-ai', icon: Activity },
   { name: 'AI Due Diligence', desc: 'Summarize carrier risk, compliance, and fit with AI.', href: '/carrier-pulse-preview', icon: Sparkles },
-  { name: 'Compliance Monitor', desc: 'Track authority, insurance gaps, SMS changes, and red flags.', href: '/eva-ai', icon: ShieldCheck },
+  { name: 'Compliance Monitor', desc: 'Track authority, insurance gaps, SMS changes, and red flags.', href: '/compliance-monitor', icon: ShieldCheck },
   { name: 'Domilea Exclusives', desc: 'Selected opportunities reviewed directly by Domilea.', href: '/marketplace', icon: Briefcase },
   { name: 'Deal Support', desc: 'Request Domilea to review, contact, and support an opportunity.', href: '/contact', icon: Handshake },
 ]

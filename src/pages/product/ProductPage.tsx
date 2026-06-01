@@ -32,7 +32,7 @@ import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import { useAuth } from '../../context/AuthContext'
 
-const ServicesPage = () => {
+const ProductPage = () => {
   const navigate = useNavigate()
   const { isAuthenticated, user } = useAuth()
   const [mcNumber, setMcNumber] = useState('')
@@ -102,35 +102,35 @@ const ServicesPage = () => {
       icon: Users,
       title: 'Driver Recruiting',
       description: 'We recruit company drivers, owner operators for Amazon Relay, and lease drivers. Our recruiters are trained by the owner and understand the industry inside out.',
-      link: '/services/recruiting',
+      link: '/product/recruiting',
       features: ['Company drivers, O/Os & lease drivers', '7-day average time to hire', 'Industry-trained recruiters']
     },
     {
       icon: Fuel,
       title: 'Fuel Program',
       description: 'Maximize your savings with our exclusive fuel discount network. Access discounts at all major truck stops nationwide.',
-      link: '/services/fuel-program',
+      link: '/product/fuel-program',
       features: ['Up to $0.75/gallon savings', 'All major truck stops', 'No fees or minimums']
     },
     {
       icon: Shield,
       title: 'Safety Services',
       description: 'Stay compliant and protect your business with comprehensive DOT safety compliance and risk management solutions.',
-      link: '/services/safety',
+      link: '/product/safety',
       features: ['DOT compliance', 'Driver qualification files', 'Mock audits']
     },
     {
       icon: Truck,
       title: 'Dispatch Services',
       description: 'Professional dispatch services to keep your trucks moving and your revenue growing.',
-      link: '/services/dispatch',
+      link: '/product/dispatch',
       features: ['24/7 dispatch support', 'Load optimization', 'Rate negotiation']
     },
     {
       icon: FileText,
       title: 'Admin Services',
       description: 'Streamline your back office with our comprehensive administrative support services.',
-      link: '/services/admin',
+      link: '/product/admin',
       features: ['Invoicing & billing', 'Document management', 'IFTA/IRP filing']
     }
   ]
@@ -496,4 +496,4 @@ const ServicesPage = () => {
   )
 }
 
-export default ServicesPage
+export default ProductPage

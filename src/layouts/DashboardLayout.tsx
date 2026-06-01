@@ -224,14 +224,14 @@ const DashboardLayout = ({ children }: DashboardLayoutProps = {}) => {
           { icon: FileText, label: 'Documents', path: '/seller/documents' },
           { icon: MessageSquare, label: 'Messages', path: '/seller/messages', ...(unreadMessageCount > 0 ? { badge: String(unreadMessageCount), badgeColor: 'bg-red-500' } : {}) },
           {
-            label: 'Services',
+            label: 'Product',
             icon: Briefcase,
             items: [
-              { icon: Fuel, label: 'Fuel Program', path: '/services/fuel-program' },
-              { icon: ShieldCheck, label: 'Safety Services', path: '/services/safety' },
-              { icon: UserSearch, label: 'Recruiting', path: '/services/recruiting' },
-              { icon: Truck, label: 'Dispatch', path: '/services/dispatch' },
-              { icon: ClipboardList, label: 'Back Office', path: '/services/admin' },
+              { icon: Fuel, label: 'Fuel Program', path: '/product/fuel-program' },
+              { icon: ShieldCheck, label: 'Safety Services', path: '/product/safety' },
+              { icon: UserSearch, label: 'Recruiting', path: '/product/recruiting' },
+              { icon: Truck, label: 'Dispatch', path: '/product/dispatch' },
+              { icon: ClipboardList, label: 'Back Office', path: '/product/admin' },
             ]
           },
         ]
@@ -257,14 +257,14 @@ const DashboardLayout = ({ children }: DashboardLayoutProps = {}) => {
             ? { icon: UserSearch, label: 'Lead Generator', path: '/buyer/lead-generator' }
             : { icon: UserSearch, label: 'Lead Generator', path: '/buyer/lead-generator', badge: 'New' as const },
           {
-            label: 'Services',
+            label: 'Product',
             icon: Briefcase,
             items: [
-              { icon: Fuel, label: 'Fuel Program', path: '/services/fuel-program' },
-              { icon: ShieldCheck, label: 'Safety Services', path: '/services/safety' },
-              { icon: UserSearch, label: 'Recruiting', path: '/services/recruiting' },
-              { icon: Truck, label: 'Dispatch', path: '/services/dispatch' },
-              { icon: ClipboardList, label: 'Back Office', path: '/services/admin' },
+              { icon: Fuel, label: 'Fuel Program', path: '/product/fuel-program' },
+              { icon: ShieldCheck, label: 'Safety Services', path: '/product/safety' },
+              { icon: UserSearch, label: 'Recruiting', path: '/product/recruiting' },
+              { icon: Truck, label: 'Dispatch', path: '/product/dispatch' },
+              { icon: ClipboardList, label: 'Back Office', path: '/product/admin' },
             ]
           },
         ]

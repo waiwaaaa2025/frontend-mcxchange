@@ -32,13 +32,13 @@ const TermsPage = lazy(() => import('./pages/TermsPage'))
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'))
 const DriversLandingPage = lazy(() => import('./pages/DriversLandingPage'))
 
-// Services pages
-const ServicesPage = lazy(() => import('./pages/services/ServicesPage'))
-const FuelProgramPage = lazy(() => import('./pages/services/FuelProgramPage'))
-const SafetyServicesPage = lazy(() => import('./pages/services/SafetyServicesPage'))
-const RecruitingServicesPage = lazy(() => import('./pages/services/RecruitingServicesPage'))
-const DispatchServicesPage = lazy(() => import('./pages/services/DispatchServicesPage'))
-const AdminServicesPage = lazy(() => import('./pages/services/AdminServicesPage'))
+// Product pages
+const ProductPage = lazy(() => import('./pages/product/ProductPage'))
+const FuelProgramPage = lazy(() => import('./pages/product/FuelProgramPage'))
+const SafetyServicesPage = lazy(() => import('./pages/product/SafetyServicesPage'))
+const RecruitingServicesPage = lazy(() => import('./pages/product/RecruitingServicesPage'))
+const DispatchServicesPage = lazy(() => import('./pages/product/DispatchServicesPage'))
+const AdminServicesPage = lazy(() => import('./pages/product/AdminServicesPage'))
 
 // Seller pages
 const SellerWelcomePage = lazy(() => import('./pages/SellerWelcomePage'))
@@ -115,6 +115,7 @@ const CreditReportPreviewPage = lazy(() => import('./pages/CreditReportPreviewPa
 const ChameleonCheckPreviewPage = lazy(() => import('./pages/ChameleonCheckPreviewPage'))
 const SafetyReportPreviewPage = lazy(() => import('./pages/SafetyReportPreviewPage'))
 const EvaAIPreviewPage = lazy(() => import('./pages/EvaAIPreviewPage'))
+const ComplianceMonitorPage = lazy(() => import('./pages/ComplianceMonitorPage'))
 const AdminCreateListingPage = lazy(() => import('./pages/AdminCreateListingPage'))
 const LeadGeneratorLandingPage = lazy(() => import('./pages/LeadGeneratorLandingPage'))
 const LeadGeneratorToolPage = lazy(() => import('./pages/LeadGeneratorToolPage'))
@@ -172,13 +173,20 @@ function App() {
               <Route path="mc/:id" element={<MCDetailPageV2 />} />
               <Route path="mc-v2/:id" element={<MCDetailPageV2 />} />
               <Route path="consultation/success" element={<ConsultationSuccessPage />} />
-              {/* Services Routes */}
-              <Route path="services" element={<ServicesPage />} />
-              <Route path="services/fuel-program" element={<FuelProgramPage />} />
-              <Route path="services/safety" element={<SafetyServicesPage />} />
-              <Route path="services/recruiting" element={<RecruitingServicesPage />} />
-              <Route path="services/dispatch" element={<DispatchServicesPage />} />
-              <Route path="services/admin" element={<AdminServicesPage />} />
+              {/* Product Routes */}
+              <Route path="product" element={<ProductPage />} />
+              <Route path="product/fuel-program" element={<FuelProgramPage />} />
+              <Route path="product/safety" element={<SafetyServicesPage />} />
+              <Route path="product/recruiting" element={<RecruitingServicesPage />} />
+              <Route path="product/dispatch" element={<DispatchServicesPage />} />
+              <Route path="product/admin" element={<AdminServicesPage />} />
+              {/* Legacy /services URLs → /product (redirects for SEO/bookmarks) */}
+              <Route path="services" element={<Navigate to="/product" replace />} />
+              <Route path="services/fuel-program" element={<Navigate to="/product/fuel-program" replace />} />
+              <Route path="services/safety" element={<Navigate to="/product/safety" replace />} />
+              <Route path="services/recruiting" element={<Navigate to="/product/recruiting" replace />} />
+              <Route path="services/dispatch" element={<Navigate to="/product/dispatch" replace />} />
+              <Route path="services/admin" element={<Navigate to="/product/admin" replace />} />
               <Route path="drivers" element={<DriversLandingPage />} />
               <Route path="carrier-pulse-preview" element={<CarrierPulsePreviewPage />} />
               <Route path="carrier-pulse-preview/:dotNumber" element={<CarrierPulsePreviewPage />} />
@@ -192,6 +200,7 @@ function App() {
               <Route path="chameleon-check-preview" element={<ChameleonCheckPreviewPage />} />
               <Route path="safety-report-preview" element={<SafetyReportPreviewPage />} />
               <Route path="eva-ai" element={<EvaAIPreviewPage />} />
+              <Route path="compliance-monitor" element={<ComplianceMonitorPage />} />
             </Route>
 
             {/* Seller Welcome (standalone, no DashboardLayout) */}
