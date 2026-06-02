@@ -69,7 +69,7 @@ const productItems: MenuItem[] = [
   { name: 'AI Company Analyzer', desc: 'AI summaries of risk, compliance, SMS, insurance, and opportunity fit.', href: '/carrier-pulse-preview', icon: Cpu },
   { name: 'SMS & Safety Intelligence', desc: 'Inspections, violations, safety patterns, OOS trends.', href: '/carrier-pulse-preview', icon: AlertTriangle },
   { name: 'Compliance Layer', desc: 'Authority status, insurance, filings, FMCSA changes.', href: '/eva-ai', icon: ShieldCheck },
-  { name: 'Lead Generator', desc: 'Prospect carriers in bulk — Buyer ($99/mo) and Broker ($499/mo) plans.', href: '/lead-generator', icon: UserSearch },
+  { name: 'Lead Generator', desc: 'Prospect carriers in bulk — Buyer ($49/mo) and Broker ($299/mo) plans.', href: '/lead-generator', icon: UserSearch },
   { name: 'Deal Request Tool', desc: 'Request Domilea to review and pursue a company.', href: '/contact', icon: Send },
   { name: 'MorPro API Layer', desc: 'MorPro-powered APIs behind Domilea’s intelligence stack.', href: '/contact', icon: Network },
 ]

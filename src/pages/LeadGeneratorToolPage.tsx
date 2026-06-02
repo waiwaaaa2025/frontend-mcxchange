@@ -311,7 +311,7 @@ export default function LeadGeneratorToolPage() {
             and offer to buy their authority. Can’t close it yourself? Hire Domilea to help with the sale.
           </p>
           <p className="mt-3 text-slate-600">
-            Pick a tier to start prospecting. Buyer ($99/mo) covers the basics; Broker ($499/mo) unlocks advanced filters and bulk CSV export.
+            Pick a tier to start prospecting. Buyer ($49/mo) covers the basics; Broker ($299/mo) unlocks advanced filters and bulk CSV export.
           </p>
           <div className="mt-6 flex justify-center gap-3">
             <Button variant="primary" onClick={() => navigate('/lead-generator')}>
