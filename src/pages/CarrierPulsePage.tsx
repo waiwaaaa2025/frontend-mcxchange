@@ -1549,6 +1549,7 @@ function CreditReportTab() {
   const [searchLoading, setSearchLoading] = useState(false)
   const [reportLoading, setReportLoading] = useState(false)
   const [searchError, setSearchError] = useState<string | null>(null)
+  const [quotaError, setQuotaError] = useState<string | null>(null)
   const [hasSearched, setHasSearched] = useState(false)
 
   // Auto-search on mount using carrier's legal name + state
@@ -1593,11 +1594,16 @@ function CreditReportTab() {
     const connectId = company.connectId || company.id
     setSelectedCompany(company)
     setReportLoading(true)
+    setQuotaError(null)
     try {
       const res = await api.carrierPulseCreditsafeReport(connectId)
       setFullReport(res.data)
-    } catch {
-      setSearchError('Failed to load credit report.')
+    } catch (err: any) {
+      if (err?.code === 'CREDIT_REPORT_QUOTA_EXHAUSTED') {
+        setQuotaError(err?.message || "You've reached your monthly credit report limit.")
+      } else {
+        setSearchError('Failed to load credit report.')
+      }
     } finally {
       setReportLoading(false)
     }
@@ -1630,6 +1636,19 @@ function CreditReportTab() {
         <p className="text-gray-700 font-semibold mb-2">No credit data found</p>
         <p className="text-gray-500 text-sm max-w-md">
           Creditsafe does not have a record for "{c.legalName}". This is common for smaller or newer carriers.
+        </p>
+      </div>
+    )
+  }
+
+  if (quotaError) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <AlertCircle className="w-10 h-10 text-amber-500 mb-4" />
+        <p className="text-gray-700 font-semibold mb-2">Monthly credit report limit reached</p>
+        <p className="text-gray-500 text-sm max-w-md">
+          {quotaError} Your credit report allotment resets at the start of next month. Reports you've
+          already pulled this month remain free to re-open.
         </p>
       </div>
     )

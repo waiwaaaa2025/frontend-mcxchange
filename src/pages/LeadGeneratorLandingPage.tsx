@@ -35,7 +35,7 @@ const TIERS: Tier[] = [
     name: 'For Buyers',
     audience: 'Buyers prospecting acquisition targets',
     audienceIcon: Building2,
-    price: 99,
+    price: 49,
     bullets: [
       'Carrier search with core filters: state, fleet size, insurance expiry window, authority status, safety rating',
       'Click-to-call phone numbers — tap to dial any carrier straight from your phone',
