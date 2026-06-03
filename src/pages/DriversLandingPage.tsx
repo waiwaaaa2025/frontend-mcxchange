@@ -145,7 +145,7 @@ ${formData.message || 'N/A'}
             >
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 mb-6">
                 <Truck className="w-5 h-5 text-amber-400" />
-                <span className="text-sm font-medium">Now Hiring Drivers</span>
+                <span className="text-sm font-medium">Now Hiring Owner-Operators</span>
               </div>
 
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
@@ -154,7 +154,7 @@ ${formData.message || 'N/A'}
               </h1>
 
               <p className="text-xl text-gray-300 mb-8 max-w-lg">
-                Join Domilea's network of professional drivers. Get access to quality freight, competitive pay, and the support you need to succeed.
+                Right now we're partnering exclusively with owner-operators. Our entire strategy and technology are built to help owner-operators succeed in every way — quality freight, competitive pay, and the support you need to run your business.
               </p>
 
               <div className="flex flex-wrap gap-4">
