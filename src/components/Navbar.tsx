@@ -31,6 +31,7 @@ import {
   UserSearch,
   ArrowLeftRight,
   Truck,
+  CreditCard,
 } from 'lucide-react'
 import { DomileaMainLogo } from './ui/DomileaLogo'
 
@@ -64,14 +65,11 @@ const solutionsByUseCase: MenuItem[] = [
 ]
 
 const productItems: MenuItem[] = [
-  { name: 'Intelligence Dashboard', desc: 'Command center for search, health, alerts, AI summaries, and deal requests.', href: '/register', icon: LayoutDashboard },
-  { name: 'Carrier Database', desc: 'Search 63M+ carrier data records.', href: '/carrier-pulse-preview', icon: Database },
-  { name: 'AI Company Analyzer', desc: 'AI summaries of risk, compliance, SMS, insurance, and opportunity fit.', href: '/carrier-pulse-preview', icon: Cpu },
-  { name: 'SMS & Safety Intelligence', desc: 'Inspections, violations, safety patterns, OOS trends.', href: '/carrier-pulse-preview', icon: AlertTriangle },
-  { name: 'Compliance Layer', desc: 'Authority status, insurance, filings, FMCSA changes.', href: '/eva-ai', icon: ShieldCheck },
+  { name: 'Carrier Pulse', desc: 'Search 63M+ trucking data records to discover carriers and operating signals.', href: '/carrier-pulse-preview', icon: Search },
   { name: 'Lead Generator', desc: 'Prospect carriers in bulk — Buyer ($49/mo) and Broker ($299/mo) plans.', href: '/lead-generator', icon: UserSearch },
-  { name: 'Deal Request Tool', desc: 'Request Domilea to review and pursue a company.', href: '/contact', icon: Send },
-  { name: 'MorPro API Layer', desc: 'MorPro-powered APIs behind Domilea’s intelligence stack.', href: '/contact', icon: Network },
+  { name: 'Safety & Compliance', desc: 'SMS, authority, insurance, filings, and FMCSA changes in one place.', href: '/product/safety', icon: ShieldCheck },
+  { name: 'MorPro API', desc: 'MorPro-powered APIs behind Domilea’s intelligence stack.', href: '/contact', icon: Network },
+  { name: 'How to Buy a Trucking Business', desc: 'Step-by-step due diligence guide for acquiring a motor carrier.', href: '/resources/how-to-buy-a-trucking-business', icon: GraduationCap },
 ]
 
 const resourcesLearn: MenuItem[] = [
