@@ -261,9 +261,9 @@ const HomePage = () => {
               </Link>
             </div>
 
-            <button onClick={() => setIsConsultationOpen(true)} className="text-sm text-gray-400 hover:text-white transition-colors inline-flex items-center gap-1.5">
-              <MessageSquare className="w-4 h-4" />
-              Talk to an Expert
+            <button onClick={() => setIsConsultationOpen(true)} className="text-lg font-medium text-gray-300 hover:text-white transition-colors inline-flex items-center gap-2">
+              <MessageSquare className="w-5 h-5" />
+              Book Consultation
             </button>
 
             <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-gray-400 text-sm">
@@ -778,9 +778,9 @@ const HomePage = () => {
           </motion.div>
 
           <div className="text-center mt-8">
-            <button onClick={() => setIsConsultationOpen(true)} className="text-gray-500 hover:text-gray-900 transition-colors inline-flex items-center gap-2 text-sm font-medium">
-              <MessageSquare className="w-4 h-4" />
-              Not sure where to start? Talk to an Expert
+            <button onClick={() => setIsConsultationOpen(true)} className="text-gray-500 hover:text-gray-900 transition-colors inline-flex items-center gap-2 text-base font-medium">
+              <MessageSquare className="w-5 h-5" />
+              Not sure where to start? Book Consultation
             </button>
           </div>
         </div>
