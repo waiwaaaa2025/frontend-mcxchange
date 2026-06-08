@@ -3780,6 +3780,15 @@ class ApiService {
     }>(`/lead-generator/search?${qs.toString()}`);
   }
 
+  // Authoritative access check — resolves tier from the subscription only, with
+  // no dependency on the carrier-data provider. Always 200 for a logged-in user.
+  async leadGeneratorAccess() {
+    return this.request<{
+      success: boolean;
+      data: { hasAccess: boolean; tier: 'BUYER' | 'BROKER' | 'ADMIN' | null };
+    }>(`/lead-generator/access`);
+  }
+
   // Phone/email for one carrier — fetched on demand for click-to-call.
   // Available to both Buyer and Broker tiers.
   async leadGeneratorGetContact(dot: string) {

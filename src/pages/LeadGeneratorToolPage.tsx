@@ -217,14 +217,18 @@ export default function LeadGeneratorToolPage() {
     }
   }, [])
 
-  // Detect access on mount: a tiny search call returns the tier or 403.
+  // Detect access on mount via the dedicated access endpoint, which resolves the
+  // tier from the subscription alone. We deliberately do NOT gate on a search
+  // call: search depends on the external carrier-data provider and returns 502
+  // when it's down, which previously made paying subscribers look like they had
+  // no access. Access and data availability are now independent concerns.
   useEffect(() => {
     let alive = true
     ;(async () => {
       try {
-        const res = await api.leadGeneratorSearch({ limit: 1 })
+        const res = await api.leadGeneratorAccess()
         if (!alive) return
-        setTier(res.data.tier)
+        setTier(res.data.hasAccess ? res.data.tier : null)
       } catch {
         if (!alive) return
         setTier(null)

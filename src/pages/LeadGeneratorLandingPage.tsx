@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
   Search,
@@ -115,21 +115,54 @@ const featureSections = [
 export default function LeadGeneratorLandingPage() {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const [searchParams] = useSearchParams()
   const [currentPlan, setCurrentPlan] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState<string | null>(null)
 
   useEffect(() => {
     let alive = true
     if (!user) return
-    api.getSubscription()
-      .then((r) => {
+    const justPurchased = searchParams.get('success') === 'true'
+    ;(async () => {
+      // Returning from Stripe checkout: sync the subscription from Stripe right
+      // away. The customer.subscription.created webhook is NOT guaranteed to have
+      // landed before this redirect (and non-buyers never hit the buyer
+      // subscription page that would otherwise do this), which previously left
+      // sellers/brokers stranded with no access despite paying. verifySubscription
+      // is idempotent, so it's safe to call here.
+      if (justPurchased) {
+        try {
+          await api.verifySubscription()
+        } catch (err) {
+          console.error('verifySubscription failed (continuing):', err)
+        }
+        // Drop the ?success param so a refresh doesn't re-trigger fulfillment.
+        window.history.replaceState({}, '', '/lead-generator')
+      }
+
+      try {
+        const r = await api.getSubscription()
         if (!alive) return
         const sub = r.data?.subscription
-        if (sub && sub.status === 'ACTIVE') setCurrentPlan(sub.plan)
-      })
-      .catch(() => {})
+        if (sub && sub.status === 'ACTIVE') {
+          setCurrentPlan(sub.plan)
+          // Just paid and now active — drop them straight into the tool, the
+          // same way the buyer subscription page does after a Lead Generator buy.
+          const plan = String(sub.plan)
+          const isLeadGen =
+            plan === 'LEAD_GENERATOR_BUYER' ||
+            plan === 'LEAD_GENERATOR_BROKER' ||
+            plan === 'VIP_ACCESS'
+          if (justPurchased && isLeadGen) {
+            navigate(user.role === 'buyer' ? '/buyer/lead-generator' : '/lead-generator/app')
+          }
+        }
+      } catch {
+        /* ignore — page still renders the purchase tiers */
+      }
+    })()
     return () => { alive = false }
-  }, [user])
+  }, [user, searchParams, navigate])
 
   const hasThisProduct =
     currentPlan === 'LEAD_GENERATOR_BUYER' ||
