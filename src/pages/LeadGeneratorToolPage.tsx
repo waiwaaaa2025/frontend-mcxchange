@@ -289,10 +289,15 @@ export default function LeadGeneratorToolPage() {
   }
 
   const handleExport = async () => {
-    if (!isBroker) return
     setExporting(true)
     try {
-      await api.leadGeneratorExportCsv({ ...filters, limit: 1000 })
+      if (isBroker) {
+        // Broker/Admin: full result set, enriched with phone + email.
+        await api.leadGeneratorExportCsv({ ...filters, limit: 1000 })
+      } else {
+        // Buyer: just the current page (25 carriers).
+        await api.leadGeneratorExportCsv({ ...filters, page, limit: 25 })
+      }
     } catch (err) {
       console.error('Export failed', err)
       alert('CSV export failed. Please try again.')
@@ -358,7 +363,7 @@ export default function LeadGeneratorToolPage() {
               </span>
             )}
             {tier === 'BUYER' && (
-              <span>Buyer tier — core filters and personal saves. <Link to="/lead-generator" className="text-cyan-600 underline">Upgrade to Broker</Link> for bulk export.</span>
+              <span>Buyer tier — core filters, personal saves, and CSV download of the current page (25). <Link to="/lead-generator" className="text-cyan-600 underline">Upgrade to Broker</Link> to export the full list with phone &amp; email.</span>
             )}
             {tier === 'ADMIN' && <span>Admin view — all tools unlocked.</span>}
           </p>
@@ -474,12 +479,14 @@ export default function LeadGeneratorToolPage() {
             <Button variant="secondary" onClick={() => setFilters(EMPTY_FILTERS)}>
               Clear
             </Button>
-            {isBroker && (
-              <Button variant="secondary" disabled={exporting} onClick={handleExport}>
-                <Download className="mr-2 h-4 w-4" />
-                {exporting ? 'Exporting…' : 'Download CSV'}
-              </Button>
-            )}
+            <Button variant="secondary" disabled={exporting || rows.length === 0} onClick={handleExport}>
+              <Download className="mr-2 h-4 w-4" />
+              {exporting
+                ? 'Exporting…'
+                : isBroker
+                  ? 'Download all (CSV + phone/email)'
+                  : 'Download page (25)'}
+            </Button>
             <Button variant="primary" onClick={() => runSearch(1)} disabled={searching}>
               <Search className="mr-2 h-4 w-4" />
               {searching ? 'Searching…' : 'Search'}
