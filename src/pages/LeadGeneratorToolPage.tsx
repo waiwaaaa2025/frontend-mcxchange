@@ -204,6 +204,19 @@ export default function LeadGeneratorToolPage() {
 
   const isBroker = tier === 'BROKER' || tier === 'ADMIN'
 
+  // Open a carrier's CarrierPulse report (credit + risk intelligence) the same
+  // way admins can — the CarrierPulse page already accepts a DOT. Each role has
+  // its own dashboard route; compliance/unknown roles fall back to the public
+  // preview so the link never 404s.
+  const carrierPulsePath = (dot: string) => {
+    switch (user?.role) {
+      case 'admin': return `/admin/carrier-pulse/${dot}`
+      case 'seller': return `/seller/carrier-pulse/${dot}`
+      case 'buyer': return `/buyer/carrier-pulse/${dot}`
+      default: return `/carrier-pulse-preview/${dot}`
+    }
+  }
+
   const fetchContact = useCallback(async (dot: string) => {
     setContacts((c) => ({ ...c, [dot]: { phone: null, email: null, loading: true } }))
     try {
@@ -548,7 +561,15 @@ export default function LeadGeneratorToolPage() {
                     />
                   </td>
                 )}
-                <td className="px-3 py-3 font-mono text-xs">{r.dotNumber}</td>
+                <td className="px-3 py-3 font-mono text-xs">
+                  <Link
+                    to={carrierPulsePath(r.dotNumber)}
+                    className="text-cyan-600 underline-offset-2 hover:text-cyan-800 hover:underline"
+                    title="Open CarrierPulse details"
+                  >
+                    {r.dotNumber}
+                  </Link>
+                </td>
                 <td className="px-3 py-3 font-medium text-slate-900">{r.legalName || '—'}</td>
                 <td className="px-3 py-3">{r.state || '—'}</td>
                 <td className="px-3 py-3">{r.totalPowerUnits ?? '—'}</td>
