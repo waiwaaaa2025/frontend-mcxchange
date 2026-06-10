@@ -312,7 +312,7 @@ export default function SellerCreateListingPage() {
             </div>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={() => navigate('/seller/listings')}
               className="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
@@ -344,7 +344,7 @@ export default function SellerCreateListingPage() {
   // FORM VIEW (coming from CarrierPulse)
   // ============================================
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-3xl mx-auto px-4 sm:px-0">
       {/* Back button */}
       <button
         onClick={() => navigate('/seller/create-listing', { replace: true })}
@@ -372,8 +372,8 @@ export default function SellerCreateListingPage() {
         {!fmcsaLoading && carrierData && (
           <div className="space-y-6">
             {/* Carrier Summary Card */}
-            <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-6 text-white">
-              <div className="flex items-start justify-between">
+            <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-5 sm:p-6 text-white">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wider text-emerald-400 mb-1">
                     {carrierData.allowedToOperate === 'Y' ? 'Authorized Carrier' : 'Not Authorized'}
@@ -381,12 +381,12 @@ export default function SellerCreateListingPage() {
                   <h2 className="text-xl font-bold">{carrierData.legalName}</h2>
                   {carrierData.dbaName && <p className="text-white/50 text-sm mt-0.5">DBA: {carrierData.dbaName}</p>}
                 </div>
-                <div className="text-right">
+                <div className="text-left sm:text-right">
                   <p className="text-xs text-white/40">MC# {pulseMC || carrierData.mcNumber}</p>
                   <p className="text-xs text-white/40">DOT# {carrierData.dotNumber}</p>
                 </div>
               </div>
-              <div className="grid grid-cols-4 gap-3 mt-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
                 {[
                   { label: 'Location', value: `${carrierData.hqCity}, ${carrierData.hqState}` },
                   { label: 'Power Units', value: carrierData.totalPowerUnits || '0' },
@@ -519,7 +519,7 @@ export default function SellerCreateListingPage() {
                     ))}
                   </div>
                   {hasFactoring === 'yes' && (
-                    <div className="grid grid-cols-2 gap-3 mt-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Factoring Company</label>
                         <input type="text" value={factoringCompany} onChange={e => setFactoringCompany(e.target.value)}
@@ -539,7 +539,7 @@ export default function SellerCreateListingPage() {
                 </div>
 
                 {/* Highway & RMIS */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="p-4 rounded-xl bg-gray-50 border border-gray-200">
                     <p className="text-sm font-semibold text-gray-900 mb-3">Set up with Highway?</p>
                     <div className="flex gap-2">
@@ -575,7 +575,7 @@ export default function SellerCreateListingPage() {
                 </div>
 
                 {/* Selling with phone/email */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <button type="button" onClick={() => setSellingWithPhone(sellingWithPhone === 'yes' ? 'no' : 'yes')}
                     className={`p-4 rounded-xl border-2 transition-all flex items-center gap-3 ${
                       sellingWithPhone === 'yes' ? 'border-emerald-500 bg-emerald-50' : 'border-gray-200 bg-gray-50 hover:border-gray-300'
@@ -623,7 +623,7 @@ export default function SellerCreateListingPage() {
               </h3>
               <p className="text-sm text-gray-500 mb-5">Insurance provider info and current monthly cost</p>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Insurance Provider</label>
                   <input type="text" value={insuranceCompany} onChange={e => setInsuranceCompany(e.target.value)}

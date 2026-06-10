@@ -206,7 +206,7 @@ const ProductPage = () => {
                 </div>
 
                 {/* Search Input */}
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <div className="flex-1 relative">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                     <input
@@ -221,7 +221,7 @@ const ProductPage = () => {
                   <button
                     onClick={fetchCarrierData}
                     disabled={isLoading}
-                    className="px-8 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-semibold transition-all flex items-center gap-2 shadow-lg shadow-indigo-600/25"
+                    className="w-full sm:w-auto justify-center px-8 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-semibold transition-all flex items-center gap-2 shadow-lg shadow-indigo-600/25"
                   >
                     {isLoading ? (
                       <><Loader2 className="w-5 h-5 animate-spin" /> Searching...</>
@@ -232,7 +232,7 @@ const ProductPage = () => {
                 </div>
 
                 {/* Quick Examples */}
-                <div className="mt-4 flex items-center justify-center gap-4 text-sm text-gray-500">
+                <div className="mt-4 flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-sm text-gray-500">
                   <span>Try:</span>
                   <button
                     onClick={() => { setSearchType('mc'); setMcNumber('384859'); }}

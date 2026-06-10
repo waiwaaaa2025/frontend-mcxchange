@@ -72,7 +72,7 @@ export default function BuyersGuidePage() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.05 }}
-            className="rounded-2xl border border-slate-200 bg-white p-8 flex flex-col"
+            className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 flex flex-col"
           >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
@@ -104,7 +104,7 @@ export default function BuyersGuidePage() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="relative rounded-2xl border-2 border-blue-500 bg-gradient-to-br from-blue-50 via-white to-white p-8 flex flex-col shadow-lg"
+            className="relative rounded-2xl border-2 border-blue-500 bg-gradient-to-br from-blue-50 via-white to-white p-6 sm:p-8 flex flex-col shadow-lg"
           >
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-blue-600 text-white text-xs font-semibold">
               RECOMMENDED

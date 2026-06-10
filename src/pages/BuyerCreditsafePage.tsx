@@ -73,13 +73,13 @@ const ExpandableSection = ({
     >
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+        className="w-full px-4 sm:px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
       >
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center flex-shrink-0">
             <Icon className="w-5 h-5 text-gray-600" />
           </div>
-          <span className="font-semibold text-gray-900">{title}</span>
+          <span className="font-semibold text-gray-900 text-left truncate">{title}</span>
           {badge !== undefined && (
             <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${badgeColor}`}>
               {badge}
@@ -89,6 +89,7 @@ const ExpandableSection = ({
         <motion.div
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.2 }}
+          className="flex-shrink-0 ml-2"
         >
           <ChevronDown className="w-5 h-5 text-gray-400" />
         </motion.div>
@@ -101,7 +102,7 @@ const ExpandableSection = ({
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: 'easeInOut' }}
           >
-            <div className="px-6 pb-6 pt-2 border-t border-gray-100">
+            <div className="px-4 sm:px-6 pb-6 pt-2 border-t border-gray-100">
               {children}
             </div>
           </motion.div>
@@ -348,9 +349,9 @@ const BuyerCreditsafePage = () => {
 
   if (accessLoading) {
     return (
-      <div className="p-8">
+      <div className="p-4 sm:p-8">
         <div className="max-w-5xl mx-auto">
-          <div className="rounded-2xl border border-gray-200 bg-white p-10 text-center">
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 sm:p-10 text-center">
             <Loader2 className="w-10 h-10 text-gray-400 mx-auto mb-3 animate-spin" />
             <p className="text-gray-600">Checking your subscription...</p>
           </div>
@@ -361,9 +362,9 @@ const BuyerCreditsafePage = () => {
 
   if (!hasPremiumAccess) {
     return (
-      <div className="p-8">
+      <div className="p-4 sm:p-8">
         <div className="max-w-5xl mx-auto">
-          <div className="rounded-2xl border border-gray-200 bg-white p-10 text-center">
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 sm:p-10 text-center">
             <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
               <Sparkles className="w-7 h-7 text-white" />
             </div>
@@ -613,7 +614,7 @@ const BuyerCreditsafePage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
-      <div className="p-8">
+      <div className="p-4 sm:p-8">
         <div className="max-w-[1600px] mx-auto">
           {/* Header */}
           <motion.div
@@ -636,7 +637,7 @@ const BuyerCreditsafePage = () => {
 
           {/* MC Selector */}
           <motion.div
-            className="bg-white rounded-3xl border border-gray-200 shadow-xl shadow-gray-200/50 p-8 mb-8"
+            className="bg-white rounded-3xl border border-gray-200 shadow-xl shadow-gray-200/50 p-5 sm:p-8 mb-8"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
@@ -764,7 +765,7 @@ const BuyerCreditsafePage = () => {
                           </div>
                           <div>
                             <p className="font-semibold text-gray-900">{mc.legalName}</p>
-                            <div className="flex items-center gap-3 text-sm text-gray-600">
+                            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-600">
                               <span>MC-{mc.mcNumber}</span>
                               <span>DOT-{mc.dotNumber}</span>
                               <span className="flex items-center gap-1">
@@ -882,7 +883,7 @@ const BuyerCreditsafePage = () => {
                   {isLoadingReport ? (
                     <motion.div
                       key="loading"
-                      className="bg-white rounded-3xl border border-gray-200 shadow-xl shadow-gray-200/50 p-16"
+                      className="bg-white rounded-3xl border border-gray-200 shadow-xl shadow-gray-200/50 p-8 sm:p-16"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
@@ -917,7 +918,7 @@ const BuyerCreditsafePage = () => {
                     >
                       {/* Company Header Card */}
                       <motion.div
-                        className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl p-8 text-white relative overflow-hidden"
+                        className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl p-5 sm:p-8 text-white relative overflow-hidden"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                       >
@@ -927,13 +928,13 @@ const BuyerCreditsafePage = () => {
                         </div>
 
                         <div className="relative">
-                          <div className="flex items-start justify-between mb-6">
-                            <div className="flex items-center gap-4">
-                              <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur flex items-center justify-center">
+                          <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-4 mb-6">
+                            <div className="flex items-center gap-4 min-w-0">
+                              <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur flex items-center justify-center flex-shrink-0">
                                 <Building2 className="w-8 h-8 text-white" />
                               </div>
-                              <div>
-                                <h2 className="text-2xl font-bold">
+                              <div className="min-w-0">
+                                <h2 className="text-xl sm:text-2xl font-bold break-words">
                                   {reportData.basic.businessName || reportData.basic.registeredCompanyName || 'N/A'}
                                 </h2>
                                 <p className="text-white/60 mt-1">
@@ -941,7 +942,7 @@ const BuyerCreditsafePage = () => {
                                 </p>
                               </div>
                             </div>
-                            <div className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                            <div className={`px-4 py-2 rounded-full text-sm font-semibold flex-shrink-0 ${
                               reportData.basic.companyStatus?.status?.toLowerCase().includes('active')
                                 ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
                                 : 'bg-gray-500/20 text-gray-300 border border-gray-500/30'
@@ -1008,7 +1009,7 @@ const BuyerCreditsafePage = () => {
 
                       {/* Credit Score Section */}
                       <motion.div
-                        className="bg-white rounded-3xl border border-gray-200 shadow-xl shadow-gray-200/50 p-8"
+                        className="bg-white rounded-3xl border border-gray-200 shadow-xl shadow-gray-200/50 p-5 sm:p-8"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
@@ -1796,7 +1797,7 @@ const BuyerCreditsafePage = () => {
                   ) : (
                     <motion.div
                       key="empty"
-                      className="bg-white rounded-3xl border border-gray-200 shadow-xl shadow-gray-200/50 p-16"
+                      className="bg-white rounded-3xl border border-gray-200 shadow-xl shadow-gray-200/50 p-8 sm:p-16"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}

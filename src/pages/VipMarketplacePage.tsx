@@ -317,7 +317,7 @@ const VipMarketplacePage = () => {
               <Crown className="w-8 h-8 text-amber-600" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold text-gray-900">VIP Marketplace</h1>
+              <h1 className="text-2xl sm:text-4xl font-bold text-gray-900">VIP Marketplace</h1>
               <p className="text-gray-500">Exclusive listings for Enterprise subscribers</p>
             </div>
           </div>
@@ -330,7 +330,7 @@ const VipMarketplacePage = () => {
         {/* Search and Filter Bar */}
         <Card className="mb-6">
           <div className="space-y-4">
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex-1">
                 <Input
                   placeholder="Search by MC number, title, state, or description..."
@@ -343,7 +343,7 @@ const VipMarketplacePage = () => {
               <Button
                 variant={showFilters ? 'primary' : 'outline'}
                 onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center gap-2"
+                className="flex items-center justify-center gap-2 w-full sm:w-auto"
               >
                 <SlidersHorizontal className="w-4 h-4" />
                 Filters

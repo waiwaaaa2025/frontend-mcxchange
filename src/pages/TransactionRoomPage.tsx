@@ -2908,7 +2908,7 @@ For questions, contact us at payments@domilea.com`
                     Deal Overview
                   </h3>
                   {userRole === 'seller' ? (
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                       <div className="bg-green-50 rounded-xl p-4">
                         <p className="text-sm text-green-600 mb-1">Your Asking Price</p>
                         <p className="text-xl font-bold text-green-700">${(transaction.listing.listingPrice ?? transaction.listing.askingPrice ?? transaction.listing.price ?? 0).toLocaleString()}</p>
@@ -4671,7 +4671,7 @@ For questions, contact us at payments@domilea.com`
                 {/* Insurance Details */}
                 <div className="mt-6 pt-6 border-t border-gray-200">
                   <h4 className="text-sm font-semibold text-gray-700 mb-4">Insurance Coverage</h4>
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="p-3 bg-white rounded-lg border border-gray-100">
                       <p className="text-xs text-gray-500">BIPD Required</p>
                       <p className="font-semibold text-gray-900">${fmcsaData.bipdRequired.toLocaleString()}</p>
@@ -4941,7 +4941,7 @@ For questions, contact us at payments@domilea.com`
                 {(listingData.bipdCoverage || listingData.cargoCoverage || listingData.bondAmount) && (
                   <div className="mt-4 pt-4 border-t border-gray-200">
                     <p className="text-sm font-medium text-gray-700 mb-3">Listed Insurance Coverage</p>
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       {listingData.bipdCoverage && (
                         <div className="p-3 bg-white rounded-lg border border-gray-100">
                           <p className="text-xs text-gray-500">BIPD Coverage</p>

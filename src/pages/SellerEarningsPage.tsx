@@ -160,19 +160,19 @@ const SellerEarningsPage = () => {
     <div className="p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
             <h2 className="text-2xl font-bold text-gray-900 mb-1">Earnings</h2>
             <p className="text-gray-500">Track your sales, revenue, and payment history</p>
           </div>
-          <Button variant="secondary">
+          <Button variant="secondary" className="w-full sm:w-auto">
             <Download className="w-4 h-4 mr-2" />
             Export Report
           </Button>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
           {stats.map((stat, index) => (
             <motion.div
               key={stat.label}
@@ -196,9 +196,9 @@ const SellerEarningsPage = () => {
 
         {/* Monthly Chart */}
         <GlassCard className="mb-8" hover={false}>
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <h3 className="text-xl font-bold text-gray-900">Revenue Overview</h3>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {(['week', 'month', 'year', 'all'] as const).map((period) => (
                 <button
                   key={period}
@@ -237,7 +237,7 @@ const SellerEarningsPage = () => {
         </GlassCard>
 
         {/* Tab Navigation */}
-        <div className="flex gap-4 mb-6">
+        <div className="flex flex-wrap gap-3 sm:gap-4 mb-6">
           <button
             onClick={() => setActiveTab('deals')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -277,7 +277,7 @@ const SellerEarningsPage = () => {
               <div className="space-y-3">
                 {transactions.map((transaction) => (
                   <div key={transaction.id} className="bg-gray-50 border border-gray-100 rounded-lg p-4">
-                    <div className="flex items-start justify-between mb-3">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <h4 className="font-bold text-gray-900">MC #{transaction.mcNumber}</h4>
@@ -289,7 +289,7 @@ const SellerEarningsPage = () => {
                           </span>
                         </div>
                         <p className="text-sm text-gray-600 mb-2">{transaction.listingTitle}</p>
-                        <div className="flex items-center gap-4 text-xs text-gray-500">
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
                           <div className="flex items-center gap-1">
                             <span>Buyer: {transaction.buyerName}</span>
                           </div>
@@ -300,7 +300,7 @@ const SellerEarningsPage = () => {
                         </div>
                       </div>
 
-                      <div className="text-right ml-4">
+                      <div className="text-left sm:text-right sm:ml-4">
                         <div className="text-2xl font-bold text-emerald-600 mb-1">
                           ${transaction.netEarnings.toLocaleString()}
                         </div>
@@ -336,7 +336,7 @@ const SellerEarningsPage = () => {
               <div className="space-y-3">
                 {stripePayments.map((payment) => (
                   <div key={payment.id} className="bg-gray-50 border border-gray-100 rounded-lg p-4">
-                    <div className="flex items-start justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <h4 className="font-bold text-gray-900">
@@ -351,7 +351,7 @@ const SellerEarningsPage = () => {
                         <p className="text-sm text-gray-600 mb-2">
                           {payment.description || 'Payment processed'}
                         </p>
-                        <div className="flex items-center gap-4 text-xs text-gray-500">
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
                           {payment.paymentMethod && (
                             <div className="flex items-center gap-1">
                               <CreditCard className="w-3 h-3" />
@@ -368,7 +368,7 @@ const SellerEarningsPage = () => {
                         </div>
                       </div>
 
-                      <div className="text-right ml-4">
+                      <div className="text-left sm:text-right sm:ml-4">
                         <div className="text-2xl font-bold text-secondary-600 mb-1">
                           ${payment.amount.toLocaleString()}
                         </div>
@@ -377,7 +377,7 @@ const SellerEarningsPage = () => {
                             href={payment.receiptUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs text-secondary-500 hover:text-secondary-600 flex items-center justify-end gap-1"
+                            className="text-xs text-secondary-500 hover:text-secondary-600 flex items-center justify-start sm:justify-end gap-1"
                           >
                             <ExternalLink className="w-3 h-3" />
                             View Receipt

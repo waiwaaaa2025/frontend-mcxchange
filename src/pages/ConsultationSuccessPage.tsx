@@ -18,13 +18,13 @@ const ConsultationSuccessPage = () => {
   }, [sessionId, navigate])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-secondary-50 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-secondary-50 flex items-center justify-center p-4 sm:p-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="max-w-lg w-full"
       >
-        <Card className="p-8 text-center">
+        <Card className="p-6 sm:p-8 text-center">
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -42,7 +42,7 @@ const ConsultationSuccessPage = () => {
             Thank you for booking a consultation with our team. Your payment has been processed successfully.
           </p>
 
-          <div className="bg-secondary-50 rounded-xl p-6 mb-8 text-left border border-secondary-100">
+          <div className="bg-secondary-50 rounded-xl p-4 sm:p-6 mb-8 text-left border border-secondary-100">
             <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <Calendar className="w-5 h-5 text-secondary-600" />
               What Happens Next

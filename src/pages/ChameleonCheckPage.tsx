@@ -348,18 +348,18 @@ export default function ChameleonCheckPage() {
         <div className="space-y-6">
           {/* Carrier header card */}
           <Card padding="md">
-            <div className="flex items-start justify-between">
-              <div>
-                <h2 className="text-lg font-bold text-gray-900">{carrier.legalName || 'Unknown Carrier'}</h2>
-                {carrier.dbaName && <p className="text-sm text-gray-500">DBA: {carrier.dbaName}</p>}
-                <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
+            <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
+              <div className="min-w-0">
+                <h2 className="text-lg font-bold text-gray-900 break-words">{carrier.legalName || 'Unknown Carrier'}</h2>
+                {carrier.dbaName && <p className="text-sm text-gray-500 break-words">DBA: {carrier.dbaName}</p>}
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-sm text-gray-600">
                   <span>DOT #{carrier.dotNumber}</span>
                   {carrier.mcNumber && <span>MC {carrier.mcNumber}</span>}
                   <span>{carrier.location}</span>
                 </div>
               </div>
               {/* Risk badge */}
-              <div className={`px-3 py-1.5 rounded-full text-sm font-bold uppercase tracking-wider ${
+              <div className={`flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-bold uppercase tracking-wider ${
                 analysis.riskLevel === 'critical' ? 'bg-red-100 text-red-700' :
                 analysis.riskLevel === 'high' ? 'bg-orange-100 text-orange-700' :
                 analysis.riskLevel === 'moderate' ? 'bg-yellow-100 text-yellow-700' :

@@ -193,7 +193,7 @@ export default function LeadGeneratorLandingPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <section className="relative overflow-hidden bg-gradient-to-b from-slate-50 to-white py-20">
+      <section className="relative overflow-hidden bg-gradient-to-b from-slate-50 to-white py-12 sm:py-20">
         <div className="mx-auto max-w-5xl px-4 text-center">
           <motion.h1
             initial={{ opacity: 0, y: 16 }}
@@ -226,7 +226,7 @@ export default function LeadGeneratorLandingPage() {
         </div>
       </section>
 
-      <section className="py-16">
+      <section className="py-12 sm:py-16">
         <div className="mx-auto max-w-6xl px-4">
           <div className="grid gap-6 md:grid-cols-2">
             {TIERS.map((tier) => {
@@ -238,7 +238,7 @@ export default function LeadGeneratorLandingPage() {
                   initial={{ opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  className={`relative rounded-2xl border bg-white p-8 shadow-sm ${
+                  className={`relative rounded-2xl border bg-white p-6 shadow-sm sm:p-8 ${
                     tier.popular ? 'border-cyan-500 ring-2 ring-cyan-100' : 'border-slate-200'
                   }`}
                 >
@@ -258,7 +258,7 @@ export default function LeadGeneratorLandingPage() {
                   </div>
 
                   <div className="mt-6 flex items-baseline gap-1">
-                    <span className="text-5xl font-bold text-slate-900">${tier.price}</span>
+                    <span className="text-4xl font-bold text-slate-900 sm:text-5xl">${tier.price}</span>
                     <span className="text-slate-500">/ month</span>
                   </div>
 
@@ -305,9 +305,9 @@ export default function LeadGeneratorLandingPage() {
         </div>
       </section>
 
-      <section className="bg-slate-50 py-16">
+      <section className="bg-slate-50 py-12 sm:py-16">
         <div className="mx-auto max-w-6xl px-4">
-          <h2 className="text-center text-3xl font-bold text-slate-900">What you get</h2>
+          <h2 className="text-center text-2xl font-bold text-slate-900 sm:text-3xl">What you get</h2>
           <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {featureSections.map((section) => {
               const Icon = section.icon
@@ -331,18 +331,18 @@ export default function LeadGeneratorLandingPage() {
         </div>
       </section>
 
-      <section className="py-16">
+      <section className="py-12 sm:py-16">
         <div className="mx-auto max-w-3xl px-4 text-center">
           <Briefcase className="mx-auto h-10 w-10 text-cyan-500" />
-          <h2 className="mt-4 text-3xl font-bold text-slate-900">Ready to start prospecting?</h2>
+          <h2 className="mt-4 text-2xl font-bold text-slate-900 sm:text-3xl">Ready to start prospecting?</h2>
           <p className="mt-3 text-slate-600">
             Pick the tier that matches your workflow. You can switch between Buyer and Broker from your dashboard.
           </p>
-          <div className="mt-6 flex justify-center gap-3">
-            <Button variant="primary" onClick={() => handleSubscribe('LEAD_GENERATOR_BROKER')}>
+          <div className="mt-6 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
+            <Button variant="primary" className="w-full sm:w-auto" onClick={() => handleSubscribe('LEAD_GENERATOR_BROKER')}>
               Subscribe — $299/mo Broker
             </Button>
-            <Button variant="secondary" onClick={() => handleSubscribe('LEAD_GENERATOR_BUYER')}>
+            <Button variant="secondary" className="w-full sm:w-auto" onClick={() => handleSubscribe('LEAD_GENERATOR_BUYER')}>
               Subscribe — $49/mo Buyer
             </Button>
           </div>

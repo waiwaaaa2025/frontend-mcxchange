@@ -149,11 +149,11 @@ export default function ComplianceMonitorPage() {
               <ShieldCheck className="w-10 h-10 text-white" />
             </motion.div>
 
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 tracking-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-white mb-4 tracking-tight">
               Compliance{' '}
               <span className="bg-gradient-to-r from-indigo-400 via-blue-400 to-emerald-400 bg-clip-text text-transparent">Monitor</span>
             </h1>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-4">
+            <p className="text-base sm:text-xl text-gray-400 max-w-2xl mx-auto mb-4">
               Whether you run one truck or a hundred, just enter your DOT number and get fresh FMCSA data that updates daily.
               Monitor your company health, watch your safety scores, and let an AI agent handle the paperwork.
             </p>
@@ -238,7 +238,7 @@ export default function ComplianceMonitorPage() {
         </motion.div>
 
         <motion.div
-          className="bg-gray-900/60 backdrop-blur-xl rounded-3xl border border-white/10 p-8 relative overflow-hidden"
+          className="bg-gray-900/60 backdrop-blur-xl rounded-3xl border border-white/10 p-4 sm:p-8 relative overflow-hidden"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -305,12 +305,12 @@ export default function ComplianceMonitorPage() {
                 { task: 'MCS-150 biennial update', due: 'Due in 41 days', urgency: 'text-blue-400 bg-blue-500/10' },
                 { task: 'UCR annual registration', due: 'Due in 63 days', urgency: 'text-gray-400 bg-white/5' },
               ].map((item) => (
-                <div key={item.task} className="flex items-center justify-between bg-white/5 border border-white/5 rounded-xl px-4 py-3">
+                <div key={item.task} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-white/5 border border-white/5 rounded-xl px-4 py-3">
                   <div className="flex items-center gap-3">
-                    <Clock className="w-4 h-4 text-gray-500" />
+                    <Clock className="w-4 h-4 text-gray-500 flex-shrink-0" />
                     <span className="text-sm text-gray-300">{item.task}</span>
                   </div>
-                  <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${item.urgency}`}>
+                  <span className={`text-xs font-medium px-2.5 py-1 rounded-full self-start sm:self-auto whitespace-nowrap ${item.urgency}`}>
                     {item.due}
                   </span>
                 </div>
@@ -375,7 +375,7 @@ export default function ComplianceMonitorPage() {
       {/* How it works */}
       <div className="max-w-5xl mx-auto px-6 py-12">
         <motion.div
-          className="bg-gradient-to-br from-indigo-500/10 via-blue-500/10 to-emerald-500/10 border border-white/10 rounded-3xl p-10"
+          className="bg-gradient-to-br from-indigo-500/10 via-blue-500/10 to-emerald-500/10 border border-white/10 rounded-3xl p-6 sm:p-10"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -399,7 +399,7 @@ export default function ComplianceMonitorPage() {
       {/* CTA */}
       <div className="max-w-3xl mx-auto px-6 py-12 pb-20">
         <motion.div
-          className="bg-gradient-to-r from-indigo-500 via-blue-500 to-emerald-500 rounded-3xl p-10 text-center relative overflow-hidden"
+          className="bg-gradient-to-r from-indigo-500 via-blue-500 to-emerald-500 rounded-3xl p-6 sm:p-10 text-center relative overflow-hidden"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}

@@ -108,7 +108,7 @@ const SettingsPage = () => {
   const statusDisplay = getStatusDisplay()
 
   return (
-    <div className="p-8 max-w-3xl mx-auto">
+    <div className="p-4 sm:p-8 max-w-3xl mx-auto">
       <h1 className="text-2xl font-bold text-gray-900 mb-2">Settings</h1>
       <p className="text-gray-500 mb-8">Manage your account settings and verification status</p>
 

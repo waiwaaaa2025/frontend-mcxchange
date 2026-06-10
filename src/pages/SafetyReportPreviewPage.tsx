@@ -51,7 +51,7 @@ export default function SafetyReportPreviewPage() {
       {/* Hero */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 via-indigo-600/5 to-purple-600/5" />
-        <div className="max-w-5xl mx-auto px-6 pt-16 pb-12 text-center relative">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-16 pb-12 text-center relative">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 rounded-full text-blue-700 text-sm font-semibold mb-6">
               <Zap className="w-4 h-4" />
@@ -83,7 +83,7 @@ export default function SafetyReportPreviewPage() {
       </div>
 
       {/* Sample Report Preview */}
-      <div className="max-w-5xl mx-auto px-6 pb-12">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-12">
         <motion.div
           className="bg-white rounded-3xl border border-gray-200 shadow-xl shadow-gray-200/50 overflow-hidden relative"
           initial={{ opacity: 0, y: 30 }}
@@ -92,13 +92,13 @@ export default function SafetyReportPreviewPage() {
         >
           {/* Report Header */}
           <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-blue-200 text-sm font-semibold uppercase tracking-wider">Safety Improvement Report</p>
-                <h2 className="text-2xl font-bold mt-1">Sample Transport LLC</h2>
+                <h2 className="text-xl sm:text-2xl font-bold mt-1">Sample Transport LLC</h2>
                 <p className="text-blue-200 mt-1">DOT #3187270 &bull; MC #67138</p>
               </div>
-              <div className="text-right">
+              <div className="sm:text-right">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500/20 rounded-xl border border-orange-400/30">
                   <AlertTriangle className="w-5 h-5 text-orange-300" />
                   <span className="font-bold text-orange-200">High Risk</span>
@@ -163,7 +163,7 @@ export default function SafetyReportPreviewPage() {
       </div>
 
       {/* What's Included */}
-      <div className="max-w-5xl mx-auto px-6 pb-12">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -198,8 +198,8 @@ export default function SafetyReportPreviewPage() {
       </div>
 
       {/* CTA */}
-      <div className="max-w-4xl mx-auto px-6 pb-16">
-        <div className="bg-white rounded-2xl border border-gray-200 p-8 text-center">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-16">
+        <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 text-center">
           <h3 className="text-lg font-bold text-gray-900 mb-2">Included in CarrierPulse</h3>
           <p className="text-gray-500 text-sm mb-6">CarrierPulse includes the full Safety Improvement Report, Chameleon Check, and BASIC score analysis.</p>
           <div className="flex flex-wrap justify-center gap-3 mb-6">

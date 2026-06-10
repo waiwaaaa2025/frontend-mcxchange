@@ -215,7 +215,7 @@ export default function SafetyImprovementReportPage() {
                 icon={<Hash className="w-4 h-4" />}
               />
             </div>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading} className="w-full sm:w-auto">
               {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Search className="w-4 h-4 mr-2" />}
               Generate Report
             </Button>

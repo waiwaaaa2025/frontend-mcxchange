@@ -617,7 +617,7 @@ function AuthorityTab() {
       <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}
         className={`rounded-xl border-2 p-6 text-center ${opLevel === 'excellent' ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}
       >
-        <h2 className={`text-3xl font-black tracking-wide ${opLevel === 'excellent' ? 'text-emerald-700' : 'text-red-700'}`}>
+        <h2 className={`text-2xl sm:text-3xl font-black tracking-wide break-words ${opLevel === 'excellent' ? 'text-emerald-700' : 'text-red-700'}`}>
           <PreviewBlurValue>{c.operatingStatus === 'authorized' ? 'AUTHORIZED' : 'NOT AUTHORIZED'}</PreviewBlurValue>
         </h2>
         <p className={`text-sm mt-1 ${opLevel === 'excellent' ? 'text-emerald-600' : 'text-red-600'}`}>
@@ -846,7 +846,7 @@ function InspectionRecordsPanel() {
               <AnimatePresence>
                 {isExpanded && hasViolations && (
                   <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
-                    <div className="border-t border-gray-200">
+                    <div className="border-t border-gray-200 overflow-x-auto">
                       <table className="w-full text-xs">
                         <thead>
                           <tr className="border-b border-gray-200 bg-white">
@@ -958,7 +958,7 @@ function SafetyTab() {
                 </div>
                 <div className="bg-gray-50 rounded-xl border border-gray-200 p-5">
                   <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Operating Status</p>
-                  <h3 className={`text-3xl font-black tracking-wide uppercase ${c.operatingStatus === 'authorized' ? 'text-emerald-600' : 'text-red-600'}`}>
+                  <h3 className={`text-2xl sm:text-3xl font-black tracking-wide uppercase break-words ${c.operatingStatus === 'authorized' ? 'text-emerald-600' : 'text-red-600'}`}>
                     <PreviewBlurValue>{c.operatingStatus === 'authorized' ? 'Authorized' : c.operatingStatus === 'not-authorized' ? 'Not Authorized' : c.operatingStatus}</PreviewBlurValue>
                   </h3>
                   <p className="text-xs text-gray-400 mt-2">
@@ -1288,7 +1288,7 @@ function InsuranceTab() {
         className={`rounded-xl border-2 p-6 text-center ${insLevel === 'excellent' ? 'bg-emerald-50 border-emerald-200' : insLevel === 'warning' ? 'bg-yellow-50 border-yellow-200' : 'bg-red-50 border-red-200'}`}
       >
         <p className="text-sm text-gray-500 mb-1">Insurance Status</p>
-        <h2 className={`text-3xl font-black tracking-wide uppercase ${statusColors[insLevel].text}`}>
+        <h2 className={`text-2xl sm:text-3xl font-black tracking-wide uppercase break-words ${statusColors[insLevel].text}`}>
           <PreviewBlurValue>{c.insuranceStatus === 'pending' ? 'CANCELLATION PENDING' : c.insuranceStatus === 'expired' ? 'EXPIRED' : 'CURRENT'}</PreviewBlurValue>
         </h2>
       </motion.div>

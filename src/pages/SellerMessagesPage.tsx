@@ -153,9 +153,9 @@ const SellerMessagesPage = () => {
   )
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-1">Messages</h2>
           <p className="text-gray-500">Send a message to our team with any questions</p>
         </div>
@@ -266,7 +266,7 @@ const SellerMessagesPage = () => {
             {/* Chat Area */}
             <div className="lg:col-span-2">
               {selectedConversation ? (
-                <Card className="flex flex-col h-[600px]">
+                <Card className="flex flex-col h-[70vh] lg:h-[600px]">
                   {/* Chat Header */}
                   <div className="flex items-center gap-3 pb-4 border-b border-gray-100">
                     <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
@@ -325,7 +325,7 @@ const SellerMessagesPage = () => {
                   </div>
                 </Card>
               ) : (
-                <Card className="h-[600px] flex items-center justify-center">
+                <Card className="h-[70vh] lg:h-[600px] flex items-center justify-center">
                   <div className="text-center">
                     <MessageSquare className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                     <p className="text-gray-500">Select a conversation to start messaging</p>

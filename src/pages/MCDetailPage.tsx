@@ -440,10 +440,10 @@ const MCDetailPage = () => {
             {/* Header Card */}
             <Card className="overflow-hidden">
               <div className="bg-gradient-to-r from-gray-50 via-indigo-50 to-purple-50 -m-6 mb-6 p-6 border-b border-gray-200">
-                <div className="flex items-start justify-between">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div>
-                    <div className="flex items-center gap-3 mb-2">
-                      <h1 className="text-3xl font-bold text-gray-900">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+                      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
                         MC #{isUnlocked ? listing.mcNumber : getPartialMCNumber(listing.mcNumber)}
                       </h1>
                       {isPremiumListing && (
@@ -464,11 +464,11 @@ const MCDetailPage = () => {
                         </div>
                       )}
                     </div>
-                    <p className="text-xl text-gray-700">{listing.title}</p>
+                    <p className="text-lg sm:text-xl text-gray-700">{listing.title}</p>
                   </div>
 
-                  <div className="text-right">
-                    <div className="text-3xl font-bold text-emerald-600">
+                  <div className="text-left sm:text-right">
+                    <div className="text-2xl sm:text-3xl font-bold text-emerald-600">
                       ${(listing.listingPrice || listing.askingPrice || listing.price || 0).toLocaleString()}
                     </div>
                     <div className="text-sm text-gray-500 mt-1">Listed Price</div>
@@ -510,7 +510,7 @@ const MCDetailPage = () => {
                 ))}
               </div>
 
-              <div className="mt-6 pt-6 border-t border-gray-200 flex items-center gap-6 text-sm text-gray-500">
+              <div className="mt-6 pt-6 border-t border-gray-200 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-500">
                 <div className="flex items-center gap-2">
                   <Eye className="w-4 h-4" />
                   <span>{listing.views} views</span>

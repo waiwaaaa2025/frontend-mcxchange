@@ -150,7 +150,7 @@ const GuideThankYouPage = () => {
       </div>
 
       {data.tier === 'bundle' && (
-        <div className="bg-secondary-50 border border-secondary-100 rounded-xl p-6 text-left mb-6">
+        <div className="bg-secondary-50 border border-secondary-100 rounded-xl p-4 sm:p-6 text-left mb-6">
           <div className="flex items-start gap-3 mb-4">
             <Shield className="w-6 h-6 text-secondary-600 flex-shrink-0 mt-0.5" />
             <div>
@@ -202,13 +202,13 @@ const GuideThankYouPage = () => {
 }
 
 const CenteredCard = ({ children }: { children: React.ReactNode }) => (
-  <div className="min-h-screen bg-gradient-to-br from-gray-50 to-secondary-50 flex items-center justify-center p-6">
+  <div className="min-h-screen bg-gradient-to-br from-gray-50 to-secondary-50 flex items-center justify-center p-4 sm:p-6">
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="max-w-lg w-full"
     >
-      <Card className="p-8 text-center">{children}</Card>
+      <Card className="p-5 sm:p-8 text-center">{children}</Card>
     </motion.div>
   </div>
 )

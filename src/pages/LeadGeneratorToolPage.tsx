@@ -140,7 +140,8 @@ function PreviewTable() {
           Sample data — run a search for live carriers
         </span>
       </div>
-      <table className="w-full text-sm">
+      <div className="overflow-x-auto">
+      <table className="w-full min-w-[640px] text-sm">
         <thead className="bg-slate-50 text-left text-xs font-semibold uppercase text-slate-500">
           <tr>
             <th className="px-3 py-3">DOT</th>
@@ -178,6 +179,7 @@ function PreviewTable() {
           ))}
         </tbody>
       </table>
+      </div>
     </section>
   )
 }
@@ -335,7 +337,7 @@ export default function LeadGeneratorToolPage() {
           <p className="mt-3 text-slate-600">
             Pick a tier to start prospecting. Buyer ($49/mo) covers the basics; Broker ($299/mo) unlocks advanced filters and bulk CSV export.
           </p>
-          <div className="mt-6 flex justify-center gap-3">
+          <div className="mt-6 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
             <Button variant="primary" onClick={() => navigate('/lead-generator')}>
               See plans
             </Button>
@@ -484,11 +486,11 @@ export default function LeadGeneratorToolPage() {
           </div>
         )}
 
-        <div className="mt-4 flex items-center justify-between">
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-xs text-slate-500">
             {rows.length > 0 && `${rows.length} carriers shown · page ${page}`}
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button variant="secondary" onClick={() => setFilters(EMPTY_FILTERS)}>
               Clear
             </Button>
@@ -510,7 +512,8 @@ export default function LeadGeneratorToolPage() {
 
       {/* Results table */}
       <section className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[720px] text-sm">
           <thead className="bg-slate-50 text-left text-xs font-semibold uppercase text-slate-500">
             <tr>
               {isBroker && (
@@ -599,6 +602,7 @@ export default function LeadGeneratorToolPage() {
             ))}
           </tbody>
         </table>
+        </div>
 
         {hasMore && (
           <div className="border-t border-slate-100 p-3 text-center">

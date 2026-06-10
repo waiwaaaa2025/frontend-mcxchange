@@ -405,14 +405,14 @@ const MarketplacePage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Marketplace</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">Marketplace</h1>
           <p className="text-gray-500">Browse verified motor carrier authorities</p>
         </div>
 
         {/* Search and Filter Bar */}
         <Card className="mb-6">
           <div className="space-y-4">
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <div className="flex-1">
                 <Input
                   placeholder="Search by MC number, title, state, or description..."
@@ -425,7 +425,7 @@ const MarketplacePage = () => {
               <Button
                 variant={showFilters ? 'primary' : 'outline'}
                 onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center gap-2"
+                className="flex items-center justify-center gap-2 w-full sm:w-auto"
               >
                 <SlidersHorizontal className="w-4 h-4" />
                 Filters

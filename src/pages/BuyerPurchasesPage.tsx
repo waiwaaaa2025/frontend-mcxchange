@@ -319,15 +319,15 @@ const BuyerPurchasesPage = () => {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
             <h2 className="text-2xl font-bold text-gray-900 mb-1">My Purchases & Payments</h2>
             <p className="text-gray-500">View all your Stripe payments and MC transactions in one place</p>
           </div>
-          <Button variant="outline" onClick={fetchData} disabled={loading || stripeLoading}>
+          <Button variant="outline" onClick={fetchData} disabled={loading || stripeLoading} className="w-full sm:w-auto">
             <RefreshCw className={`w-4 h-4 mr-2 ${(loading || stripeLoading) ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
@@ -336,18 +336,18 @@ const BuyerPurchasesPage = () => {
         {/* Stripe Customer ID Banner */}
         {stripeHistory?.stripeCustomerId && (
           <Card className="mb-6 bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center">
                   <Zap className="w-5 h-5 text-indigo-600" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <div className="text-sm font-medium text-gray-700">Stripe Customer ID</div>
-                  <div className="text-xs text-gray-500 font-mono">{stripeHistory.stripeCustomerId}</div>
+                  <div className="text-xs text-gray-500 font-mono break-all">{stripeHistory.stripeCustomerId}</div>
                 </div>
               </div>
               {stripeHistory.subscriptions && stripeHistory.subscriptions.length > 0 && (
-                <div className="text-right">
+                <div className="sm:text-right">
                   <div className="text-sm font-medium text-indigo-600">
                     {stripeHistory.subscriptions[0].plan.charAt(0).toUpperCase() + stripeHistory.subscriptions[0].plan.slice(1)} Plan
                   </div>
@@ -361,7 +361,7 @@ const BuyerPurchasesPage = () => {
         )}
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8">
           {stats.map((stat, index) => (
             <motion.div
               key={stat.label}
@@ -386,7 +386,7 @@ const BuyerPurchasesPage = () => {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-6">
+        <div className="flex flex-wrap gap-2 mb-6">
           {(['all', 'stripe', 'transactions'] as const).map((tab) => (
             <button
               key={tab}
@@ -439,13 +439,13 @@ const BuyerPurchasesPage = () => {
                 <div className="space-y-4">
                   {stripeHistory.charges.map((charge) => (
                     <Card key={charge.id} className="hover:shadow-lg transition-shadow">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start gap-4">
-                          <div className="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                        <div className="flex items-start gap-4 min-w-0">
+                          <div className="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center shrink-0">
                             <CreditCard className="w-6 h-6 text-indigo-600" />
                           </div>
-                          <div>
-                            <div className="flex items-center gap-3 mb-1">
+                          <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-1">
                               <span className="font-bold text-gray-900">
                                 {getPaymentTypeLabel(charge.metadata)}
                               </span>
@@ -454,8 +454,8 @@ const BuyerPurchasesPage = () => {
                             <p className="text-sm text-gray-500 mb-2">
                               {charge.description || 'Stripe payment'}
                             </p>
-                            <div className="flex items-center gap-4 text-xs text-gray-400">
-                              <span className="font-mono">{charge.id}</span>
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs text-gray-400">
+                              <span className="font-mono break-all">{charge.id}</span>
                               {charge.paymentMethod && (
                                 <span className="flex items-center gap-1">
                                   <CreditCard className="w-3 h-3" />
@@ -466,7 +466,7 @@ const BuyerPurchasesPage = () => {
                             </div>
                           </div>
                         </div>
-                        <div className="text-right">
+                        <div className="text-left sm:text-right shrink-0">
                           <div className="text-2xl font-bold text-gray-900">
                             ${charge.amount.toLocaleString()}
                           </div>
@@ -524,9 +524,9 @@ const BuyerPurchasesPage = () => {
                       animate={{ opacity: 1, y: 0 }}
                     >
                       <Card className="hover:shadow-lg transition-shadow">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
                               <h3 className="text-xl font-bold text-gray-900">MC #{transaction.listing.mcNumber}</h3>
                               {getStatusBadge(transaction.status)}
                             </div>
@@ -560,7 +560,7 @@ const BuyerPurchasesPage = () => {
                             </div>
                           </div>
 
-                          <div className="text-right ml-4">
+                          <div className="text-left sm:text-right sm:ml-4 shrink-0">
                             <div className="text-xs text-gray-500 mb-1">Purchase Price</div>
                             <div className="text-2xl font-bold text-gray-900 mb-2">
                               ${transaction.agreedPrice.toLocaleString()}
@@ -616,7 +616,7 @@ const BuyerPurchasesPage = () => {
                         )}
 
                         {/* Actions */}
-                        <div className="flex gap-3 pt-4 border-t border-gray-100">
+                        <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-100">
                           <Link to={`/transaction/${transaction.id}`} className="flex-1">
                             <Button fullWidth variant="outline">
                               <Eye className="w-4 h-4 mr-2" />
@@ -627,6 +627,7 @@ const BuyerPurchasesPage = () => {
                             fullWidth
                             variant="outline"
                             onClick={() => handleViewInvoice(transaction)}
+                            className="flex-1"
                           >
                             <Receipt className="w-4 h-4 mr-2" />
                             View Invoice
@@ -635,6 +636,7 @@ const BuyerPurchasesPage = () => {
                             <Button
                               fullWidth
                               onClick={() => handleViewInvoice(transaction)}
+                              className="flex-1"
                             >
                               <Download className="w-4 h-4 mr-2" />
                               Download Receipt
@@ -713,9 +715,9 @@ const BuyerPurchasesPage = () => {
               onClick={(e) => e.stopPropagation()}
             >
               {/* Modal Header */}
-              <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between z-10">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+              <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 z-10">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center shrink-0">
                     <Receipt className="w-5 h-5 text-blue-600" />
                   </div>
                   <div>
@@ -751,11 +753,11 @@ const BuyerPurchasesPage = () => {
                 </div>
 
                 {/* Invoice Details */}
-                <div className="grid grid-cols-2 gap-6 mb-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
                   <div>
                     <h4 className="text-sm font-semibold text-gray-500 uppercase mb-3">Invoice Details</h4>
                     <div className="space-y-2">
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <Hash className="w-4 h-4 text-gray-400" />
                         <span className="text-sm text-gray-600">Invoice #:</span>
                         <span className="text-sm font-medium">{selectedTransaction.id.slice(0, 8).toUpperCase()}</span>
@@ -844,8 +846,8 @@ const BuyerPurchasesPage = () => {
                 {selectedTransaction.payments && selectedTransaction.payments.length > 0 && (
                   <div className="mb-6">
                     <h4 className="text-sm font-semibold text-gray-500 uppercase mb-3">Payment Transactions</h4>
-                    <div className="border rounded-xl overflow-hidden">
-                      <table className="w-full text-sm">
+                    <div className="border rounded-xl overflow-x-auto">
+                      <table className="w-full text-sm min-w-[480px]">
                         <thead className="bg-gray-50">
                           <tr>
                             <th className="text-left p-3 font-medium text-gray-600">Date</th>

@@ -88,23 +88,23 @@ const RecruitingServicesPage = () => {
               <Users className="w-10 h-10 text-gray-900" />
             </div>
 
-            <h1 className="text-5xl lg:text-7xl font-bold mb-6 text-gray-900">
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 text-gray-900">
               Driver Recruiting
             </h1>
 
-            <p className="text-xl lg:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
+            <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
               We hire company drivers, owner operators for Amazon Relay, and lease drivers.
               Our recruiters are fully trained by the owner and understand the trucking industry from the inside.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="min-w-[200px]" onClick={() => document.getElementById('contact-form')?.scrollIntoView({ behavior: 'smooth' })}>
+              <Button size="lg" className="w-full sm:w-auto sm:min-w-[200px]" onClick={() => document.getElementById('contact-form')?.scrollIntoView({ behavior: 'smooth' })}>
                 Start Hiring Drivers
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
 
-              <a href="tel:+18778141807">
-                <Button size="lg" variant="outline" className="min-w-[200px]">
+              <a href="tel:+18778141807" className="w-full sm:w-auto">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto sm:min-w-[200px]">
                   <Phone className="w-5 h-5 mr-2" />
                   Call (877) 814-1807
                 </Button>
@@ -512,15 +512,15 @@ const RecruitingServicesPage = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a href="tel:+18778141807">
-                <Button size="lg" className="min-w-[200px] bg-white text-gray-900 hover:bg-gray-100">
+              <a href="tel:+18778141807" className="w-full sm:w-auto">
+                <Button size="lg" className="w-full sm:w-auto sm:min-w-[200px] bg-white text-gray-900 hover:bg-gray-100">
                   <Phone className="w-5 h-5 mr-2" />
                   (877) 814-1807
                 </Button>
               </a>
 
-              <a href="mailto:info@domilea.com">
-                <Button size="lg" variant="outline" className="min-w-[200px] border-white text-white hover:bg-white/10">
+              <a href="mailto:info@domilea.com" className="w-full sm:w-auto">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto sm:min-w-[200px] border-white text-white hover:bg-white/10">
                   <Mail className="w-5 h-5 mr-2" />
                   info@domilea.com
                 </Button>

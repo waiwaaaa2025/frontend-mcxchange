@@ -7,7 +7,6 @@ import {
   Activity,
   ShieldCheck,
   Bot,
-  Sparkles,
   Briefcase,
   Database,
   Cpu,
@@ -18,7 +17,6 @@ import {
   BookOpen,
   HelpCircle,
   Users,
-  Building2,
   Handshake,
   LineChart,
   Wrench,
@@ -47,16 +45,12 @@ interface MenuItem {
 
 const solutionsByProduct: MenuItem[] = [
   { name: 'Carrier Pulse', desc: 'Search 63M+ trucking data records to discover carriers and operating signals.', href: '/carrier-pulse-preview', icon: Search },
-  { name: 'Company Health', desc: 'Monitor safety, SMS, compliance, insurance, and operating signals for your carrier.', href: '/eva-ai', icon: Activity },
-  { name: 'AI Due Diligence', desc: 'Summarize carrier risk, compliance, and fit with AI.', href: '/carrier-pulse-preview', icon: Sparkles },
-  { name: 'Compliance Monitor', desc: 'Track authority, insurance gaps, SMS changes, and red flags.', href: '/compliance-monitor', icon: ShieldCheck },
   { name: 'Domilea Exclusives', desc: 'Selected opportunities reviewed directly by Domilea.', href: '/marketplace', icon: Briefcase },
   { name: 'Deal Support', desc: 'Request Domilea to review, contact, and support an opportunity.', href: '/contact', icon: Handshake },
 ]
 
 const solutionsByUseCase: MenuItem[] = [
   { name: 'Buyers & Strategic Acquirers', desc: 'Find companies worth pursuing and start with confidence.', href: '/marketplace', icon: Briefcase },
-  { name: 'Current Carrier Owners', desc: 'Monitor your company’s health and value over time.', href: '/contact', icon: Building2 },
   { name: 'Investors', desc: 'Identify market trends and acquisition targets.', href: '/contact', icon: LineChart },
   { name: 'Safety & Compliance', desc: 'SMS, compliance, and operational health in one place.', href: '/product/safety', icon: Wrench },
   { name: 'Enterprise & API', desc: 'MorPro-powered intelligence APIs and trucking data infrastructure.', href: '/contact', icon: Network },
@@ -174,8 +168,8 @@ const Navbar = () => {
           {/* Desktop nav */}
           <div className="hidden lg:flex items-center gap-1">
             <Link to="/marketplace" className="px-3 py-2 text-sm font-medium text-domilea-ink/80 hover:text-domilea-ink rounded-lg" onMouseEnter={() => setOpenMenu(null)}>Marketplace</Link>
-            <NavTrigger label="Solutions" isOpen={openMenu === 'solutions'} onEnter={() => openMenuWithDelay('solutions')} onLeave={scheduleClose} />
             <NavTrigger label="Product" isOpen={openMenu === 'product'} onEnter={() => openMenuWithDelay('product')} onLeave={scheduleClose} />
+            <NavTrigger label="Solutions" isOpen={openMenu === 'solutions'} onEnter={() => openMenuWithDelay('solutions')} onLeave={scheduleClose} />
             <NavTrigger label="Resources" isOpen={openMenu === 'resources'} onEnter={() => openMenuWithDelay('resources')} onLeave={scheduleClose} />
             <Link to="/pricing" className="px-3 py-2 text-sm font-medium text-domilea-ink/80 hover:text-domilea-ink rounded-lg" onMouseEnter={() => setOpenMenu(null)}>Pricing</Link>
             <Link to="/contact" className="px-3 py-2 text-sm font-medium text-domilea-ink/80 hover:text-domilea-ink rounded-lg" onMouseEnter={() => setOpenMenu(null)}>Contact</Link>
@@ -261,11 +255,11 @@ const Navbar = () => {
           >
             <div className="px-4 py-4 space-y-1 max-h-[calc(100vh-4rem)] overflow-y-auto">
               <Link to="/marketplace" className="block px-3 py-2.5 text-sm font-medium text-domilea-ink" onClick={() => setMobileOpen(false)}>Marketplace</Link>
-              <MobileSection label="Solutions">
-                <MobileGroup items={[...solutionsByProduct, ...solutionsByUseCase]} onPick={() => setMobileOpen(false)} />
-              </MobileSection>
               <MobileSection label="Product">
                 <MobileGroup items={productItems} onPick={() => setMobileOpen(false)} />
+              </MobileSection>
+              <MobileSection label="Solutions">
+                <MobileGroup items={[...solutionsByProduct, ...solutionsByUseCase]} onPick={() => setMobileOpen(false)} />
               </MobileSection>
               <MobileSection label="Resources">
                 <MobileGroup title="Learn" items={resourcesLearn} onPick={() => setMobileOpen(false)} />

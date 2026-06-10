@@ -963,7 +963,7 @@ function AuthorityTab() {
       </div>
 
       {/* 3. Authority Risk Indicators */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
         <div className={`rounded-lg p-4 text-center border ${mockCarrier.totalRevocations === 0 ? 'bg-emerald-50 border-emerald-100' : 'bg-red-50 border-red-200'}`}>
           <p className={`text-2xl font-bold ${mockCarrier.totalRevocations === 0 ? 'text-emerald-600' : 'text-red-600'}`}>{mockCarrier.totalRevocations}</p>
           <p className="text-xs text-gray-500">Total Revocations</p>

@@ -150,7 +150,7 @@ const CreditReportPurchasePage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
-      <div className="p-8">
+      <div className="p-4 sm:p-8">
         <div className="max-w-[1400px] mx-auto">
           {/* Header */}
           <motion.div
@@ -163,10 +163,10 @@ const CreditReportPurchasePage = () => {
                 <Shield className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+                <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
                   Credit Reports
                 </h1>
-                <p className="text-gray-500">
+                <p className="text-sm sm:text-base text-gray-500">
                   Search any company and purchase a full business credit report — <span className="text-indigo-600 font-semibold">$35 per report</span>
                 </p>
               </div>
@@ -175,7 +175,7 @@ const CreditReportPurchasePage = () => {
 
           {/* Search Section */}
           <motion.div
-            className="bg-white rounded-3xl border border-gray-200 shadow-xl shadow-gray-200/50 p-8 mb-8"
+            className="bg-white rounded-3xl border border-gray-200 shadow-xl shadow-gray-200/50 p-5 sm:p-8 mb-8"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
@@ -236,7 +236,7 @@ const CreditReportPurchasePage = () => {
 
           {/* Results + Report */}
           {(isSearching || searchResults.length > 0 || selectedCompany || fullReport) && (
-            <div className="grid lg:grid-cols-12 gap-8">
+            <div className="grid lg:grid-cols-12 gap-6 sm:gap-8">
               {/* Search Results Sidebar */}
               <motion.div
                 className="lg:col-span-4"
@@ -336,7 +336,7 @@ const CreditReportPurchasePage = () => {
                   {isLoadingReport ? (
                     <motion.div
                       key="loading"
-                      className="bg-white rounded-3xl border border-gray-200 shadow-xl shadow-gray-200/50 p-16"
+                      className="bg-white rounded-3xl border border-gray-200 shadow-xl shadow-gray-200/50 p-8 sm:p-16"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
@@ -350,7 +350,7 @@ const CreditReportPurchasePage = () => {
                   ) : selectedCompany && !isPurchased(selectedCompany) && !fullReport ? (
                     <motion.div
                       key="purchase"
-                      className="bg-white rounded-3xl border border-gray-200 shadow-xl shadow-gray-200/50 p-12"
+                      className="bg-white rounded-3xl border border-gray-200 shadow-xl shadow-gray-200/50 p-6 sm:p-12"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0 }}
@@ -375,7 +375,7 @@ const CreditReportPurchasePage = () => {
                           <Button
                             onClick={() => handlePurchaseReport(selectedCompany)}
                             disabled={purchaseLoading}
-                            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-3"
+                            className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-3"
                           >
                             {purchaseLoading ? (
                               <>
@@ -407,7 +407,7 @@ const CreditReportPurchasePage = () => {
                   ) : (
                     <motion.div
                       key="empty"
-                      className="bg-white rounded-3xl border border-gray-200 shadow-xl shadow-gray-200/50 p-16"
+                      className="bg-white rounded-3xl border border-gray-200 shadow-xl shadow-gray-200/50 p-8 sm:p-16"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                     >

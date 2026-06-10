@@ -831,7 +831,7 @@ const BuyerSubscriptionPage = () => {
                     </div>
                   )}
                   <div className={`bg-gradient-to-r from-rose-50 to-pink-50 -m-6 ${isCurrentPlan ? 'mt-2' : ''} mb-6 p-6 border-b border-gray-100`}>
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                       <div className="flex items-center gap-4">
                         <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center shadow-lg">
                           <Package className="w-7 h-7 text-white" />

@@ -34,6 +34,7 @@ const DriversLandingPage = lazy(() => import('./pages/DriversLandingPage'))
 
 // Product pages
 const ProductPage = lazy(() => import('./pages/product/ProductPage'))
+const ContactPage = lazy(() => import('./pages/ContactPage'))
 const FuelProgramPage = lazy(() => import('./pages/product/FuelProgramPage'))
 const SafetyServicesPage = lazy(() => import('./pages/product/SafetyServicesPage'))
 const RecruitingServicesPage = lazy(() => import('./pages/product/RecruitingServicesPage'))
@@ -173,6 +174,7 @@ function App() {
               <Route path="mc/:id" element={<MCDetailPageV2 />} />
               <Route path="mc-v2/:id" element={<MCDetailPageV2 />} />
               <Route path="consultation/success" element={<ConsultationSuccessPage />} />
+              <Route path="contact" element={<ContactPage />} />
               {/* Product Routes */}
               <Route path="product" element={<ProductPage />} />
               <Route path="product/fuel-program" element={<FuelProgramPage />} />

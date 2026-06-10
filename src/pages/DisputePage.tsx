@@ -259,7 +259,7 @@ const DisputePage = () => {
                 This security measure helps protect our users from unauthorized transactions.
               </p>
               <div className="bg-gray-50 rounded-lg p-4">
-                <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="text-gray-500 block">Cardholder Name</span>
                     <span className="font-medium text-gray-900">{dispute.cardholderName}</span>

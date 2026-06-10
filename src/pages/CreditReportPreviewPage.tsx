@@ -97,7 +97,7 @@ export default function CreditReportPreviewPage() {
       {/* Hero */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 via-transparent to-indigo-600/5" />
-        <div className="max-w-6xl mx-auto px-6 pt-20 pb-16 relative">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-12 sm:pt-20 pb-12 sm:pb-16 relative">
           <motion.div
             className="text-center"
             initial={{ opacity: 0, y: 20 }}
@@ -107,10 +107,10 @@ export default function CreditReportPreviewPage() {
               <Shield className="w-4 h-4 text-blue-600" />
               <span className="text-sm font-medium text-blue-700">Powered by CreditSafe</span>
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-4 tracking-tight">
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-4 tracking-tight">
               Business Credit Reports
             </h1>
-            <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-8">
+            <p className="text-lg sm:text-xl text-gray-500 max-w-2xl mx-auto mb-8">
               Get comprehensive credit intelligence on any US business. Verify financial health before you buy a motor carrier authority.
             </p>
             <div className="flex items-center justify-center gap-4 mb-6">
@@ -122,7 +122,7 @@ export default function CreditReportPreviewPage() {
             </div>
             <Button
               onClick={handleGetStarted}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-3.5 text-lg shadow-xl shadow-blue-500/25"
+              className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 sm:px-8 py-3.5 text-base sm:text-lg shadow-xl shadow-blue-500/25"
             >
               <CreditCard className="w-5 h-5 mr-2" />
               {user ? 'Search & Purchase a Report' : 'Get Started — Create Free Account'}
@@ -134,9 +134,9 @@ export default function CreditReportPreviewPage() {
       </div>
 
       {/* Sample Credit Score Preview */}
-      <div className="max-w-6xl mx-auto px-6 pb-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 pb-12">
         <motion.div
-          className="bg-white rounded-3xl border border-gray-200 shadow-xl shadow-gray-200/50 p-8 md:p-12 relative overflow-hidden"
+          className="bg-white rounded-3xl border border-gray-200 shadow-xl shadow-gray-200/50 p-5 sm:p-8 md:p-12 relative overflow-hidden"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -191,7 +191,7 @@ export default function CreditReportPreviewPage() {
           </div>
 
           {/* Blurred sample stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 relative">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-8 relative">
             {[
               { label: 'Credit Limit', value: '$150,000', icon: DollarSign },
               { label: 'Employees', value: '45', icon: Users },
@@ -215,24 +215,24 @@ export default function CreditReportPreviewPage() {
 
           {/* Blurred legal section */}
           <div className="relative">
-            <div className="grid grid-cols-3 gap-4 filter blur-[3px] select-none pointer-events-none">
-              <div className="bg-emerald-50 rounded-xl p-4">
-                <p className="text-sm text-emerald-700 font-medium">Bankruptcies</p>
-                <p className="text-2xl font-bold text-emerald-800">None</p>
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 filter blur-[3px] select-none pointer-events-none">
+              <div className="bg-emerald-50 rounded-xl p-3 sm:p-4">
+                <p className="text-xs sm:text-sm text-emerald-700 font-medium">Bankruptcies</p>
+                <p className="text-lg sm:text-2xl font-bold text-emerald-800">None</p>
               </div>
-              <div className="bg-emerald-50 rounded-xl p-4">
-                <p className="text-sm text-emerald-700 font-medium">Tax Liens</p>
-                <p className="text-2xl font-bold text-emerald-800">0</p>
+              <div className="bg-emerald-50 rounded-xl p-3 sm:p-4">
+                <p className="text-xs sm:text-sm text-emerald-700 font-medium">Tax Liens</p>
+                <p className="text-lg sm:text-2xl font-bold text-emerald-800">0</p>
               </div>
-              <div className="bg-amber-50 rounded-xl p-4">
-                <p className="text-sm text-amber-700 font-medium">Lawsuits</p>
-                <p className="text-2xl font-bold text-amber-800">1 Resolved</p>
+              <div className="bg-amber-50 rounded-xl p-3 sm:p-4">
+                <p className="text-xs sm:text-sm text-amber-700 font-medium">Lawsuits</p>
+                <p className="text-lg sm:text-2xl font-bold text-amber-800">1 Resolved</p>
               </div>
             </div>
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="bg-white/90 backdrop-blur-sm rounded-2xl px-6 py-4 border border-gray-200 shadow-lg flex items-center gap-3">
-                <Lock className="w-5 h-5 text-gray-600" />
-                <span className="font-semibold text-gray-800">Purchase to view full report</span>
+              <div className="bg-white/90 backdrop-blur-sm rounded-2xl px-4 sm:px-6 py-3 sm:py-4 border border-gray-200 shadow-lg flex items-center gap-2 sm:gap-3 max-w-[90%]">
+                <Lock className="w-5 h-5 text-gray-600 flex-shrink-0" />
+                <span className="text-sm sm:text-base font-semibold text-gray-800">Purchase to view full report</span>
               </div>
             </div>
           </div>
@@ -240,7 +240,7 @@ export default function CreditReportPreviewPage() {
       </div>
 
       {/* What's Included */}
-      <div className="max-w-6xl mx-auto px-6 py-16">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
         <motion.div
           className="text-center mb-12"
           initial={{ opacity: 0 }}
@@ -276,15 +276,15 @@ export default function CreditReportPreviewPage() {
       </div>
 
       {/* How it works */}
-      <div className="max-w-4xl mx-auto px-6 pb-16">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-16">
         <motion.div
-          className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-10 text-center"
+          className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-6 sm:p-10 text-center"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
         >
           <h2 className="text-2xl font-bold text-white mb-8">How It Works</h2>
-          <div className="grid md:grid-cols-3 gap-8 mb-10">
+          <div className="grid sm:grid-cols-3 gap-6 sm:gap-8 mb-10">
             {[
               { step: '1', title: 'Search', desc: 'Enter any company name to find them in our database' },
               { step: '2', title: 'Purchase', desc: 'Pay $35 securely via Stripe — no subscription needed' },
@@ -301,7 +301,7 @@ export default function CreditReportPreviewPage() {
           </div>
           <Button
             onClick={handleGetStarted}
-            className="bg-white text-gray-900 hover:bg-gray-100 px-8 py-3 text-lg"
+            className="w-full sm:w-auto bg-white text-gray-900 hover:bg-gray-100 px-6 sm:px-8 py-3 text-base sm:text-lg"
           >
             {user ? 'Search & Purchase Now' : 'Create Free Account'}
             <ArrowRight className="w-5 h-5 ml-2" />
@@ -310,8 +310,8 @@ export default function CreditReportPreviewPage() {
       </div>
 
       {/* Trust badges */}
-      <div className="max-w-4xl mx-auto px-6 pb-20">
-        <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-400">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-20">
+        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm text-gray-400">
           <div className="flex items-center gap-2">
             <Shield className="w-4 h-4" />
             <span>256-bit SSL Encrypted</span>

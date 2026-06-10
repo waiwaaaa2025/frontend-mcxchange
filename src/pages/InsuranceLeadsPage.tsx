@@ -332,15 +332,16 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <Link to={`${pulseBase}/${lead.dotNumber}`}>
-                      <Button variant="outline" size="sm">View details</Button>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 shrink-0">
+                    <Link to={`${pulseBase}/${lead.dotNumber}`} className="w-full sm:w-auto">
+                      <Button variant="outline" size="sm" className="w-full sm:w-auto">View details</Button>
                     </Link>
                     <Button
                       size="sm"
                       variant={done ? 'ghost' : 'primary'}
                       disabled={done}
                       onClick={() => { setOutreachFor(lead); setOutreachMessage('') }}
+                      className="w-full sm:w-auto"
                     >
                       <Phone className="w-4 h-4 mr-1.5" />
                       {done ? 'Requested' : 'Ask Domilea to contact'}

@@ -110,7 +110,7 @@ const SellerOffersPage = () => {
   }
 
   return (
-    <div className="p-6 md:p-8 max-w-5xl mx-auto">
+    <div className="p-4 sm:p-6 md:p-8 max-w-5xl mx-auto">
       {/* Header */}
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900">Offers Received</h2>
@@ -134,7 +134,7 @@ const SellerOffersPage = () => {
       </div>
 
       {/* Filters */}
-      <div className="flex gap-2 mb-6">
+      <div className="flex flex-wrap gap-2 mb-6">
         {(['all', 'PENDING', 'ACCEPTED', 'REJECTED'] as const).map((filter) => (
           <button
             key={filter}
@@ -176,7 +176,7 @@ const SellerOffersPage = () => {
               transition={{ delay: index * 0.05 }}
             >
               <Card>
-                <div className="flex items-start justify-between mb-3">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
                   <div>
                     <div className="flex items-center gap-3 mb-1">
                       <h3 className="text-base font-bold text-gray-900">
@@ -193,7 +193,7 @@ const SellerOffersPage = () => {
                     </div>
                   </div>
 
-                  <div className="text-right">
+                  <div className="text-left sm:text-right">
                     {offer.listing?.askingPrice && (
                       <>
                         <p className="text-xs text-gray-400">Asking</p>
@@ -227,7 +227,7 @@ const SellerOffersPage = () => {
 
                 {/* Actions for pending offers */}
                 {offer.status === 'PENDING' && (
-                  <div className="flex gap-2 mt-3">
+                  <div className="flex flex-col sm:flex-row gap-2 mt-3">
                     <Button size="sm" fullWidth>
                       <CheckCircle className="w-4 h-4 mr-1" /> Accept
                     </Button>

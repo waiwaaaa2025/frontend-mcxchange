@@ -116,7 +116,7 @@ export default function ChameleonCheckPreviewPage() {
       {/* Hero */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-red-600/5 via-transparent to-orange-600/5" />
-        <div className="max-w-6xl mx-auto px-6 pt-20 pb-16 relative">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-14 sm:pt-20 pb-12 sm:pb-16 relative">
           <motion.div
             className="text-center"
             initial={{ opacity: 0, y: 20 }}
@@ -126,10 +126,10 @@ export default function ChameleonCheckPreviewPage() {
               <ShieldAlert className="w-4 h-4 text-red-600" />
               <span className="text-sm font-medium text-red-700">Carrier Intelligence Tool</span>
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-4 tracking-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-4 tracking-tight">
               Chameleon Check
             </h1>
-            <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-8">
+            <p className="text-lg sm:text-xl text-gray-500 max-w-2xl mx-auto mb-8">
               Detect reincarnated carriers before you buy. Cross-reference EINs, officers, addresses, equipment, and revocation history across FMCSA records.
             </p>
             <div className="flex items-center justify-center gap-4 mb-6">
@@ -140,7 +140,7 @@ export default function ChameleonCheckPreviewPage() {
             </div>
             <Button
               onClick={handleGetStarted}
-              className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white px-8 py-3.5 text-lg shadow-xl shadow-red-500/25"
+              className="w-full sm:w-auto bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white px-8 py-3.5 text-base sm:text-lg shadow-xl shadow-red-500/25"
             >
               <ShieldAlert className="w-5 h-5 mr-2" />
               {user ? 'Start Checking Carriers' : 'Get Started — Create Free Account'}
@@ -152,7 +152,7 @@ export default function ChameleonCheckPreviewPage() {
       </div>
 
       {/* Sample Analysis Preview */}
-      <div className="max-w-5xl mx-auto px-6 pb-12">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-12">
         <motion.div
           className="bg-white rounded-3xl border border-gray-200 shadow-xl shadow-gray-200/50 overflow-hidden relative"
           initial={{ opacity: 0, y: 30 }}
@@ -166,14 +166,14 @@ export default function ChameleonCheckPreviewPage() {
           </div>
 
           {/* Risk header */}
-          <div className="bg-gradient-to-r from-red-600 to-red-700 px-8 py-5">
+          <div className="bg-gradient-to-r from-red-600 to-red-700 px-5 sm:px-8 py-5">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-white/15 flex items-center justify-center">
+              <div className="w-14 h-14 rounded-2xl bg-white/15 flex items-center justify-center flex-shrink-0">
                 <ShieldAlert className="w-7 h-7 text-white" />
               </div>
               <div>
-                <div className="flex items-center gap-3">
-                  <h3 className="text-xl font-bold text-white">Chameleon Carrier Analysis</h3>
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                  <h3 className="text-lg sm:text-xl font-bold text-white">Chameleon Carrier Analysis</h3>
                   <span className="px-3 py-1 rounded-full bg-white/20 text-white text-xs font-bold uppercase tracking-wider">
                     High Risk
                   </span>
@@ -184,7 +184,7 @@ export default function ChameleonCheckPreviewPage() {
           </div>
 
           {/* Risk score bar */}
-          <div className="px-8 py-5 border-b border-gray-100">
+          <div className="px-5 sm:px-8 py-5 border-b border-gray-100">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-gray-700">Chameleon Risk Score</span>
               <span className="text-lg font-bold text-red-600">78 / 100</span>
@@ -207,7 +207,7 @@ export default function ChameleonCheckPreviewPage() {
           </div>
 
           {/* Flags */}
-          <div className="px-8 py-6 space-y-3">
+          <div className="px-5 sm:px-8 py-6 space-y-3">
             {sampleFlags.map((flag, i) => (
               <motion.div
                 key={flag.title}
@@ -220,7 +220,7 @@ export default function ChameleonCheckPreviewPage() {
                   <AlertTriangle className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <h4 className={`text-sm font-bold ${flag.textColor}`}>{flag.title}</h4>
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${flag.color} text-white`}>
                       {flag.severity}
@@ -233,7 +233,7 @@ export default function ChameleonCheckPreviewPage() {
           </div>
 
           {/* Blurred related carriers section */}
-          <div className="px-8 pb-8 relative">
+          <div className="px-5 sm:px-8 pb-8 relative">
             <h4 className="text-sm font-semibold text-gray-700 mb-3">Related Carriers Found</h4>
             <div className="filter blur-[3px] select-none pointer-events-none space-y-2">
               {[1, 2, 3].map((i) => (
@@ -247,7 +247,7 @@ export default function ChameleonCheckPreviewPage() {
               ))}
             </div>
             <div className="absolute inset-0 flex items-center justify-center mt-6">
-              <div className="bg-white/90 backdrop-blur-sm rounded-2xl px-6 py-4 border border-gray-200 shadow-lg flex items-center gap-3">
+              <div className="bg-white/90 backdrop-blur-sm rounded-2xl px-4 sm:px-6 py-4 border border-gray-200 shadow-lg flex items-center gap-3 mx-4 text-center">
                 <Lock className="w-5 h-5 text-gray-600" />
                 <span className="font-semibold text-gray-800">Subscribe to view full analysis</span>
               </div>
@@ -257,7 +257,7 @@ export default function ChameleonCheckPreviewPage() {
       </div>
 
       {/* What We Check */}
-      <div className="max-w-6xl mx-auto px-6 py-16">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
         <motion.div
           className="text-center mb-12"
           initial={{ opacity: 0 }}
@@ -290,9 +290,9 @@ export default function ChameleonCheckPreviewPage() {
       </div>
 
       {/* Why it matters */}
-      <div className="max-w-5xl mx-auto px-6 pb-16">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-16">
         <motion.div
-          className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-10"
+          className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-6 sm:p-10"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
@@ -340,7 +340,7 @@ export default function ChameleonCheckPreviewPage() {
           <div className="mt-10 text-center">
             <Button
               onClick={handleGetStarted}
-              className="bg-white text-gray-900 hover:bg-gray-100 px-8 py-3 text-lg"
+              className="w-full sm:w-auto bg-white text-gray-900 hover:bg-gray-100 px-8 py-3 text-base sm:text-lg"
             >
               {user ? 'Start Checking Carriers' : 'Create Free Account'}
               <ArrowRight className="w-5 h-5 ml-2" />
@@ -350,8 +350,8 @@ export default function ChameleonCheckPreviewPage() {
       </div>
 
       {/* Included with */}
-      <div className="max-w-4xl mx-auto px-6 pb-16">
-        <div className="bg-white rounded-2xl border border-gray-200 p-8 text-center">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-16">
+        <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 text-center">
           <h3 className="text-lg font-bold text-gray-900 mb-2">Included in CarrierPulse</h3>
           <p className="text-gray-500 text-sm mb-6">CarrierPulse includes Chameleon Check, the Safety Improvement Report, and full carrier intelligence. Or upgrade to Professional for all tools.</p>
           <div className="flex flex-wrap justify-center gap-3">
@@ -373,7 +373,7 @@ export default function ChameleonCheckPreviewPage() {
       </div>
 
       {/* Trust footer */}
-      <div className="max-w-4xl mx-auto px-6 pb-20">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-20">
         <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-400">
           <div className="flex items-center gap-2">
             <Building2 className="w-4 h-4" />

@@ -161,13 +161,13 @@ const SellerPayoutSetupPage = () => {
             )}
 
             {/* Action Buttons */}
-            <div className="mt-5 flex flex-wrap gap-3">
+            <div className="mt-5 flex flex-col sm:flex-row flex-wrap gap-3">
               {isFullyOnboarded ? (
                 <>
                   <Button
                     onClick={handleOpenDashboard}
                     disabled={openingDashboard}
-                    className="bg-gray-900 hover:bg-gray-800 text-white"
+                    className="w-full sm:w-auto bg-gray-900 hover:bg-gray-800 text-white"
                   >
                     {openingDashboard ? (
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -179,6 +179,7 @@ const SellerPayoutSetupPage = () => {
                   <Button
                     variant="outline"
                     onClick={fetchStatus}
+                    className="w-full sm:w-auto"
                   >
                     <RefreshCw className="w-4 h-4 mr-2" />
                     Refresh Status
@@ -189,7 +190,7 @@ const SellerPayoutSetupPage = () => {
                   <Button
                     onClick={handleSetupAccount}
                     disabled={creating}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white"
                   >
                     {creating ? (
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -202,6 +203,7 @@ const SellerPayoutSetupPage = () => {
                     <Button
                       variant="outline"
                       onClick={fetchStatus}
+                      className="w-full sm:w-auto"
                     >
                       <RefreshCw className="w-4 h-4 mr-2" />
                       Refresh Status

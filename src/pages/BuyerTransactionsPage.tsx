@@ -186,7 +186,7 @@ const BuyerTransactionsPage = () => {
       </div>
 
       {/* Filters */}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {[
           { id: 'all', label: 'All Transactions' },
           { id: 'active', label: 'Active' },
@@ -296,9 +296,9 @@ const BuyerTransactionsPage = () => {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex gap-2">
-                      <Link to={`/transaction/${txn.id}`}>
-                        <Button variant={needsBuyerAction ? 'primary' : 'outline'}>
+                    <div className="flex gap-2 w-full sm:w-auto">
+                      <Link to={`/transaction/${txn.id}`} className="w-full sm:w-auto">
+                        <Button variant={needsBuyerAction ? 'primary' : 'outline'} className="w-full sm:w-auto justify-center">
                           {txn.status === 'payment-pending' ? (
                             <>
                               View Payment Details
@@ -325,9 +325,9 @@ const BuyerTransactionsPage = () => {
                     </div>
                   </div>
 
-                  <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between text-sm text-gray-500">
+                  <div className="mt-4 pt-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm text-gray-500">
                     <span>Started: {txn.createdAt.toLocaleDateString()}</span>
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
                       {txn.depositPaid && (
                         <span className="flex items-center gap-1 text-green-600">
                           <CheckCircle className="w-4 h-4" />

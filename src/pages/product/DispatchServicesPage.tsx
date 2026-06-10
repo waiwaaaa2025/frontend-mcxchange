@@ -119,7 +119,7 @@ const DispatchServicesPage = () => {
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-b from-gray-50 to-white">
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-32">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -130,23 +130,23 @@ const DispatchServicesPage = () => {
               <Truck className="w-10 h-10 text-gray-900" />
             </div>
 
-            <h1 className="text-5xl lg:text-7xl font-bold mb-6 text-gray-900">
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 text-gray-900">
               Dispatch Services
             </h1>
 
-            <p className="text-xl lg:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
+            <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
               Professional dispatch services to keep your trucks loaded and profitable.
               We negotiate the rates. You drive the miles.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="min-w-[200px]" onClick={() => document.getElementById('contact-form')?.scrollIntoView({ behavior: 'smooth' })}>
+              <Button size="lg" className="w-full sm:w-auto sm:min-w-[200px]" onClick={() => document.getElementById('contact-form')?.scrollIntoView({ behavior: 'smooth' })}>
                 Get Dispatched
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
 
-              <a href="tel:+18778141807">
-                <Button size="lg" variant="outline" className="min-w-[200px]">
+              <a href="tel:+18778141807" className="w-full sm:w-auto">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto sm:min-w-[200px]">
                   <Phone className="w-5 h-5 mr-2" />
                   Call (877) 814-1807
                 </Button>
@@ -159,7 +159,7 @@ const DispatchServicesPage = () => {
       {/* Stats Section */}
       <section className="py-16 border-y border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
             {stats.map((stat, index) => (
               <motion.div
                 key={stat.label}
@@ -169,7 +169,7 @@ const DispatchServicesPage = () => {
                 transition={{ delay: index * 0.1 }}
                 className="text-center"
               >
-                <div className="text-4xl lg:text-5xl font-bold text-gray-900 mb-2">{stat.value}</div>
+                <div className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-2">{stat.value}</div>
                 <div className="text-gray-500">{stat.label}</div>
               </motion.div>
             ))}

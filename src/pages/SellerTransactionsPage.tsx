@@ -162,12 +162,12 @@ const SellerTransactionsPage = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">My Transactions</h1>
           <p className="text-gray-500">Track your MC sales and transaction progress</p>
         </div>
-        <Button variant="outline" onClick={fetchTransactions}>
+        <Button variant="outline" onClick={fetchTransactions} className="w-full sm:w-auto">
           <RefreshCw className="w-4 h-4 mr-2" />
           Refresh
         </Button>
@@ -222,7 +222,7 @@ const SellerTransactionsPage = () => {
       </div>
 
       {/* Filters */}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {[
           { id: 'all', label: 'All Transactions' },
           { id: 'active', label: 'Active' },
@@ -288,7 +288,7 @@ const SellerTransactionsPage = () => {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-4 text-sm">
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
                         <div className="flex items-center gap-1 text-gray-500">
                           <User className="w-4 h-4" />
                           <span>Buyer: {txn.buyerName}</span>
@@ -325,9 +325,9 @@ const SellerTransactionsPage = () => {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex gap-2">
-                      <Link to={`/transaction/${txn.id}`}>
-                        <Button variant={needsSellerAction ? 'primary' : 'outline'}>
+                    <div className="flex gap-2 w-full lg:w-auto">
+                      <Link to={`/transaction/${txn.id}`} className="w-full lg:w-auto">
+                        <Button variant={needsSellerAction ? 'primary' : 'outline'} className="w-full lg:w-auto">
                           {needsSellerAction ? (
                             <>
                               Review & Approve
@@ -344,7 +344,7 @@ const SellerTransactionsPage = () => {
                     </div>
                   </div>
 
-                  <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between text-sm text-gray-500">
+                  <div className="mt-4 pt-4 border-t border-gray-100 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-sm text-gray-500">
                     <span>Started: {txn.createdAt.toLocaleDateString()}</span>
                     <span>Last update: {txn.updatedAt.toLocaleDateString()}</span>
                   </div>

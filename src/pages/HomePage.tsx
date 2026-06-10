@@ -235,7 +235,7 @@ const HomePage = () => {
               <span className="text-sm font-medium text-gray-300">Live · AI Carrier Intelligence Platform</span>
             </div>
 
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-[1.05] tracking-tight">
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-[1.05] tracking-tight">
               <span className="text-white">Trucking’s first</span>
               <br />
               <span className="bg-gradient-to-r from-indigo-400 via-cyan-400 to-indigo-400 bg-clip-text text-transparent">
@@ -248,13 +248,13 @@ const HomePage = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
-              <Link to="/register">
+              <Link to="/carrier-pulse-preview">
                 <Button size="lg" className="min-w-[200px] bg-indigo-600 hover:bg-indigo-500 text-white">
                   Search Carrier Data
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </Link>
-              <Link to="/register">
+              <Link to="/carrier-pulse-preview">
                 <Button size="lg" variant="ghost" className="min-w-[200px] border border-white/20 text-white hover:bg-white/10">
                   Analyze My Company
                 </Button>
@@ -296,7 +296,7 @@ const HomePage = () => {
               <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
               <span className="text-xs font-semibold text-indigo-700 uppercase tracking-wider">The Domilea Suite</span>
             </div>
-            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+            <h2 className="text-3xl sm:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
               A platform built for trucking acquisitions.
             </h2>
             <p className="text-lg text-gray-500 max-w-3xl mx-auto">
@@ -330,7 +330,7 @@ const HomePage = () => {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-center mb-14">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Most Trucking Deals Start with Bad Data.</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Most Trucking Deals Start with Bad Data.</h2>
             <p className="text-lg text-gray-500 max-w-2xl mx-auto">
               Every day, buyers and acquirers lose deals to better-informed competitors — and inherit hidden risk because they couldn’t see the whole picture in time.
             </p>
@@ -431,7 +431,7 @@ const HomePage = () => {
                   <Sparkles className="w-4 h-4 text-cyan-400" />
                   What you get with Domilea
                 </h4>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {[
                     { icon: Gauge, label: 'Health Score (0-100)', desc: 'Weighted score across safety, compliance, insurance, fleet & history' },
                     { icon: BarChart3, label: 'Industry Benchmarks', desc: 'Compare OOS rates, clean inspection rates vs national averages' },
@@ -459,8 +459,8 @@ const HomePage = () => {
                   <p className="text-xs text-gray-400 mt-1">See what you’re missing with free FMCSA data alone</p>
                 </div>
 
-                <div className="divide-y divide-white/[0.06]">
-                  <div className="grid grid-cols-[1fr,80px,80px] px-6 py-2.5 bg-white/[0.03]">
+                <div className="divide-y divide-white/[0.06] overflow-x-auto">
+                  <div className="grid grid-cols-[1fr,80px,80px] min-w-[340px] px-6 py-2.5 bg-white/[0.03]">
                     <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Feature</span>
                     <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider text-center">FMCSA</span>
                     <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-wider text-center">Domilea</span>
@@ -479,7 +479,7 @@ const HomePage = () => {
                     { feature: 'Saved Lead Pipeline & Outreach', fmcsa: false, ours: true },
                     { feature: 'Guided Deal Support', fmcsa: false, ours: true, bundle: true },
                   ].map((row, i) => (
-                    <div key={i} className={`grid grid-cols-[1fr,80px,80px] px-6 py-2.5 items-center ${!row.fmcsa ? 'bg-indigo-500/[0.03]' : ''}`}>
+                    <div key={i} className={`grid grid-cols-[1fr,80px,80px] min-w-[340px] px-6 py-2.5 items-center ${!row.fmcsa ? 'bg-indigo-500/[0.03]' : ''}`}>
                       <span className="text-sm text-gray-300">
                         {row.feature}
                         {row.bundle && <span className="ml-1.5 px-1.5 py-0.5 text-[9px] font-bold rounded bg-cyan-500/15 text-cyan-400 uppercase">White-glove</span>}
@@ -518,7 +518,7 @@ const HomePage = () => {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-center mb-14">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">How Domilea Works</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">How Domilea Works</h2>
             <p className="text-lg text-gray-500">Three steps. You stay in the driver’s seat — we hand you the data, the AI, and the team.</p>
           </motion.div>
 
@@ -556,7 +556,7 @@ const HomePage = () => {
               <Bot className="w-3.5 h-3.5 text-indigo-600" />
               <span className="text-xs font-semibold text-indigo-700 uppercase tracking-wider">AI Compliance Manager</span>
             </div>
-            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+            <h2 className="text-3xl sm:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
               Eva, your AI compliance manager.
             </h2>
             <p className="text-lg text-gray-500 max-w-2xl mx-auto">
@@ -637,7 +637,7 @@ const HomePage = () => {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-center mb-14">
-            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4 tracking-tight max-w-3xl mx-auto leading-tight">
+            <h2 className="text-3xl sm:text-5xl font-bold text-gray-900 mb-4 tracking-tight max-w-3xl mx-auto leading-tight">
               Everything you need to monitor your trucking business health.
             </h2>
             <p className="text-lg text-gray-500 max-w-2xl mx-auto">
@@ -676,7 +676,7 @@ const HomePage = () => {
               <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
               <span className="text-xs font-semibold text-cyan-300 uppercase tracking-wider">Operate Differently</span>
             </div>
-            <h2 className="text-5xl sm:text-6xl font-bold mb-6 leading-[1.05] tracking-tight">
+            <h2 className="text-4xl sm:text-6xl font-bold mb-6 leading-[1.05] tracking-tight">
               <span className="text-white">Run your authority</span>
               <br />
               <span className="bg-gradient-to-r from-indigo-400 via-cyan-400 to-indigo-400 bg-clip-text text-transparent">
@@ -700,7 +700,7 @@ const HomePage = () => {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-center mb-14">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Trusted by Acquirers and Investors</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Trusted by Acquirers and Investors</h2>
             <p className="text-lg text-gray-500">Real buyers. Real deals. Real intelligence behind every move.</p>
           </motion.div>
 
@@ -731,7 +731,7 @@ const HomePage = () => {
       <section className="py-20 bg-gray-50">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Your Next Chapter Starts Here</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Your Next Chapter Starts Here</h2>
             <p className="text-lg text-gray-500">Whether you’re finding the next opportunity or monitoring your own carrier — Domilea has you covered.</p>
           </motion.div>
 
@@ -746,7 +746,7 @@ const HomePage = () => {
                   <p className="text-gray-500 mb-6">
                     Search 63M+ records, run AI due diligence, monitor compliance, and request Domilea’s team to help pursue the opportunity.
                   </p>
-                  <Link to="/register">
+                  <Link to="/carrier-pulse-preview">
                     <Button size="lg" fullWidth className="bg-indigo-600 hover:bg-indigo-500 text-white">
                       Search Carrier Data
                       <ArrowRight className="w-5 h-5 ml-2" />
@@ -766,7 +766,7 @@ const HomePage = () => {
                   <p className="text-gray-500 mb-6">
                     Already operating? Watch your own company’s health — safety, SMS, compliance, insurance — before problems hurt your value.
                   </p>
-                  <Link to="/register">
+                  <Link to="/carrier-pulse-preview">
                     <Button size="lg" fullWidth className="bg-emerald-600 hover:bg-emerald-500 text-white">
                       Analyze My Company
                       <ArrowRight className="w-5 h-5 ml-2" />
@@ -806,7 +806,7 @@ const HomePage = () => {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsConsultationOpen(true)}
-        className="fixed bottom-8 right-8 z-40 w-16 h-16 rounded-full bg-black shadow-[0_0_20px_rgba(99,102,241,0.3)] flex items-center justify-center hover:bg-gray-800 transition-colors"
+        className="fixed bottom-5 right-5 sm:bottom-8 sm:right-8 z-40 w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-black shadow-[0_0_20px_rgba(99,102,241,0.3)] flex items-center justify-center hover:bg-gray-800 transition-colors"
       >
         <MessageSquare className="w-7 h-7 text-white" />
       </motion.button>

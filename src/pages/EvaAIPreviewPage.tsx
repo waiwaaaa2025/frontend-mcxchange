@@ -157,7 +157,7 @@ export default function EvaAIPreviewPage() {
         <div className="absolute top-40 right-1/4 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
         <div className="absolute bottom-0 left-1/2 w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-3xl" />
 
-        <div className="max-w-6xl mx-auto px-6 pt-20 pb-16 relative">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-16 sm:pt-20 pb-16 relative">
           <motion.div
             className="text-center"
             initial={{ opacity: 0, y: 20 }}
@@ -182,10 +182,10 @@ export default function EvaAIPreviewPage() {
               <Bot className="w-10 h-10 text-white" />
             </motion.div>
 
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 tracking-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-white mb-4 tracking-tight">
               Meet <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Eva AI</span>
             </h1>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-4">
+            <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-4">
               Your AI-powered compliance officer that never sleeps. Eva monitors your authority, tracks every filing deadline, manages driver qualifications, and keeps you audit-ready 24/7.
             </p>
             <p className="text-lg text-indigo-400 font-semibold mb-8">
@@ -195,7 +195,7 @@ export default function EvaAIPreviewPage() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
               <Button
                 onClick={handleGetStarted}
-                className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 text-white px-8 py-3.5 text-lg shadow-xl shadow-purple-500/25"
+                className="w-full sm:w-auto bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 text-white px-8 py-3.5 text-lg shadow-xl shadow-purple-500/25"
               >
                 <Bell className="w-5 h-5 mr-2" />
                 Join the Waitlist
@@ -208,7 +208,7 @@ export default function EvaAIPreviewPage() {
       </div>
 
       {/* Live Chat Demo */}
-      <div className="max-w-4xl mx-auto px-6 pb-16">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-16">
         <motion.div
           className="text-center mb-10"
           initial={{ opacity: 0 }}
@@ -226,7 +226,7 @@ export default function EvaAIPreviewPage() {
           transition={{ delay: 0.6 }}
         >
           {/* Chat header */}
-          <div className="px-6 py-4 border-b border-white/10 flex items-center gap-3">
+          <div className="px-4 sm:px-6 py-4 border-b border-white/10 flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
               <Bot className="w-5 h-5 text-white" />
             </div>
@@ -244,7 +244,7 @@ export default function EvaAIPreviewPage() {
           </div>
 
           {/* Chat messages */}
-          <div className="p-6 min-h-[320px] space-y-4">
+          <div className="p-4 sm:p-6 min-h-[320px] space-y-4">
             <AnimatePresence>
               {chatDemo.slice(0, visibleMessages).map((msg, i) => (
                 <motion.div
@@ -258,7 +258,7 @@ export default function EvaAIPreviewPage() {
                       <Bot className="w-4 h-4 text-white" />
                     </div>
                   )}
-                  <div className={`max-w-[80%] rounded-2xl px-5 py-3 ${
+                  <div className={`max-w-[85%] sm:max-w-[80%] rounded-2xl px-4 sm:px-5 py-3 ${
                     msg.role === 'user'
                       ? 'bg-indigo-500 text-white'
                       : 'bg-white/5 border border-white/10 text-gray-200'
@@ -293,7 +293,7 @@ export default function EvaAIPreviewPage() {
           </div>
 
           {/* Chat input (decorative) */}
-          <div className="px-6 pb-6">
+          <div className="px-4 sm:px-6 pb-6">
             <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-4 py-3">
               <MessageSquare className="w-5 h-5 text-gray-500" />
               <span className="text-gray-500 text-sm flex-1">Ask Eva anything about your compliance...</span>
@@ -306,7 +306,7 @@ export default function EvaAIPreviewPage() {
       </div>
 
       {/* Compliance Dashboard Preview */}
-      <div className="max-w-6xl mx-auto px-6 pb-16">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 pb-16">
         <motion.div
           className="text-center mb-10"
           initial={{ opacity: 0 }}
@@ -318,7 +318,7 @@ export default function EvaAIPreviewPage() {
         </motion.div>
 
         <motion.div
-          className="bg-gray-900/60 backdrop-blur-xl rounded-3xl border border-white/10 p-8 relative overflow-hidden"
+          className="bg-gray-900/60 backdrop-blur-xl rounded-3xl border border-white/10 p-5 sm:p-8 relative overflow-hidden"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
@@ -399,16 +399,16 @@ export default function EvaAIPreviewPage() {
               ].map((item, i) => (
                 <motion.div
                   key={item.task}
-                  className="flex items-center justify-between bg-white/5 border border-white/5 rounded-xl px-4 py-3"
+                  className="flex items-center justify-between gap-3 bg-white/5 border border-white/5 rounded-xl px-4 py-3"
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 1.5 + i * 0.1 }}
                 >
-                  <div className="flex items-center gap-3">
-                    <Clock className="w-4 h-4 text-gray-500" />
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Clock className="w-4 h-4 text-gray-500 flex-shrink-0" />
                     <span className="text-sm text-gray-300">{item.task}</span>
                   </div>
-                  <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${item.urgency}`}>
+                  <span className={`text-xs font-medium px-2.5 py-1 rounded-full flex-shrink-0 whitespace-nowrap ${item.urgency}`}>
                     {item.due}
                   </span>
                 </motion.div>
@@ -418,7 +418,7 @@ export default function EvaAIPreviewPage() {
 
           {/* Blurred section */}
           <div className="relative">
-            <div className="filter blur-[4px] select-none pointer-events-none grid grid-cols-3 gap-3">
+            <div className="filter blur-[4px] select-none pointer-events-none grid grid-cols-1 sm:grid-cols-3 gap-3">
               {['Violation Trends', 'Inspection History', 'Fleet Compliance'].map((title) => (
                 <div key={title} className="bg-white/5 rounded-xl p-4 h-32">
                   <p className="text-xs text-gray-400 mb-2">{title}</p>
@@ -437,7 +437,7 @@ export default function EvaAIPreviewPage() {
       </div>
 
       {/* What Eva Handles */}
-      <div className="max-w-6xl mx-auto px-6 py-16">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
         <motion.div
           className="text-center mb-12"
           initial={{ opacity: 0 }}
@@ -470,7 +470,7 @@ export default function EvaAIPreviewPage() {
       </div>
 
       {/* Stats */}
-      <div className="max-w-4xl mx-auto px-6 pb-16">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-16">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {stats.map((stat, i) => (
             <motion.div
@@ -489,9 +489,9 @@ export default function EvaAIPreviewPage() {
       </div>
 
       {/* How it works */}
-      <div className="max-w-5xl mx-auto px-6 pb-16">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-16">
         <motion.div
-          className="bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-white/10 rounded-3xl p-10"
+          className="bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-white/10 rounded-3xl p-6 sm:p-10"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
@@ -518,7 +518,7 @@ export default function EvaAIPreviewPage() {
       </div>
 
       {/* Example questions */}
-      <div className="max-w-4xl mx-auto px-6 pb-16">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-16">
         <motion.div
           className="text-center mb-8"
           initial={{ opacity: 0 }}
@@ -553,9 +553,9 @@ export default function EvaAIPreviewPage() {
       </div>
 
       {/* CTA */}
-      <div className="max-w-3xl mx-auto px-6 pb-20">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 pb-20">
         <motion.div
-          className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-3xl p-10 text-center relative overflow-hidden"
+          className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-3xl p-6 sm:p-10 text-center relative overflow-hidden"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.9 }}
@@ -565,13 +565,13 @@ export default function EvaAIPreviewPage() {
             <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center mx-auto mb-6">
               <Bot className="w-8 h-8 text-white" />
             </div>
-            <h2 className="text-3xl font-bold text-white mb-3">Be First in Line</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">Be First in Line</h2>
             <p className="text-white/80 mb-8 max-w-lg mx-auto">
               Eva AI is launching soon. Early adopters get free access during beta. Join the waitlist and we'll notify you the moment it's ready.
             </p>
             <Button
               onClick={handleGetStarted}
-              className="bg-white text-gray-900 hover:bg-gray-100 px-8 py-3.5 text-lg shadow-xl"
+              className="w-full sm:w-auto bg-white text-gray-900 hover:bg-gray-100 px-8 py-3.5 text-lg shadow-xl"
             >
               <Star className="w-5 h-5 mr-2" />
               Join the Waitlist
@@ -583,8 +583,8 @@ export default function EvaAIPreviewPage() {
       </div>
 
       {/* Trust footer */}
-      <div className="max-w-4xl mx-auto px-6 pb-20">
-        <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-500">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-20">
+        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm text-gray-500">
           <div className="flex items-center gap-2">
             <Building2 className="w-4 h-4" />
             <span>FMCSA Integrated</span>

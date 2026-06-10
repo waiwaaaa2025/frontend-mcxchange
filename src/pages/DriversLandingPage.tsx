@@ -148,12 +148,12 @@ ${formData.message || 'N/A'}
                 <span className="text-sm font-medium">Now Hiring Owner-Operators</span>
               </div>
 
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
                 Drive Your Career
                 <span className="block text-amber-400">Forward</span>
               </h1>
 
-              <p className="text-xl text-gray-300 mb-8 max-w-lg">
+              <p className="text-base sm:text-xl text-gray-300 mb-8 max-w-lg">
                 Right now we're partnering exclusively with owner-operators. Our entire strategy and technology are built to help owner-operators succeed in every way — quality freight, competitive pay, and the support you need to run your business.
               </p>
 

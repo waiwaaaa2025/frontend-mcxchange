@@ -24,10 +24,10 @@ const TermsPage = () => {
         </div>
 
         <div className="flex justify-center mb-6">
-          <div className="inline-flex rounded-lg border border-gray-200 bg-white p-1">
+          <div className="flex w-full flex-col sm:inline-flex sm:w-auto sm:flex-row rounded-lg border border-gray-200 bg-white p-1 gap-1 sm:gap-0">
             <button
               onClick={() => setActiveTab('buyer')}
-              className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+              className={`w-full sm:w-auto px-4 py-2 text-sm font-medium rounded-md transition-colors ${
                 activeTab === 'buyer'
                   ? 'bg-gray-900 text-white'
                   : 'text-gray-600 hover:text-gray-900'
@@ -37,7 +37,7 @@ const TermsPage = () => {
             </button>
             <button
               onClick={() => setActiveTab('seller')}
-              className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+              className={`w-full sm:w-auto px-4 py-2 text-sm font-medium rounded-md transition-colors ${
                 activeTab === 'seller'
                   ? 'bg-gray-900 text-white'
                   : 'text-gray-600 hover:text-gray-900'

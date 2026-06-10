@@ -155,9 +155,9 @@ const BuyerMessagesPage = () => {
   )
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-1">Messages</h2>
           <p className="text-gray-500">Communicate with our team</p>
         </div>
@@ -192,7 +192,7 @@ const BuyerMessagesPage = () => {
             </div>
           </Card>
         ) : (
-          <div className="grid lg:grid-cols-3 gap-6">
+          <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Conversations List */}
             <div className="lg:col-span-1">
               <Card>
@@ -264,7 +264,7 @@ const BuyerMessagesPage = () => {
                         className={`flex ${msg.senderId === user?.id ? 'justify-end' : 'justify-start'}`}
                       >
                         <div
-                          className={`max-w-[70%] px-4 py-3 rounded-lg ${
+                          className={`max-w-[85%] sm:max-w-[70%] px-4 py-3 rounded-lg ${
                             msg.senderId === user?.id
                               ? 'bg-gray-900 text-white'
                               : 'bg-gray-100 text-gray-900'

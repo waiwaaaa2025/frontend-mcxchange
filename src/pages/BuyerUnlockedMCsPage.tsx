@@ -155,7 +155,7 @@ const BuyerUnlockedMCsPage = () => {
               <p className="text-3xl font-bold text-white">{availableCredits}</p>
             </div>
           </div>
-          <div className="flex gap-6">
+          <div className="flex flex-wrap gap-4 sm:gap-6">
             <div className="text-center">
               <p className="text-gray-400 text-sm">Total Purchased</p>
               <p className="text-xl font-semibold text-white">{totalCredits}</p>

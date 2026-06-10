@@ -696,7 +696,7 @@ const CreateListingPage = () => {
 
   return (
     <div className="min-h-screen">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-6xl mx-auto px-4 sm:px-0">
         {/* Hero Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -1119,7 +1119,8 @@ const CreateListingPage = () => {
                     type="button"
                     onClick={() => setStep(2)}
                     size="lg"
-                    className="bg-gradient-to-r from-primary-500 to-purple-500 hover:from-primary-600 hover:to-purple-600 px-8"
+                    fullWidth
+                    className="bg-gradient-to-r from-primary-500 to-purple-500 hover:from-primary-600 hover:to-purple-600 px-8 sm:w-auto"
                   >
                     Continue
                     <ArrowRight className="w-5 h-5 ml-2" />
@@ -1453,15 +1454,16 @@ const CreateListingPage = () => {
                 </GlassCard>
 
                 {/* Navigation */}
-                <div className="flex justify-between">
-                  <Button type="button" variant="secondary" onClick={() => setStep(1)} size="lg">
+                <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
+                  <Button type="button" variant="secondary" onClick={() => setStep(1)} size="lg" fullWidth className="sm:w-auto">
                     Back
                   </Button>
                   <Button
                     type="button"
                     onClick={() => setStep(3)}
                     size="lg"
-                    className="bg-gradient-to-r from-primary-500 to-purple-500 hover:from-primary-600 hover:to-purple-600 px-8"
+                    fullWidth
+                    className="bg-gradient-to-r from-primary-500 to-purple-500 hover:from-primary-600 hover:to-purple-600 px-8 sm:w-auto"
                   >
                     Continue
                     <ArrowRight className="w-5 h-5 ml-2" />
@@ -1603,15 +1605,16 @@ const CreateListingPage = () => {
                 </GlassCard>
 
                 {/* Navigation */}
-                <div className="flex justify-between">
-                  <Button type="button" variant="secondary" onClick={() => setStep(2)} size="lg">
+                <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
+                  <Button type="button" variant="secondary" onClick={() => setStep(2)} size="lg" fullWidth className="sm:w-auto">
                     Back
                   </Button>
                   <Button
                     type="button"
                     onClick={() => setStep(4)}
                     size="lg"
-                    className="bg-gradient-to-r from-primary-500 to-purple-500 hover:from-primary-600 hover:to-purple-600 px-8"
+                    fullWidth
+                    className="bg-gradient-to-r from-primary-500 to-purple-500 hover:from-primary-600 hover:to-purple-600 px-8 sm:w-auto"
                   >
                     Continue
                     <ArrowRight className="w-5 h-5 ml-2" />
@@ -1793,8 +1796,8 @@ const CreateListingPage = () => {
                 </div>
 
                 {/* Navigation */}
-                <div className="flex justify-between">
-                  <Button type="button" variant="secondary" onClick={() => setStep(3)} size="lg">
+                <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
+                  <Button type="button" variant="secondary" onClick={() => setStep(3)} size="lg" fullWidth className="sm:w-auto">
                     Back
                   </Button>
                   {listingPaymentRequired ? (
@@ -1802,7 +1805,8 @@ const CreateListingPage = () => {
                       type="button"
                       onClick={() => setStep(5)}
                       size="lg"
-                      className="bg-gradient-to-r from-primary-500 to-purple-500 hover:from-primary-600 hover:to-purple-600 px-8"
+                      fullWidth
+                      className="bg-gradient-to-r from-primary-500 to-purple-500 hover:from-primary-600 hover:to-purple-600 px-8 sm:w-auto"
                     >
                       Continue to Payment
                       <ArrowRight className="w-5 h-5 ml-2" />
@@ -1813,7 +1817,8 @@ const CreateListingPage = () => {
                       onClick={handleSubmitWithoutPayment}
                       size="lg"
                       loading={creatingListing}
-                      className="bg-gradient-to-r from-primary-500 to-purple-500 hover:from-primary-600 hover:to-purple-600 px-8"
+                      fullWidth
+                      className="bg-gradient-to-r from-primary-500 to-purple-500 hover:from-primary-600 hover:to-purple-600 px-8 sm:w-auto"
                     >
                       {creatingListing ? 'Submitting...' : 'Submit Listing'}
                       <ArrowRight className="w-5 h-5 ml-2" />
@@ -1938,8 +1943,8 @@ const CreateListingPage = () => {
                 </GlassCard>
 
                 {/* Navigation */}
-                <div className="flex justify-between">
-                  <Button type="button" variant="secondary" onClick={() => setStep(4)} size="lg">
+                <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
+                  <Button type="button" variant="secondary" onClick={() => setStep(4)} size="lg" fullWidth className="sm:w-auto">
                     Back
                   </Button>
                   <Button
@@ -1948,7 +1953,8 @@ const CreateListingPage = () => {
                     size="lg"
                     loading={paymentProcessing}
                     disabled={!formData.mcNumber}
-                    className="bg-gradient-to-r from-trust-high to-green-500 hover:from-green-600 hover:to-emerald-600 px-8"
+                    fullWidth
+                    className="bg-gradient-to-r from-trust-high to-green-500 hover:from-green-600 hover:to-emerald-600 px-8 sm:w-auto"
                   >
                     <DollarSign className="w-5 h-5 mr-2" />
                     {paymentProcessing ? 'Redirecting to Stripe...' : 'Pay $35.00 via Stripe'}

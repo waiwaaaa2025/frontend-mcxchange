@@ -142,7 +142,7 @@ const SellerVerificationPage = () => {
                 </div>
                 {index < steps.length - 1 && (
                   <div
-                    className={`h-1 flex-1 mx-4 transition-colors ${
+                    className={`h-1 flex-1 mx-2 sm:mx-4 transition-colors ${
                       currentStep > step.number ? 'bg-primary-500' : 'bg-white/10'
                     }`}
                   />
@@ -308,16 +308,16 @@ const SellerVerificationPage = () => {
                     <div className="mt-3 space-y-2">
                       {uploadedFiles.businessLicense.map((file) => (
                         <div key={file.id} className="flex items-center justify-between glass-subtle rounded-lg p-3">
-                          <div className="flex items-center gap-3">
-                            <FileText className="w-5 h-5 text-primary-400" />
-                            <div>
-                              <div className="text-sm font-medium">{file.name}</div>
+                          <div className="flex items-center gap-3 min-w-0">
+                            <FileText className="w-5 h-5 text-primary-400 flex-shrink-0" />
+                            <div className="min-w-0">
+                              <div className="text-sm font-medium truncate">{file.name}</div>
                               <div className="text-xs text-white/60">{formatFileSize(file.size)}</div>
                             </div>
                           </div>
                           <button
                             onClick={() => removeFile('businessLicense', file.id)}
-                            className="p-1 hover:bg-white/10 rounded transition-colors"
+                            className="p-1 hover:bg-white/10 rounded transition-colors flex-shrink-0"
                           >
                             <X className="w-4 h-4" />
                           </button>
@@ -349,16 +349,16 @@ const SellerVerificationPage = () => {
                     <div className="mt-3 space-y-2">
                       {uploadedFiles.insurance.map((file) => (
                         <div key={file.id} className="flex items-center justify-between glass-subtle rounded-lg p-3">
-                          <div className="flex items-center gap-3">
-                            <FileText className="w-5 h-5 text-primary-400" />
-                            <div>
-                              <div className="text-sm font-medium">{file.name}</div>
+                          <div className="flex items-center gap-3 min-w-0">
+                            <FileText className="w-5 h-5 text-primary-400 flex-shrink-0" />
+                            <div className="min-w-0">
+                              <div className="text-sm font-medium truncate">{file.name}</div>
                               <div className="text-xs text-white/60">{formatFileSize(file.size)}</div>
                             </div>
                           </div>
                           <button
                             onClick={() => removeFile('insurance', file.id)}
-                            className="p-1 hover:bg-white/10 rounded transition-colors"
+                            className="p-1 hover:bg-white/10 rounded transition-colors flex-shrink-0"
                           >
                             <X className="w-4 h-4" />
                           </button>
@@ -390,16 +390,16 @@ const SellerVerificationPage = () => {
                     <div className="mt-3 space-y-2">
                       {uploadedFiles.authority.map((file) => (
                         <div key={file.id} className="flex items-center justify-between glass-subtle rounded-lg p-3">
-                          <div className="flex items-center gap-3">
-                            <FileText className="w-5 h-5 text-primary-400" />
-                            <div>
-                              <div className="text-sm font-medium">{file.name}</div>
+                          <div className="flex items-center gap-3 min-w-0">
+                            <FileText className="w-5 h-5 text-primary-400 flex-shrink-0" />
+                            <div className="min-w-0">
+                              <div className="text-sm font-medium truncate">{file.name}</div>
                               <div className="text-xs text-white/60">{formatFileSize(file.size)}</div>
                             </div>
                           </div>
                           <button
                             onClick={() => removeFile('authority', file.id)}
-                            className="p-1 hover:bg-white/10 rounded transition-colors"
+                            className="p-1 hover:bg-white/10 rounded transition-colors flex-shrink-0"
                           >
                             <X className="w-4 h-4" />
                           </button>
@@ -431,16 +431,16 @@ const SellerVerificationPage = () => {
                     <div className="mt-3 space-y-2">
                       {uploadedFiles.supporting.map((file) => (
                         <div key={file.id} className="flex items-center justify-between glass-subtle rounded-lg p-3">
-                          <div className="flex items-center gap-3">
-                            <FileText className="w-5 h-5 text-primary-400" />
-                            <div>
-                              <div className="text-sm font-medium">{file.name}</div>
+                          <div className="flex items-center gap-3 min-w-0">
+                            <FileText className="w-5 h-5 text-primary-400 flex-shrink-0" />
+                            <div className="min-w-0">
+                              <div className="text-sm font-medium truncate">{file.name}</div>
                               <div className="text-xs text-white/60">{formatFileSize(file.size)}</div>
                             </div>
                           </div>
                           <button
                             onClick={() => removeFile('supporting', file.id)}
-                            className="p-1 hover:bg-white/10 rounded transition-colors"
+                            className="p-1 hover:bg-white/10 rounded transition-colors flex-shrink-0"
                           >
                             <X className="w-4 h-4" />
                           </button>
@@ -522,13 +522,13 @@ const SellerVerificationPage = () => {
                 <div className="mt-6 glass-subtle rounded-lg p-6">
                   <h3 className="text-lg font-bold mb-4">Application Summary</h3>
                   <div className="space-y-3 text-sm">
-                    <div className="flex justify-between">
+                    <div className="flex justify-between gap-3">
                       <span className="text-white/60">Company Name:</span>
-                      <span className="font-semibold">{businessInfo.companyName || 'Not provided'}</span>
+                      <span className="font-semibold text-right break-words min-w-0">{businessInfo.companyName || 'Not provided'}</span>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between gap-3">
                       <span className="text-white/60">Email:</span>
-                      <span className="font-semibold">{businessInfo.email || 'Not provided'}</span>
+                      <span className="font-semibold text-right break-all min-w-0">{businessInfo.email || 'Not provided'}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-white/60">Business License:</span>

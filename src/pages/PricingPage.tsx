@@ -96,12 +96,12 @@ export default function PricingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Hero */}
-      <div className="text-center pt-20 pb-12 px-4">
+      <div className="text-center pt-16 sm:pt-20 pb-12 px-4">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900 mb-4">
             Simple, transparent pricing
           </h1>
-          <p className="text-lg text-gray-500 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-500 max-w-2xl mx-auto">
             Choose the plan that fits your needs. Unlock listings, run credit reports, and find the perfect business opportunity.
           </p>
 
@@ -123,7 +123,7 @@ export default function PricingPage() {
                     </svg>
                   </div>
                   <div className="text-left">
-                    <p className="text-xl font-black tracking-tight">Selling Your Authority?</p>
+                    <p className="text-lg sm:text-xl font-black tracking-tight">Selling Your Authority?</p>
                     <p className="text-emerald-100 font-medium text-sm">List for FREE — no subscription needed. Get started in minutes.</p>
                   </div>
                 </div>
@@ -137,7 +137,7 @@ export default function PricingPage() {
           <div className="bg-white rounded-xl p-1 flex items-center gap-1 border border-gray-200 shadow-sm">
             <button
               onClick={() => setBillingCycle('monthly')}
-              className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
+              className={`px-4 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${
                 billingCycle === 'monthly' ? 'bg-gray-900 text-white' : 'text-gray-600 hover:text-gray-900'
               }`}
             >
@@ -145,7 +145,7 @@ export default function PricingPage() {
             </button>
             <button
               onClick={() => setBillingCycle('yearly')}
-              className={`px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${
+              className={`px-4 sm:px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${
                 billingCycle === 'yearly' ? 'bg-gray-900 text-white' : 'text-gray-600 hover:text-gray-900'
               }`}
             >
