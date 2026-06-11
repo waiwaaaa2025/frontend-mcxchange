@@ -681,6 +681,7 @@ class ApiService {
     amazonStatus?: string;
     amazonRelayScore?: string;
     highwaySetup?: boolean;
+    rmisSetup?: boolean;
     sellingWithEmail?: boolean;
     sellingWithPhone?: boolean;
     cargoTypes?: string[];
@@ -769,6 +770,7 @@ class ApiService {
     amazonStatus?: string;
     amazonRelayScore?: string;
     highwaySetup?: boolean;
+    rmisSetup?: boolean;
     sellingWithEmail?: boolean;
     sellingWithPhone?: boolean;
     cargoTypes?: string[];
@@ -823,6 +825,7 @@ class ApiService {
       amazonStatus?: string;
       amazonRelayScore?: string;
       highwaySetup?: boolean;
+    rmisSetup?: boolean;
       sellingWithEmail?: boolean;
       sellingWithPhone?: boolean;
       status?: string;
@@ -1356,6 +1359,7 @@ class ApiService {
     amazonRelayScore?: string;
     authorityType?: string;
     highwaySetup?: boolean;
+    rmisSetup?: boolean;
     sellingWithEmail?: boolean;
     sellingWithPhone?: boolean;
     contactEmail?: string;

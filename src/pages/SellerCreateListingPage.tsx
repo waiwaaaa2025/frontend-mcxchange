@@ -187,6 +187,7 @@ export default function SellerCreateListingPage() {
         amazonStatus: amazonStatus === 'yes' ? 'ACTIVE' : amazonStatus === 'no' ? 'NONE' : undefined,
         amazonRelayScore: amazonRelayScore || undefined,
         highwaySetup: highwaySetup === 'yes',
+        rmisSetup: rmisSetup === 'yes',
         sellingWithEmail: sellingWithEmail === 'yes',
         sellingWithPhone: sellingWithPhone === 'yes',
         insuranceCompany: insuranceCompany || undefined,
