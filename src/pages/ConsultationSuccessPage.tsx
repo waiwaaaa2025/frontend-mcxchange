@@ -1,20 +1,32 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { CheckCircle, Calendar, MessageSquare, ArrowRight } from 'lucide-react'
+import { CheckCircle, Calendar, MessageSquare, ArrowRight, Loader2 } from 'lucide-react'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
+import api from '../services/api'
 
 const ConsultationSuccessPage = () => {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const sessionId = searchParams.get('session_id')
+  const [verifying, setVerifying] = useState(true)
 
   useEffect(() => {
-    // You could verify the session here if needed
     if (!sessionId) {
       navigate('/')
+      return
     }
+
+    // Confirm the payment straight from Stripe as a fallback to the webhook.
+    // This marks the consultation PAID server-side so the admin's red
+    // "Consultations" badge appears even if the webhook never fired.
+    let active = true
+    api.verifyConsultationSession(sessionId)
+      .catch(() => { /* webhook will still reconcile; show success regardless */ })
+      .finally(() => { if (active) setVerifying(false) })
+
+    return () => { active = false }
   }, [sessionId, navigate])
 
   return (
@@ -39,7 +51,14 @@ const ConsultationSuccessPage = () => {
           </h1>
 
           <p className="text-gray-600 mb-8">
-            Thank you for booking a consultation with our team. Your payment has been processed successfully.
+            {verifying ? (
+              <span className="inline-flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Confirming your payment…
+              </span>
+            ) : (
+              'Thank you for booking a consultation with our team. Your payment has been processed successfully.'
+            )}
           </p>
 
           <div className="bg-secondary-50 rounded-xl p-4 sm:p-6 mb-8 text-left border border-secondary-100">

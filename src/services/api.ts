@@ -2945,6 +2945,19 @@ class ApiService {
   }
 
   /**
+   * Verify a consultation checkout session directly with Stripe (public).
+   * Used by the success page as a fallback to the webhook so the payment is
+   * confirmed and the admin badge shows even if the webhook never fired.
+   */
+  async verifyConsultationSession(sessionId: string): Promise<{ paid: boolean; status: string }> {
+    const response = await this.request<{
+      success: boolean;
+      data: { paid: boolean; status: string };
+    }>(`/consultations/verify/${encodeURIComponent(sessionId)}`);
+    return response.data;
+  }
+
+  /**
    * Get all consultations (admin only)
    */
   async getAdminConsultations(options?: {
