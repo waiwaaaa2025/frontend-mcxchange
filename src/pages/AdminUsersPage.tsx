@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Users,
@@ -87,6 +87,7 @@ interface Pagination {
 
 const AdminUsersPage = () => {
   const navigate = useNavigate()
+  const { userId } = useParams<{ userId?: string }>()
   const [activeTab, setActiveTab] = useState<'all' | 'buyers' | 'sellers' | 'admins' | 'blocked' | 'pending' | 'paid'>('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null)
@@ -520,6 +521,45 @@ const AdminUsersPage = () => {
       }
     }
   }
+
+  // Open the detail modal directly from a deep link (e.g. /admin/users/:id),
+  // where we only have the user id and not the full list row.
+  const openUserDetailById = async (id: string) => {
+    try {
+      const details = await api.getAdminUserDetails(id)
+      const d = details?.data || details
+      if (!d?.id) return
+      const userObj: UserData = {
+        id: d.id,
+        name: d.name,
+        email: d.email,
+        phone: d.phone,
+        role: d.role,
+        status: d.status,
+        verified: d.verified,
+        trustScore: d.trustScore ?? 0,
+        memberSince: d.memberSince || d.createdAt,
+        companyName: d.companyName,
+        mcNumber: d.mcNumber,
+        dotNumber: d.dotNumber,
+        identityVerified: d.identityVerified,
+        subscription: d.subscription ?? null,
+      }
+      await openUserDetail(userObj)
+    } catch (err) {
+      console.error('Failed to open user detail by id:', err)
+    }
+  }
+
+  // Auto-open the detail modal when navigated to /admin/users/:userId
+  useEffect(() => {
+    if (userId) {
+      openUserDetailById(userId)
+    } else {
+      setShowDetailModal(false)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId])
 
   const handleRecordManualDeposit = async () => {
     if (!selectedUser) return
@@ -1148,6 +1188,7 @@ const AdminUsersPage = () => {
               setShowResetPasswordForm(false)
               setResetPasswordForm({ newPassword: '', confirmPassword: '' })
               setResetPasswordFeedback(null)
+              if (userId) navigate('/admin/users')
             }}
           >
             <motion.div
@@ -1188,6 +1229,7 @@ const AdminUsersPage = () => {
                     onClick={() => {
                       setShowDetailModal(false)
                       setUserDetails(null)
+                      if (userId) navigate('/admin/users')
                     }}
                     className="p-2 hover:bg-white/10 rounded-lg transition-colors"
                   >

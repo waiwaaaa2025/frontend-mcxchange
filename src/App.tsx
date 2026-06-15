@@ -304,6 +304,7 @@ function App() {
               <Route path="consultations" element={<AdminConsultationsPage />} />
               <Route path="reported" element={<div className="p-8"><h1 className="text-2xl font-bold">Reported Items</h1></div>} />
               <Route path="users" element={<AdminUsersPage />} />
+              <Route path="users/:userId" element={<AdminUsersPage />} />
               <Route path="activity-log" element={<AdminActivityLogPage />} />
               <Route path="disputes" element={<AdminDisputesPage />} />
               <Route path="settings" element={<AdminSettingsPage />} />
