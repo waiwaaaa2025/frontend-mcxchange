@@ -3874,6 +3874,28 @@ class ApiService {
     URL.revokeObjectURL(url);
   }
 
+  // Downloads a full dispute-evidence PDF for a user (admin only). Streams a PDF,
+  // so it can't go through request() (which parses JSON).
+  async downloadUserDisputeEvidence(userId: string, userName?: string) {
+    const token = this.token || localStorage.getItem('mcx_token');
+    const res = await fetch(`${API_BASE_URL}/admin/users/${userId}/dispute-evidence`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (!res.ok) {
+      throw new Error(`Evidence download failed (${res.status})`);
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const safe = (userName || userId).replace(/[^a-z0-9]+/gi, '-').toLowerCase();
+    a.download = `dispute-evidence-${safe}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
   async leadGeneratorAdminListAllSaves(params: { userId?: string; dotNumber?: string; from?: string; to?: string; page?: number; limit?: number } = {}) {
     const qs = new URLSearchParams();
     for (const [k, v] of Object.entries(params)) {

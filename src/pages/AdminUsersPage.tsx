@@ -93,6 +93,7 @@ const AdminUsersPage = () => {
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null)
   const [userDetails, setUserDetails] = useState<any>(null)
   const [showDetailModal, setShowDetailModal] = useState(false)
+  const [downloadingEvidence, setDownloadingEvidence] = useState(false)
   const [showActionMenu, setShowActionMenu] = useState<string | null>(null)
   const [sortField, setSortField] = useState<'name' | 'memberSince' | 'lastActive' | 'trustScore'>('memberSince')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
@@ -379,6 +380,18 @@ const AdminUsersPage = () => {
     } catch (err: any) {
       console.error('Failed to cancel subscription:', err)
       alert(err.message || 'Failed to cancel subscription')
+    }
+  }
+
+  const handleDownloadEvidence = async (user: UserData) => {
+    setDownloadingEvidence(true)
+    try {
+      await api.downloadUserDisputeEvidence(user.id, user.name)
+    } catch (err: any) {
+      console.error('Failed to download dispute evidence:', err)
+      alert(err.message || 'Failed to generate dispute evidence')
+    } finally {
+      setDownloadingEvidence(false)
     }
   }
 
@@ -1888,6 +1901,15 @@ const AdminUsersPage = () => {
                   >
                     <Key className="w-4 h-4 mr-2" />
                     Reset Password
+                  </Button>
+                  <Button
+                    variant="outline"
+                    disabled={downloadingEvidence}
+                    onClick={() => handleDownloadEvidence(selectedUser)}
+                    title="Download a PDF with account, subscription, Stripe charges/disputes, usage, and Terms acceptance — for chargeback rebuttals"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    {downloadingEvidence ? 'Generating…' : 'Download Dispute Evidence'}
                   </Button>
                   {!selectedUser.verified && selectedUser.status !== 'BLOCKED' && selectedUser.role === 'SELLER' && (
                     <Button
