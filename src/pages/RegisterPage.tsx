@@ -146,7 +146,7 @@ const RegisterPage = () => {
 
     try {
       // Register returns the user with their role
-      const user = await register(email, password, name, role, phone)
+      const user = await register(email, password, name, role, phone, termsAccepted)
 
       // If there's a redirect URL, use it (after validating it's a local path)
       if (redirectUrl && redirectUrl.startsWith('/')) {

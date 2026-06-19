@@ -19,7 +19,7 @@ interface LoginResult {
 interface AuthContextType {
   user: User | null
   login: (email: string, password: string, roleHint?: LoginRoleHint) => Promise<LoginResult>
-  register: (email: string, password: string, name: string, role: UserRole, phone?: string) => Promise<User>
+  register: (email: string, password: string, name: string, role: UserRole, phone?: string, termsAccepted?: boolean) => Promise<User>
   switchRole: (role: RoleHint) => Promise<User>
   logout: () => void
   isAuthenticated: boolean
@@ -231,7 +231,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return transformedUser
   }
 
-  const register = async (email: string, password: string, name: string, role: UserRole, phone?: string): Promise<User> => {
+  const register = async (email: string, password: string, name: string, role: UserRole, phone?: string, termsAccepted?: boolean): Promise<User> => {
     setIsLoading(true)
     try {
       const response = await api.register({
@@ -239,7 +239,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         password,
         name,
         role: toBackendRole(role),
-        phone
+        phone,
+        termsAccepted
       })
 
       const transformedUser = transformUser(response.user)

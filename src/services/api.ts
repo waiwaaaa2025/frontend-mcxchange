@@ -155,7 +155,7 @@ class ApiService {
     };
   }
 
-  async register(data: { email: string; password: string; name: string; role: string; phone?: string }) {
+  async register(data: { email: string; password: string; name: string; role: string; phone?: string; termsAccepted?: boolean }) {
     const response = await this.request<ApiResponse<AuthRegisterResponse>>('/auth/register', {
       method: 'POST',
       body: JSON.stringify(data),

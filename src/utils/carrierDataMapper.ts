@@ -670,14 +670,21 @@ export function mapToV2AuthorityData(report: any, fmcsaAuth?: any): V2AuthorityD
 
     if (relevant.length === 0) return { status: 'inactive', grantedDate: '' }
 
+    // grantedDate is the date authority was GRANTED — find the most recent GRANTED
+    // event, independent of the latest event (which may be a revocation/dismissal).
+    const grantEvent = relevant.find((e: any) => String(e.event || '').toLowerCase().includes('grant'))
+    const grantedDate = grantEvent ? normalizeDate(grantEvent.date || '') : ''
+
+    // Current status comes from the most recent event of any kind.
     const latest = relevant[0]
     const event = String(latest.event || '').toLowerCase()
-    if (event.includes('granted')) return { status: 'active', grantedDate: normalizeDate(latest.date || '') }
-    if (event.includes('revoked')) return { status: 'revoked', grantedDate: normalizeDate(latest.date || '') }
+    // Match both "REVOKED" and "INVOLUNTARY REVOCATION".
+    if (event.includes('revok')) return { status: 'revoked', grantedDate }
+    if (event.includes('grant')) return { status: 'active', grantedDate }
     // DISMISSED = authority was denied/removed
-    if (event.includes('dismissed')) return { status: 'inactive', grantedDate: normalizeDate(latest.date || '') }
+    if (event.includes('dismiss')) return { status: 'inactive', grantedDate }
 
-    return { status: 'inactive', grantedDate: normalizeDate(latest.date || '') }
+    return { status: 'inactive', grantedDate }
   }
 
   // Try direct statuses first, fall back to timeline derivation
