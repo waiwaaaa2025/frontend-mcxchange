@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
+import TalkToMariaModal from './TalkToMariaModal'
 import {
   Search,
   Activity,
@@ -41,6 +42,7 @@ interface MenuItem {
   href: string
   icon?: IconType
   external?: boolean
+  action?: 'consult'
 }
 
 const solutionsByProduct: MenuItem[] = [
@@ -64,7 +66,7 @@ const productItems: MenuItem[] = [
   { name: 'Safety & Compliance', desc: 'SMS, authority, insurance, filings, and FMCSA changes in one place.', href: '/product/safety', icon: ShieldCheck },
   { name: 'MorPro API', desc: 'MorPro-powered APIs behind Domilea’s intelligence stack.', href: '/contact', icon: Network },
   { name: 'How to Buy a Trucking Business', desc: 'Step-by-step due diligence guide for acquiring a motor carrier.', href: '/resources/how-to-buy-a-trucking-business', icon: GraduationCap },
-  { name: 'Book Consultation', desc: 'Talk to a Domilea expert about buying, monitoring, or growing your carrier.', href: '/contact', icon: Handshake },
+  { name: 'Book Consultation', desc: 'Talk to a Domilea expert about buying, monitoring, or growing your carrier.', href: '/contact', icon: Handshake, action: 'consult' },
 ]
 
 const resourcesLearn: MenuItem[] = [
@@ -95,7 +97,14 @@ const Navbar = () => {
   const [switching, setSwitching] = useState(false)
   const [openMenu, setOpenMenu] = useState<MenuKey>(null)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [consultOpen, setConsultOpen] = useState(false)
   const closeTimer = useRef<number | null>(null)
+
+  function openConsult() {
+    setOpenMenu(null)
+    setMobileOpen(false)
+    setConsultOpen(true)
+  }
 
   function openMenuWithDelay(key: MenuKey) {
     if (closeTimer.current) {
