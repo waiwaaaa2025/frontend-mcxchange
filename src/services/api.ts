@@ -3874,6 +3874,18 @@ class ApiService {
     URL.revokeObjectURL(url);
   }
 
+  // Live list of open Stripe disputes (needs_response) with deadlines + matched user.
+  async getOpenStripeDisputes() {
+    return this.request<{
+      success: boolean;
+      data: Array<{
+        id: string; amount: number; currency: string; reason: string; status: string;
+        created: number; dueBy: number | null; submissionCount: number; charge?: string;
+        customerId?: string; userId: string | null; userName: string | null; userEmail: string | null;
+      }>;
+    }>('/admin/disputes/stripe-open');
+  }
+
   // Downloads a full dispute-evidence PDF for a user (admin only). Streams a PDF,
   // so it can't go through request() (which parses JSON).
   async downloadUserDisputeEvidence(userId: string, userName?: string) {

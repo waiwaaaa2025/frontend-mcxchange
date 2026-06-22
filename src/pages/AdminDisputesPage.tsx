@@ -14,7 +14,8 @@ import {
   Loader2,
   Eye,
   Check,
-  X
+  X,
+  Download
 } from 'lucide-react'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
@@ -249,6 +250,9 @@ const AdminDisputesPage = () => {
             </Button>
           </div>
         </div>
+
+        {/* Live Stripe chargeback monitor — never miss an evidence deadline */}
+        <StripeDisputeMonitor />
 
         {/* Action Message */}
         {actionMessage && (
@@ -661,6 +665,152 @@ const AdminDisputesPage = () => {
         </div>
       )}
     </div>
+  )
+}
+
+// ============================================================
+// Live Stripe chargeback monitor — lists disputes awaiting a merchant
+// response with their evidence deadlines, so none expire unanswered.
+// ============================================================
+interface OpenDispute {
+  id: string; amount: number; currency: string; reason: string; status: string;
+  created: number; dueBy: number | null; submissionCount: number;
+  userId: string | null; userName: string | null; userEmail: string | null;
+}
+
+function StripeDisputeMonitor() {
+  const [disputes, setDisputes] = useState<OpenDispute[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [downloadingId, setDownloadingId] = useState<string | null>(null)
+
+  const load = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await api.getOpenStripeDisputes()
+      setDisputes(res.data || [])
+    } catch (err: any) {
+      setError(err.message || 'Failed to load Stripe disputes')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => { load() }, [])
+
+  const money = (a: number, c: string) => `$${(a / 100).toFixed(2)} ${(c || '').toUpperCase()}`
+  const daysLeft = (dueBy: number | null) => {
+    if (!dueBy) return null
+    return Math.ceil((dueBy * 1000 - Date.now()) / (1000 * 60 * 60 * 24))
+  }
+  const dueLabel = (dueBy: number | null) => {
+    if (!dueBy) return '—'
+    const d = new Date(dueBy * 1000)
+    return d.toISOString().slice(0, 10)
+  }
+
+  const handleDownload = async (d: OpenDispute) => {
+    if (!d.userId) return
+    setDownloadingId(d.id)
+    try {
+      await api.downloadUserDisputeEvidence(d.userId, d.userName || undefined)
+    } catch (err: any) {
+      alert(err.message || 'Failed to generate evidence')
+    } finally {
+      setDownloadingId(null)
+    }
+  }
+
+  return (
+    <Card className="mb-6 border-amber-200 bg-amber-50/40">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <AlertTriangle className="w-5 h-5 text-amber-600" />
+          <h2 className="text-lg font-bold text-gray-900">Stripe Chargebacks Needing Response</h2>
+          {!loading && (
+            <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-xs font-semibold">
+              {disputes.length}
+            </span>
+          )}
+        </div>
+        <Button variant="secondary" onClick={load} disabled={loading}>
+          <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+          Refresh
+        </Button>
+      </div>
+
+      {loading && (
+        <div className="py-8 text-center text-gray-500">
+          <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2" /> Loading live from Stripe…
+        </div>
+      )}
+
+      {!loading && error && (
+        <div className="py-4 text-sm text-red-600">{error}</div>
+      )}
+
+      {!loading && !error && disputes.length === 0 && (
+        <div className="py-6 text-center text-emerald-700 font-medium">
+          <CheckCircle className="w-6 h-6 mx-auto mb-2" /> No open disputes need a response. 🎉
+        </div>
+      )}
+
+      {!loading && !error && disputes.length > 0 && (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-gray-500 border-b border-amber-200">
+                <th className="py-2 pr-3">Due</th>
+                <th className="py-2 pr-3">Amount</th>
+                <th className="py-2 pr-3">Reason</th>
+                <th className="py-2 pr-3">Customer</th>
+                <th className="py-2 pr-3">Evidence</th>
+              </tr>
+            </thead>
+            <tbody>
+              {disputes.map((d) => {
+                const dl = daysLeft(d.dueBy)
+                const urgent = dl !== null && dl <= 3
+                return (
+                  <tr key={d.id} className="border-b border-amber-100 last:border-0">
+                    <td className="py-2 pr-3 whitespace-nowrap">
+                      <span className={`font-semibold ${urgent ? 'text-red-600' : 'text-gray-800'}`}>{dueLabel(d.dueBy)}</span>
+                      {dl !== null && (
+                        <span className={`ml-2 text-xs ${urgent ? 'text-red-600 font-bold' : 'text-gray-500'}`}>
+                          {dl < 0 ? 'overdue' : `${dl}d left`}
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-2 pr-3 whitespace-nowrap font-medium">{money(d.amount, d.currency)}</td>
+                    <td className="py-2 pr-3"><span className="capitalize">{(d.reason || '').replace(/_/g, ' ')}</span></td>
+                    <td className="py-2 pr-3">
+                      <div className="font-medium text-gray-900">{d.userName || '—'}</div>
+                      <div className="text-xs text-gray-500">{d.userEmail || 'unmatched'}</div>
+                    </td>
+                    <td className="py-2 pr-3">
+                      {d.userId ? (
+                        <Button variant="outline" onClick={() => handleDownload(d)} disabled={downloadingId === d.id}>
+                          {downloadingId === d.id
+                            ? <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                            : <Download className="w-4 h-4 mr-1" />}
+                          {downloadingId === d.id ? 'Generating…' : 'Evidence PDF'}
+                        </Button>
+                      ) : (
+                        <span className="text-xs text-gray-400">no matched user</span>
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+          <p className="mt-3 text-xs text-gray-500">
+            Pulled live from Stripe. Submit evidence in the Stripe Dashboard → Disputes before each due date.
+          </p>
+        </div>
+      )}
+    </Card>
   )
 }
 
