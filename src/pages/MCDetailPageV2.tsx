@@ -1482,6 +1482,15 @@ function SafetyTab() {
   // BASICs exceeding threshold
   const exceedingBasics = mockBasicScores.filter(b => b.score != null && b.score >= b.threshold)
 
+  // Whether we have ANY real safety signal. When a carrier has no inspections,
+  // no crashes, and no scored BASICs (e.g. a brand-new carrier with one clean
+  // inspection), we must NOT fabricate a verdict — show N/A, never red/green.
+  const scoredBasicsCount = mockBasicScores.filter(b => b.score != null).length
+  const hasSafetyData =
+    (mockInspections.totalInspections || 0) > 0 ||
+    (mockCrashes.total || 0) > 0 ||
+    scoredBasicsCount > 0
+
   const safetySubTabs = [
     { id: 'overview' as const, label: 'Overview' },
     { id: 'basics' as const, label: 'BASICs' },
@@ -1666,6 +1675,23 @@ function SafetyTab() {
               </div>
 
               {/* Quick verdict banner */}
+              {!hasSafetyData ? (
+                <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                  <div className="flex items-start gap-2">
+                    <Info className="w-4 h-4 text-gray-400 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-semibold text-gray-600">
+                        Insufficient safety data — N/A
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        FMCSA has not published enough inspection, crash, or BASIC data to rate
+                        this carrier yet. We only show data that is actually on file — no score is
+                        implied either way.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
               <div className={`rounded-xl border p-4 ${
                 mockCrashes.fatal > 0 || exceedingBasics.length >= 3
                   ? 'bg-red-50 border-red-200'
@@ -1704,6 +1730,7 @@ function SafetyTab() {
                   </div>
                 </div>
               </div>
+              )}
             </motion.div>
           )}
 
@@ -3578,15 +3605,19 @@ export default function MCDetailPageV2() {
         authority: fallbackAuthority,
         authorityHistory: [],
         authorityPending: fallbackAuthorityPending,
-        basicScores: smsData ? mapSMSToV2BasicScores(smsData) : [],
-        basicAlerts: smsData ? mapToV2BasicAlerts(null, smsData) : fallbackBasicAlerts,
-        violationBreakdown: fallbackViolationBreakdown,
-        issData: fallbackISSData,
-        inspections: fallbackInspections,
+        // No MorPro report — show ONLY real data. Never fabricate safety/inspection
+        // numbers: use honest-empty mappers (zeros / "Not Scored") so a carrier with
+        // no FMCSA history reads as N/A, not as a fake risky record. SMS data is
+        // independent of the MorPro report, so surface it when it loaded.
+        basicScores: smsData ? mapSMSToV2BasicScores(smsData) : mapToV2BasicScores({}),
+        basicAlerts: mapToV2BasicAlerts({}, smsData),
+        violationBreakdown: mapToV2ViolationBreakdown({}),
+        issData: mapToV2ISSData({}),
+        inspections: mapToV2InspectionSummary({}, smsData),
         inspectionRecords: [],
-        operations: fallbackOperations,
+        operations: mapToV2Operations({}),
         violationTrend: [],
-        crashes: fallbackCrashes,
+        crashes: mapToV2CrashData({}, smsData),
         crashRecords: [],
         insurancePolicies: [],
         renewalTimeline: [],
