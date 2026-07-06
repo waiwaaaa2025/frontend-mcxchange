@@ -247,15 +247,21 @@ const HomePage = () => {
               Find your next trucking business. Use AI to vet it, acquire it, and monitor it — for life.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-4 justify-center mb-6">
+              <Link to="/marketplace">
+                <Button size="lg" className="w-full sm:w-auto min-w-[200px] bg-white text-domilea-ink hover:bg-gray-100">
+                  <Building2 className="w-5 h-5 mr-2" />
+                  Browse Marketplace
+                </Button>
+              </Link>
               <Link to="/carrier-pulse-preview">
-                <Button size="lg" className="min-w-[200px] bg-indigo-600 hover:bg-indigo-500 text-white">
+                <Button size="lg" className="w-full sm:w-auto min-w-[200px] bg-indigo-600 hover:bg-indigo-500 text-white">
                   Search Carrier Data
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </Link>
               <Link to="/carrier-pulse-preview">
-                <Button size="lg" variant="ghost" className="min-w-[200px] border border-white/20 text-white hover:bg-white/10">
+                <Button size="lg" variant="ghost" className="w-full sm:w-auto min-w-[200px] border border-white/20 text-white hover:bg-white/10">
                   Analyze My Company
                 </Button>
               </Link>
