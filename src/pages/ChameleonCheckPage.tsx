@@ -9,8 +9,10 @@ import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import { useAuth } from '../context/AuthContext'
 import { useCarrierData } from '../hooks/useCarrierData'
+import { usePaymentConsent } from '../hooks/usePaymentConsent'
 import { api } from '../services/api'
 import ChameleonAlert from '../components/v2/ChameleonAlert'
+import PaymentConsentModal from '../components/PaymentConsentModal'
 import { detectChameleonCarrier, mapToV2CarrierData, mapToV2RelatedCarriers } from '../utils/carrierDataMapper'
 import type { V2ChameleonAnalysis } from '../components/v2/mockData'
 
@@ -117,18 +119,17 @@ export default function ChameleonCheckPage() {
     window.history.pushState(null, '', basePath)
   }
 
-  const handleCheckout = async () => {
-    setCheckoutLoading(true)
-    try {
-      const res = await api.createCarrierPulseCheckout()
+  const { requestConsent, modalProps } = usePaymentConsent()
+
+  const handleCheckout = () => {
+    requestConsent('CarrierPulse', async (signature) => {
+      const res = await api.createCarrierPulseCheckout(signature)
       if (res.data?.url) {
         window.location.href = res.data.url
+      } else {
+        throw new Error('No checkout URL received')
       }
-    } catch (err: any) {
-      console.error('Checkout error:', err)
-    } finally {
-      setCheckoutLoading(false)
-    }
+    })
   }
 
   // ==========================================
@@ -207,6 +208,7 @@ export default function ChameleonCheckPage() {
             </div>
           </Card>
         </motion.div>
+        <PaymentConsentModal {...modalProps} />
       </div>
     )
   }

@@ -1135,10 +1135,10 @@ class ApiService {
     return this.request<ApiResponse<SubscriptionResponse>>('/buyer/subscription');
   }
 
-  async createSubscriptionCheckout(plan: string, isYearly: boolean) {
+  async createSubscriptionCheckout(plan: string, isYearly: boolean, signature: string) {
     return this.request<ApiResponse<CheckoutSessionResponse>>('/buyer/subscription/checkout', {
       method: 'POST',
-      body: JSON.stringify({ plan, isYearly }),
+      body: JSON.stringify({ plan, isYearly, signature }),
     });
   }
 
@@ -1152,9 +1152,10 @@ class ApiService {
     return this.request<ApiResponse<{ hasAccess: boolean; reason: string; currentPlan: string | null; isActive: boolean }>>('/buyer/carrier-pulse/access');
   }
 
-  async createCarrierPulseCheckout() {
+  async createCarrierPulseCheckout(signature: string) {
     return this.request<ApiResponse<CheckoutSessionResponse>>('/buyer/carrier-pulse/checkout', {
       method: 'POST',
+      body: JSON.stringify({ signature }),
     });
   }
 

@@ -23,6 +23,8 @@ import {
 import { useNavigate, useParams, Link, useSearchParams } from 'react-router-dom'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
+import PaymentConsentModal from '../components/PaymentConsentModal'
+import { usePaymentConsent } from '../hooks/usePaymentConsent'
 import { useAuth } from '../context/AuthContext'
 import api from '../services/api'
 
@@ -2345,18 +2347,17 @@ export default function CarrierPulsePage({ previewMode = false }: { previewMode?
     }
   }, [searchParams])
 
-  const handleCarrierPulseCheckout = async () => {
-    setCheckoutLoading(true)
-    try {
-      const res = await api.createCarrierPulseCheckout()
+  const { requestConsent, modalProps: consentModalProps } = usePaymentConsent()
+
+  const handleCarrierPulseCheckout = () => {
+    requestConsent('CarrierPulse', async (signature) => {
+      const res = await api.createCarrierPulseCheckout(signature)
       if (res.data?.url) {
         window.location.href = res.data.url
+      } else {
+        throw new Error('No checkout URL received')
       }
-    } catch (err: any) {
-      console.error('CarrierPulse checkout error:', err)
-    } finally {
-      setCheckoutLoading(false)
-    }
+    })
   }
 
   const tabs = [...baseTabs]
@@ -2607,6 +2608,7 @@ export default function CarrierPulsePage({ previewMode = false }: { previewMode?
             </div>
           </Card>
         </motion.div>
+        <PaymentConsentModal {...consentModalProps} />
       </div>
     )
   }

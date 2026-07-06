@@ -16,6 +16,8 @@ import {
   Phone,
 } from 'lucide-react'
 import Button from '../components/ui/Button'
+import PaymentConsentModal from '../components/PaymentConsentModal'
+import { usePaymentConsent } from '../hooks/usePaymentConsent'
 import { useAuth } from '../context/AuthContext'
 import { api } from '../services/api'
 
@@ -173,22 +175,20 @@ export default function LeadGeneratorLandingPage() {
   // compliance, admin) uses the role-agnostic /lead-generator/app route.
   const toolPath = user?.role === 'buyer' ? '/buyer/lead-generator' : '/lead-generator/app'
 
-  const handleSubscribe = async (planId: Tier['id']) => {
+  const { requestConsent, modalProps } = usePaymentConsent()
+
+  const handleSubscribe = (planId: Tier['id']) => {
     if (!user) {
       navigate(`/register?next=/lead-generator`)
       return
     }
-    try {
-      setSubmitting(planId)
+    requestConsent('the Lead Generator plan', async (signature) => {
       // Backend validates lowercase plan keys.
-      const res = await api.createSubscriptionCheckout(planId.toLowerCase(), false)
+      const res = await api.createSubscriptionCheckout(planId.toLowerCase(), false, signature)
       const url = res.data?.url
       if (url) window.location.href = url
-    } catch (err) {
-      console.error('Lead Generator checkout failed', err)
-    } finally {
-      setSubmitting(null)
-    }
+      else throw new Error('No checkout URL received')
+    })
   }
 
   return (
@@ -348,6 +348,8 @@ export default function LeadGeneratorLandingPage() {
           </div>
         </div>
       </section>
+
+      <PaymentConsentModal {...modalProps} />
     </div>
   )
 }

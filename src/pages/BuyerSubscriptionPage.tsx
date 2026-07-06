@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
@@ -28,6 +28,7 @@ import {
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import Textarea from '../components/ui/Textarea'
+import PaymentConsentModal from '../components/PaymentConsentModal'
 import { useAuth } from '../context/AuthContext'
 import api from '../services/api'
 import { toast } from 'react-hot-toast'
@@ -317,31 +318,57 @@ const BuyerSubscriptionPage = () => {
     fetchSubscription()
   }, [user, authLoading])
 
-  const handleSubscribe = async (planId: string) => {
-    // Check if user is authenticated - rely on AuthContext state, not api.getToken()
-    // which may have timing issues between token being set and React state updating
+  // Affirmative payment-terms consent gate: every paid checkout first opens the
+  // PaymentConsentModal to capture the customer's signature, then runs the stored
+  // action with it. Recorded server-side as Stripe dispute evidence.
+  const [consentOpen, setConsentOpen] = useState(false)
+  const [consentSubmitting, setConsentSubmitting] = useState(false)
+  const [consentLabel, setConsentLabel] = useState<string | undefined>(undefined)
+  const pendingCheckoutRef = useRef<((signature: string) => Promise<void>) | null>(null)
+
+  const requestConsent = (label: string, action: (signature: string) => Promise<void>) => {
     if (!user) {
       navigate('/login?redirect=/buyer/subscription')
       return
     }
+    pendingCheckoutRef.current = action
+    setConsentLabel(label)
+    setConsentSubmitting(false)
+    setConsentOpen(true)
+  }
 
-    setIsProcessing(true)
+  const handleConsentAgree = async (signature: string) => {
+    const action = pendingCheckoutRef.current
+    if (!action) return
+    setConsentSubmitting(true)
     setError(null)
-
     try {
-      const response = await api.createSubscriptionCheckout(planId, billingCycle === 'yearly')
+      // On success the action redirects to Stripe, so control won't return here.
+      await action(signature)
+    } catch (err: any) {
+      console.error('Checkout error:', err)
+      setError(err.message || 'Failed to create checkout session')
+      setConsentSubmitting(false)
+      setConsentOpen(false)
+    }
+  }
 
+  const handleSubscribe = (planId: string) => {
+    const label =
+      planId === 'vip_access' ? 'the VIP / Deal Access Pass' : 'your subscription'
+    requestConsent(label, async (signature) => {
+      const response = await api.createSubscriptionCheckout(
+        planId,
+        billingCycle === 'yearly',
+        signature
+      )
       // Redirect to Stripe Checkout
       if (response.data?.url) {
         window.location.href = response.data.url
       } else {
         throw new Error('No checkout URL received')
       }
-    } catch (err: any) {
-      console.error('Checkout error:', err)
-      setError(err.message || 'Failed to create checkout session')
-      setIsProcessing(false)
-    }
+    })
   }
 
   const handleContactSubmit = async () => {
@@ -394,24 +421,15 @@ const BuyerSubscriptionPage = () => {
   }
 
   // Purchase CarrierPulse add-on
-  const handleCarrierPulseCheckout = async () => {
-    if (!user) {
-      navigate('/login?redirect=/buyer/subscription')
-      return
-    }
-    setCarrierPulseCheckoutLoading(true)
-    setError(null)
-    try {
-      const response = await api.createCarrierPulseCheckout()
+  const handleCarrierPulseCheckout = () => {
+    requestConsent('CarrierPulse', async (signature) => {
+      const response = await api.createCarrierPulseCheckout(signature)
       if (response.data?.url) {
         window.location.href = response.data.url
+      } else {
+        throw new Error('No checkout URL received')
       }
-    } catch (err: any) {
-      console.error('CarrierPulse checkout error:', err)
-      setError(err.message || 'Failed to start CarrierPulse checkout')
-    } finally {
-      setCarrierPulseCheckoutLoading(false)
-    }
+    })
   }
 
   // Purchase a credit pack
@@ -1297,6 +1315,15 @@ const BuyerSubscriptionPage = () => {
           </motion.div>
         </div>
       )}
+
+      {/* Payment-terms consent + signature (shown before redirecting to Stripe) */}
+      <PaymentConsentModal
+        isOpen={consentOpen}
+        onClose={() => setConsentOpen(false)}
+        onAgree={handleConsentAgree}
+        productLabel={consentLabel}
+        submitting={consentSubmitting}
+      />
     </div>
   )
 }
