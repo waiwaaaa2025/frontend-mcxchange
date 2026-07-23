@@ -21,7 +21,8 @@ import {
   RefreshCw,
   Trash2,
   Send,
-  DollarSign
+  DollarSign,
+  Crown
 } from 'lucide-react'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
@@ -63,6 +64,10 @@ interface Offer {
     phone?: string
     verified: boolean
     trustScore: number
+    subscription?: {
+      plan: string
+      status: string
+    } | null
   }
   seller?: {
     id: string
@@ -74,6 +79,20 @@ interface Offer {
 }
 
 type FilterStatus = 'all' | 'PENDING_ADMIN' | 'FORWARDED' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'ACCEPTED'
+
+// A buyer is VIP when they hold the active VIP / Deal Access Pass ($399 one-time)
+const isVipBuyer = (buyer?: Offer['buyer']) =>
+  buyer?.subscription?.plan === 'VIP_ACCESS' && buyer?.subscription?.status === 'ACTIVE'
+
+const VipBadge = () => (
+  <span
+    title="VIP / Deal Access Pass holder"
+    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 border border-amber-200"
+  >
+    <Crown className="w-3 h-3" />
+    VIP
+  </span>
+)
 
 const AdminOffersPage = () => {
   const [searchQuery, setSearchQuery] = useState('')
@@ -514,6 +533,7 @@ const AdminOffersPage = () => {
                           <p className="font-medium text-gray-900 flex items-center gap-1 truncate">
                             <User className="w-4 h-4 flex-shrink-0" />
                             <span className="truncate">{offer.buyer?.name || 'N/A'}</span>
+                            {isVipBuyer(offer.buyer) && <VipBadge />}
                           </p>
                         </div>
                         <div>
@@ -695,7 +715,10 @@ const AdminOffersPage = () => {
                 {/* Buyer & Seller Info */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className={`bg-blue-50 rounded-xl p-3 sm:p-4 ${selectedParty === 'buyer' ? 'ring-2 ring-blue-400' : ''}`}>
-                    <h4 className="text-sm font-medium text-blue-800 mb-2 sm:mb-3">Buyer</h4>
+                    <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                      <h4 className="text-sm font-medium text-blue-800">Buyer</h4>
+                      {isVipBuyer(selectedOffer.buyer) && <VipBadge />}
+                    </div>
                     <button
                       type="button"
                       onClick={() => openParty('buyer')}

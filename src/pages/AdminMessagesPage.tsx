@@ -23,7 +23,8 @@ import {
   Minus,
   ArrowLeft,
   X,
-  Ban
+  Ban,
+  Crown
 } from 'lucide-react'
 import { format } from 'date-fns'
 import Card from '../components/ui/Card'
@@ -58,6 +59,7 @@ interface Conversation {
   userPhone?: string
   hasActiveSubscription?: boolean
   hasCredits?: boolean
+  isVip?: boolean
 }
 
 interface Message {
@@ -216,6 +218,9 @@ const AdminMessagesPage = () => {
         const hasActiveSubscription = userDetails?.subscription?.status === 'ACTIVE'
         const availableCredits = (userDetails?.totalCredits || 0) - (userDetails?.usedCredits || 0)
         const hasCredits = availableCredits > 0
+        const isVip =
+          userDetails?.subscription?.plan === 'VIP_ACCESS' &&
+          userDetails?.subscription?.status === 'ACTIVE'
 
         setConversations((prev) =>
           prev.map((conv) =>
@@ -227,6 +232,7 @@ const AdminMessagesPage = () => {
                   participantName: userDetails?.name || conv.participantName,
                   hasActiveSubscription,
                   hasCredits,
+                  isVip,
                 }
               : conv
           )
@@ -657,6 +663,15 @@ void statusConfig[conversation.status].icon
                         <div>
                           <div className="flex items-center gap-1.5">
                             <span className="font-medium text-gray-900 text-sm">{conversation.participantName}</span>
+                            {conversation.isVip && (
+                              <span
+                                title="VIP / Deal Access Pass holder"
+                                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-700 border border-amber-200"
+                              >
+                                <Crown className="w-3 h-3" />
+                                VIP
+                              </span>
+                            )}
                             {conversation.hasActiveSubscription !== undefined && (
                               conversation.hasActiveSubscription || conversation.hasCredits ? (
                                 <span title="Active subscription or has credits">
@@ -716,6 +731,12 @@ void statusConfig[conversation.status].icon
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <h2 className="text-lg sm:text-xl font-bold text-gray-900 truncate">{selectedConversation.participantName}</h2>
+                        {selectedConversation.isVip && (
+                          <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 border border-amber-200">
+                            <Crown className="w-3.5 h-3.5" />
+                            VIP
+                          </span>
+                        )}
                         {selectedConversation.hasActiveSubscription !== undefined && (
                           selectedConversation.hasActiveSubscription || selectedConversation.hasCredits ? (
                             <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
