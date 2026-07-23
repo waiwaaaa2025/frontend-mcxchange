@@ -220,14 +220,41 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Mobile burger */}
-          <button
-            className="lg:hidden text-domilea-ink p-2 -mr-2"
-            onClick={() => setMobileOpen(o => !o)}
-            aria-label="Toggle menu"
-          >
-            {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          {/* Mobile quick actions — Marketplace + Log in stay visible without opening the menu */}
+          <div className="flex items-center gap-1 lg:hidden">
+            <Link
+              to="/marketplace"
+              onClick={() => setMobileOpen(false)}
+              className="px-1.5 py-1.5 text-[13px] font-semibold text-domilea-ink whitespace-nowrap"
+            >
+              Marketplace
+            </Link>
+            {isAuthenticated ? (
+              <Link
+                to={dashboardLink()}
+                onClick={() => setMobileOpen(false)}
+                className="px-2.5 py-1.5 text-[13px] font-semibold text-white bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg shadow-sm whitespace-nowrap"
+              >
+                Dashboard
+              </Link>
+            ) : (
+              <Link
+                to="/login"
+                onClick={() => setMobileOpen(false)}
+                className="px-2.5 py-1.5 text-[13px] font-semibold text-indigo-700 border border-indigo-200 bg-indigo-50 rounded-lg whitespace-nowrap"
+              >
+                Log in
+              </Link>
+            )}
+            {/* Mobile burger */}
+            <button
+              className="text-domilea-ink p-1.5 -mr-1.5"
+              onClick={() => setMobileOpen(o => !o)}
+              aria-label="Toggle menu"
+            >
+              {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
       </nav>
 
