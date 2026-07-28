@@ -79,7 +79,7 @@ class ApiService {
       if (
         response.status === 401 &&
         !isRetry &&
-        endpoint !== '/auth/refresh' &&
+        endpoint !== '/auth/refresh-token' &&
         localStorage.getItem('mcx_refresh_token')
       ) {
         try {
@@ -311,7 +311,7 @@ class ApiService {
         accessToken: string;
         refreshToken: string;
       };
-    }>('/auth/refresh', {
+    }>('/auth/refresh-token', {
       method: 'POST',
       body: JSON.stringify({ refreshToken }),
     }).then((response) => {
