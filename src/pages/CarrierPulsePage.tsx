@@ -2920,7 +2920,7 @@ export default function CarrierPulsePage({ previewMode = false }: { previewMode?
                               </div>
                             </div>
                             <Link to={!user ? '/register' : '/pricing'}>
-                              <Button size="sm" className="bg-white text-indigo-700 hover:bg-indigo-50 font-semibold shadow-sm whitespace-nowrap">
+                              <Button variant="outline" size="sm" className="border-0 bg-white text-indigo-700 hover:bg-indigo-50 font-semibold shadow-sm whitespace-nowrap">
                                 {!user ? <Lock className="w-3.5 h-3.5 mr-1.5" /> : <Crown className="w-3.5 h-3.5 mr-1.5" />}
                                 {!user ? 'Sign Up Free' : 'View Plans'}
                               </Button>

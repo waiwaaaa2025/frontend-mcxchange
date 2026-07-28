@@ -513,7 +513,7 @@ const RecruitingServicesPage = () => {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a href="tel:+18778141807" className="w-full sm:w-auto">
-                <Button size="lg" className="w-full sm:w-auto sm:min-w-[200px] bg-white text-gray-900 hover:bg-gray-100">
+                <Button variant="outline" size="lg" className="border-0 w-full sm:w-auto sm:min-w-[200px] bg-white text-gray-900 hover:bg-gray-100">
                   <Phone className="w-5 h-5 mr-2" />
                   (877) 814-1807
                 </Button>

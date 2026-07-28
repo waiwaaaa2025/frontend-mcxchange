@@ -476,7 +476,7 @@ const ProductPage = () => {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/contact">
-                <Button size="lg" className="min-w-[200px] bg-white text-indigo-600 hover:bg-gray-100">
+                <Button variant="outline" size="lg" className="border-0 min-w-[200px] bg-white text-indigo-600 hover:bg-gray-100">
                   Get a Free Consultation
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>

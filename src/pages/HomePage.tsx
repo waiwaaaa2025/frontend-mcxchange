@@ -249,7 +249,7 @@ const HomePage = () => {
 
             <div className="flex flex-col sm:flex-row flex-wrap gap-4 justify-center mb-6">
               <Link to="/marketplace">
-                <Button size="lg" className="w-full sm:w-auto min-w-[200px] bg-white text-domilea-ink hover:bg-gray-100">
+                <Button variant="outline" size="lg" className="border-0 w-full sm:w-auto min-w-[200px] bg-white text-domilea-ink hover:bg-gray-100">
                   <Building2 className="w-5 h-5 mr-2" />
                   Browse Marketplace
                 </Button>
@@ -693,7 +693,7 @@ const HomePage = () => {
               Real-time data. AI making the calls. Compliance handled before you ask. The smartest trucking operators don’t run on spreadsheets anymore — they run on Domilea.
             </p>
             <Link to="/register">
-              <Button size="lg" className="bg-white hover:bg-gray-100 text-gray-900 px-8 shadow-xl">
+              <Button variant="outline" size="lg" className="border-0 bg-white hover:bg-gray-100 text-gray-900 px-8 shadow-xl">
                 Get Started
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>

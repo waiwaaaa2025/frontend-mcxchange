@@ -338,9 +338,9 @@ export default function ChameleonCheckPreviewPage() {
           </div>
 
           <div className="mt-10 text-center">
-            <Button
+            <Button variant="outline"
               onClick={handleGetStarted}
-              className="w-full sm:w-auto bg-white text-gray-900 hover:bg-gray-100 px-8 py-3 text-base sm:text-lg"
+              className="border-0 w-full sm:w-auto bg-white text-gray-900 hover:bg-gray-100 px-8 py-3 text-base sm:text-lg"
             >
               {user ? 'Start Checking Carriers' : 'Create Free Account'}
               <ArrowRight className="w-5 h-5 ml-2" />

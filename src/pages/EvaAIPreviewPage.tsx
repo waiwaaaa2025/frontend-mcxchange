@@ -569,9 +569,9 @@ export default function EvaAIPreviewPage() {
             <p className="text-white/80 mb-8 max-w-lg mx-auto">
               Eva AI is launching soon. Early adopters get free access during beta. Join the waitlist and we'll notify you the moment it's ready.
             </p>
-            <Button
+            <Button variant="outline"
               onClick={handleGetStarted}
-              className="w-full sm:w-auto bg-white text-gray-900 hover:bg-gray-100 px-8 py-3.5 text-lg shadow-xl"
+              className="border-0 w-full sm:w-auto bg-white text-gray-900 hover:bg-gray-100 px-8 py-3.5 text-lg shadow-xl"
             >
               <Star className="w-5 h-5 mr-2" />
               Join the Waitlist

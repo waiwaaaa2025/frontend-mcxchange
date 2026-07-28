@@ -299,9 +299,9 @@ export default function CreditReportPreviewPage() {
               </div>
             ))}
           </div>
-          <Button
+          <Button variant="outline"
             onClick={handleGetStarted}
-            className="w-full sm:w-auto bg-white text-gray-900 hover:bg-gray-100 px-6 sm:px-8 py-3 text-base sm:text-lg"
+            className="border-0 w-full sm:w-auto bg-white text-gray-900 hover:bg-gray-100 px-6 sm:px-8 py-3 text-base sm:text-lg"
           >
             {user ? 'Search & Purchase Now' : 'Create Free Account'}
             <ArrowRight className="w-5 h-5 ml-2" />

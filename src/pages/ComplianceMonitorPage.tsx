@@ -412,9 +412,9 @@ export default function ComplianceMonitorPage() {
             <p className="text-white/80 mb-8 max-w-lg mx-auto">
               Compliance Monitor is launching soon. Join the waitlist with your DOT number and we'll notify you the moment it's live — early adopters get free access during beta.
             </p>
-            <Button
+            <Button variant="outline"
               onClick={handleWaitlist}
-              className="bg-white text-gray-900 hover:bg-gray-100 px-8 py-3.5 text-lg shadow-xl"
+              className="border-0 bg-white text-gray-900 hover:bg-gray-100 px-8 py-3.5 text-lg shadow-xl"
             >
               <Bell className="w-5 h-5 mr-2" />
               Join the Waitlist
