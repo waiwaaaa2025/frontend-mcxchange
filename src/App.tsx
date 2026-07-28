@@ -1,5 +1,5 @@
-import { lazy, Suspense } from 'react'
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { lazy, Suspense, useEffect } from 'react'
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './context/AuthContext'
 import MainLayout from './layouts/MainLayout'
@@ -147,10 +147,21 @@ function PageLoader() {
   )
 }
 
+// Land every navigation at the top of the page — without this, tapping a link
+// from a scrolled page (or from the mobile menu) drops you mid-content.
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pathname])
+  return null
+}
+
 function App() {
   return (
     <Router>
       <AuthProvider>
+        <ScrollToTop />
         <Toaster position="top-right" />
         <AIChatWidget />
         <Suspense fallback={<PageLoader />}>

@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
@@ -94,9 +94,11 @@ type MenuKey = 'solutions' | 'product' | 'resources' | null
 const Navbar = () => {
   const { user, logout, isAuthenticated, switchRole } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [switching, setSwitching] = useState(false)
   const [openMenu, setOpenMenu] = useState<MenuKey>(null)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [mobileSection, setMobileSection] = useState<MenuKey>(null)
   const [consultOpen, setConsultOpen] = useState(false)
   const closeTimer = useRef<number | null>(null)
 
@@ -123,6 +125,31 @@ const Navbar = () => {
     window.addEventListener('keydown', onEsc)
     return () => window.removeEventListener('keydown', onEsc)
   }, [])
+
+  // Any navigation closes the menus, so the destination page is never hidden
+  // behind an open sheet the visitor has to dismiss by hand.
+  useEffect(() => {
+    setMobileOpen(false)
+    setOpenMenu(null)
+  }, [location.pathname, location.search])
+
+  // Keep the page behind the sheet from scrolling while it is open.
+  useEffect(() => {
+    if (!mobileOpen) return
+    const previous = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = previous }
+  }, [mobileOpen])
+
+  function toggleMobile() {
+    setMobileOpen(open => {
+      const next = !open
+      // Signed-out visitors are here to browse the products — show them
+      // straight away instead of making them expand a second level.
+      if (next) setMobileSection(isAuthenticated ? null : 'product')
+      return next
+    })
+  }
 
   function handleLogout() {
     logout()
@@ -249,8 +276,9 @@ const Navbar = () => {
             {/* Mobile burger */}
             <button
               className="text-domilea-ink p-1.5 -mr-1.5"
-              onClick={() => setMobileOpen(o => !o)}
+              onClick={toggleMobile}
               aria-label="Toggle menu"
+              aria-expanded={mobileOpen}
             >
               {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -291,13 +319,13 @@ const Navbar = () => {
           >
             <div className="px-4 py-4 space-y-1 max-h-[calc(100vh-4rem)] overflow-y-auto">
               <Link to="/marketplace" className="block px-3 py-2.5 text-sm font-medium text-domilea-ink" onClick={() => setMobileOpen(false)}>Marketplace</Link>
-              <MobileSection label="Product">
+              <MobileSection label="Product" open={mobileSection === 'product'} onToggle={() => setMobileSection(s => (s === 'product' ? null : 'product'))}>
                 <MobileGroup items={productItems} onPick={() => setMobileOpen(false)} />
               </MobileSection>
-              <MobileSection label="Solutions">
+              <MobileSection label="Solutions" open={mobileSection === 'solutions'} onToggle={() => setMobileSection(s => (s === 'solutions' ? null : 'solutions'))}>
                 <MobileGroup items={[...solutionsByProduct, ...solutionsByUseCase]} onPick={() => setMobileOpen(false)} />
               </MobileSection>
-              <MobileSection label="Resources">
+              <MobileSection label="Resources" open={mobileSection === 'resources'} onToggle={() => setMobileSection(s => (s === 'resources' ? null : 'resources'))}>
                 <MobileGroup title="Learn" items={resourcesLearn} onPick={() => setMobileOpen(false)} />
                 <MobileGroup title="Company" items={resourcesCompany} onPick={() => setMobileOpen(false)} />
                 <MobileGroup title="Support" items={resourcesSupport} onPick={() => setMobileOpen(false)} />
@@ -429,11 +457,12 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   return <div className="text-[11px] font-semibold uppercase tracking-wider text-domilea-blue">{children}</div>
 }
 
-function MobileSection({ label, children }: { label: string; children: React.ReactNode }) {
-  const [open, setOpen] = useState(false)
+// Controlled by the navbar so only one section is expanded at a time — the
+// sheet stays short enough that every entry is reachable without scrolling.
+function MobileSection({ label, open, onToggle, children }: { label: string; open: boolean; onToggle: () => void; children: React.ReactNode }) {
   return (
     <div className="border-b border-domilea-line last:border-b-0">
-      <button onClick={() => setOpen(o => !o)} className="w-full flex items-center justify-between px-3 py-3 text-sm font-medium text-domilea-ink">
+      <button onClick={onToggle} aria-expanded={open} className="w-full flex items-center justify-between px-3 py-3 text-sm font-medium text-domilea-ink">
         {label}
         <ChevronDown className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
