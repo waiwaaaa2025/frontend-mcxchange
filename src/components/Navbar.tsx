@@ -339,7 +339,8 @@ const Navbar = () => {
                     <button onClick={handleLogout} className="block w-full text-center text-domilea-muted px-4 py-2.5 text-sm">Sign out</button>
                   </>
                 )}
-                <Link to="/login" onClick={() => setMobileOpen(false)} className="block w-full text-center border border-indigo-200 bg-indigo-50 text-indigo-700 px-4 py-2.5 rounded-lg text-sm font-semibold">Log in</Link>
+                {/* No Log in box for signed-out visitors — browsing products
+                    shouldn't push them to an account. Log in stays in the header. */}
                 <Link to="/register" onClick={() => setMobileOpen(false)} className="block w-full text-center bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-4 py-2.5 rounded-lg text-sm font-semibold shadow-lg shadow-indigo-500/25">Sign up</Link>
               </div>
             </div>
