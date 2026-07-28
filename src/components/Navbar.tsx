@@ -100,7 +100,9 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [mobileSection, setMobileSection] = useState<MenuKey>(null)
   const [consultOpen, setConsultOpen] = useState(false)
+  const [authMenuOpen, setAuthMenuOpen] = useState(false)
   const closeTimer = useRef<number | null>(null)
+  const authMenuRef = useRef<HTMLDivElement | null>(null)
 
   function openConsult() {
     setOpenMenu(null)
@@ -121,16 +123,35 @@ const Navbar = () => {
   }
 
   useEffect(() => {
-    const onEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpenMenu(null) }
+    const onEsc = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      setOpenMenu(null)
+      setAuthMenuOpen(false)
+    }
     window.addEventListener('keydown', onEsc)
     return () => window.removeEventListener('keydown', onEsc)
   }, [])
+
+  // Tapping anywhere outside the auth dropdown dismisses it.
+  useEffect(() => {
+    if (!authMenuOpen) return
+    const onPointerDown = (e: MouseEvent | TouchEvent) => {
+      if (!authMenuRef.current?.contains(e.target as Node)) setAuthMenuOpen(false)
+    }
+    document.addEventListener('mousedown', onPointerDown)
+    document.addEventListener('touchstart', onPointerDown)
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown)
+      document.removeEventListener('touchstart', onPointerDown)
+    }
+  }, [authMenuOpen])
 
   // Any navigation closes the menus, so the destination page is never hidden
   // behind an open sheet the visitor has to dismiss by hand.
   useEffect(() => {
     setMobileOpen(false)
     setOpenMenu(null)
+    setAuthMenuOpen(false)
   }, [location.pathname, location.search])
 
   // Keep the page behind the sheet from scrolling while it is open.
@@ -142,6 +163,7 @@ const Navbar = () => {
   }, [mobileOpen])
 
   function toggleMobile() {
+    setAuthMenuOpen(false)
     setMobileOpen(open => {
       const next = !open
       // Signed-out visitors are here to browse the products — show them
@@ -265,13 +287,48 @@ const Navbar = () => {
                 Dashboard
               </Link>
             ) : (
-              <Link
-                to="/login"
-                onClick={() => setMobileOpen(false)}
-                className="px-2.5 py-1.5 text-[13px] font-semibold text-indigo-700 border border-indigo-200 bg-indigo-50 rounded-lg whitespace-nowrap"
-              >
-                Log in
-              </Link>
+              // One compact chip holds both auth actions, so the header row stays
+              // uncrowded on small screens and the menu needs no auth buttons.
+              <div className="relative" ref={authMenuRef}>
+                <button
+                  onClick={() => { setMobileOpen(false); setAuthMenuOpen(o => !o) }}
+                  aria-expanded={authMenuOpen}
+                  aria-haspopup="menu"
+                  className="flex items-center gap-1 px-2.5 py-1.5 text-[13px] font-semibold text-indigo-700 border border-indigo-200 bg-indigo-50 rounded-lg whitespace-nowrap"
+                >
+                  Sign in
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform ${authMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
+                <AnimatePresence>
+                  {authMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      transition={{ duration: 0.12 }}
+                      role="menu"
+                      className="absolute right-0 top-full mt-2 w-44 bg-white border border-domilea-line rounded-xl shadow-[0_12px_28px_-12px_rgba(11,18,32,0.25)] p-1.5 space-y-1"
+                    >
+                      <Link
+                        to="/login"
+                        role="menuitem"
+                        onClick={() => setAuthMenuOpen(false)}
+                        className="block w-full text-center px-3 py-2 rounded-lg text-[13px] font-semibold text-indigo-700 border border-indigo-200 bg-indigo-50"
+                      >
+                        Log in
+                      </Link>
+                      <Link
+                        to="/register"
+                        role="menuitem"
+                        onClick={() => setAuthMenuOpen(false)}
+                        className="block w-full text-center px-3 py-2 rounded-lg text-[13px] font-semibold text-white bg-gradient-to-r from-indigo-500 to-purple-500 shadow-sm"
+                      >
+                        Sign up
+                      </Link>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             )}
             {/* Mobile burger */}
             <button
