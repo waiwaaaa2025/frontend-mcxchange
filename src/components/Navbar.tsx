@@ -332,17 +332,14 @@ const Navbar = () => {
               </MobileSection>
               <Link to="/pricing" className="block px-3 py-2.5 text-sm font-medium text-domilea-ink" onClick={() => setMobileOpen(false)}>Pricing</Link>
               <Link to="/contact" className="block px-3 py-2.5 text-sm font-medium text-domilea-ink" onClick={() => setMobileOpen(false)}>Contact</Link>
-              <div className="pt-3 mt-3 border-t border-domilea-line space-y-2">
-                {isAuthenticated && (
-                  <>
-                    <Link to={dashboardLink()} onClick={() => setMobileOpen(false)} className="block w-full text-center bg-domilea-soft text-domilea-ink px-4 py-2.5 rounded-lg text-sm font-medium">Dashboard</Link>
-                    <button onClick={handleLogout} className="block w-full text-center text-domilea-muted px-4 py-2.5 text-sm">Sign out</button>
-                  </>
-                )}
-                {/* No Log in box for signed-out visitors — browsing products
-                    shouldn't push them to an account. Log in stays in the header. */}
-                <Link to="/register" onClick={() => setMobileOpen(false)} className="block w-full text-center bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-4 py-2.5 rounded-lg text-sm font-semibold shadow-lg shadow-indigo-500/25">Sign up</Link>
-              </div>
+              {/* Account actions only — Log in and Sign up live in the header, so
+                  browsing the menu never pushes a signed-out visitor to an account. */}
+              {isAuthenticated && (
+                <div className="pt-3 mt-3 border-t border-domilea-line space-y-2">
+                  <Link to={dashboardLink()} onClick={() => setMobileOpen(false)} className="block w-full text-center bg-domilea-soft text-domilea-ink px-4 py-2.5 rounded-lg text-sm font-medium">Dashboard</Link>
+                  <button onClick={handleLogout} className="block w-full text-center text-domilea-muted px-4 py-2.5 text-sm">Sign out</button>
+                </div>
+              )}
             </div>
           </motion.div>
         )}
