@@ -732,6 +732,38 @@ function AuthorityTab() {
 // ============================================================
 // INSPECTION RECORDS PANEL
 // ============================================================
+// CVSA inspection level metadata — what kind of inspection it was
+const INSPECTION_LEVELS: Record<string, { label: string; description: string; scope: string; color: string }> = {
+  '1': { label: 'Level 1', description: 'North American Standard', scope: 'Full inspection — driver credentials, vehicle mechanical, cargo securement', color: 'bg-indigo-600' },
+  '2': { label: 'Level 2', description: 'Walk-Around Driver/Vehicle', scope: 'Driver credentials + walk-around vehicle exterior — no crawling under', color: 'bg-blue-500' },
+  '3': { label: 'Level 3', description: 'Driver-Only', scope: 'Driver credentials, logbook, medical card, seatbelt, substance check', color: 'bg-sky-500' },
+  '4': { label: 'Level 4', description: 'Special Study', scope: 'One-time examination of a specific item (e.g., a recall or research study)', color: 'bg-teal-500' },
+  '5': { label: 'Level 5', description: 'Vehicle-Only', scope: 'Vehicle inspection without the driver present (terminal or roadside)', color: 'bg-violet-500' },
+  '6': { label: 'Level 6', description: 'Radioactive Materials', scope: 'Level 1 plus enhanced radioactive materials requirements', color: 'bg-fuchsia-600' },
+  '7': { label: 'Level 7', description: 'Jurisdictional Mandated', scope: 'Jurisdiction-specific inspection (school bus, shared-ride, etc.)', color: 'bg-cyan-600' },
+  '8': { label: 'Level 8', description: 'Electronic Inspection', scope: 'Wireless electronic inspection — no physical contact with the vehicle', color: 'bg-emerald-600' },
+}
+
+function parseLevel(raw: string): { num: string; meta: typeof INSPECTION_LEVELS[string] } {
+  const match = (raw || '').match(/(\d)/)
+  const num = match ? match[1] : '0'
+  return { num, meta: INSPECTION_LEVELS[num] || { label: raw || 'Unspecified Level', description: 'Level not reported', scope: '', color: 'bg-gray-400' } }
+}
+
+const US_STATE_NAMES: Record<string, string> = {
+  AL: 'Alabama', AK: 'Alaska', AZ: 'Arizona', AR: 'Arkansas', CA: 'California', CO: 'Colorado',
+  CT: 'Connecticut', DE: 'Delaware', DC: 'District of Columbia', FL: 'Florida', GA: 'Georgia',
+  HI: 'Hawaii', ID: 'Idaho', IL: 'Illinois', IN: 'Indiana', IA: 'Iowa', KS: 'Kansas', KY: 'Kentucky',
+  LA: 'Louisiana', ME: 'Maine', MD: 'Maryland', MA: 'Massachusetts', MI: 'Michigan', MN: 'Minnesota',
+  MS: 'Mississippi', MO: 'Missouri', MT: 'Montana', NE: 'Nebraska', NV: 'Nevada', NH: 'New Hampshire',
+  NJ: 'New Jersey', NM: 'New Mexico', NY: 'New York', NC: 'North Carolina', ND: 'North Dakota',
+  OH: 'Ohio', OK: 'Oklahoma', OR: 'Oregon', PA: 'Pennsylvania', PR: 'Puerto Rico', RI: 'Rhode Island',
+  SC: 'South Carolina', SD: 'South Dakota', TN: 'Tennessee', TX: 'Texas', UT: 'Utah', VT: 'Vermont',
+  VA: 'Virginia', WA: 'Washington', WV: 'West Virginia', WI: 'Wisconsin', WY: 'Wyoming',
+}
+
+const stateName = (code: string) => US_STATE_NAMES[(code || '').toUpperCase()] || code || 'Unknown'
+
 function InspectionRecordsPanel() {
   const { inspectionRecords } = useCarrierDataContext()
   const [expandedId, setExpandedId] = useState<string | null>(null)
@@ -743,10 +775,12 @@ function InspectionRecordsPanel() {
     if (resultFilter === 'clean' && rec.violations > 0) return false
     if (resultFilter === 'violations' && rec.violations === 0) return false
     if (resultFilter === 'oos' && !rec.oos) return false
-    if (typeFilter && !rec.level.toLowerCase().includes(typeFilter.toLowerCase())) return false
+    const { num, meta } = parseLevel(rec.level)
+    if (typeFilter && num !== typeFilter) return false
     if (searchQuery) {
       const q = searchQuery.toLowerCase()
       return rec.reportNumber.toLowerCase().includes(q) || rec.state.toLowerCase().includes(q) || rec.type.toLowerCase().includes(q) ||
+        stateName(rec.state).toLowerCase().includes(q) || meta.label.toLowerCase().includes(q) || meta.description.toLowerCase().includes(q) ||
         rec.violationDetails.some(v => v.category.toLowerCase().includes(q) || v.group.toLowerCase().includes(q) || v.description.toLowerCase().includes(q))
     }
     return true
@@ -810,10 +844,11 @@ function InspectionRecordsPanel() {
         <div>
           <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-1">Type</p>
           <div className="flex gap-1.5">
-            {['Level 1', 'Level 2', 'Level 3'].map(lvl => (
-              <button key={lvl} onClick={() => setTypeFilter(typeFilter === lvl ? null : lvl)}
-                className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${typeFilter === lvl ? 'bg-indigo-100 text-indigo-700 border border-indigo-300' : 'bg-gray-50 text-gray-500 border border-gray-200 hover:text-gray-700 hover:bg-gray-100'}`}
-              >{lvl}</button>
+            {['1', '2', '3'].map(num => (
+              <button key={num} onClick={() => setTypeFilter(typeFilter === num ? null : num)}
+                title={`${INSPECTION_LEVELS[num].label} — ${INSPECTION_LEVELS[num].description}: ${INSPECTION_LEVELS[num].scope}`}
+                className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${typeFilter === num ? 'bg-indigo-100 text-indigo-700 border border-indigo-300' : 'bg-gray-50 text-gray-500 border border-gray-200 hover:text-gray-700 hover:bg-gray-100'}`}
+              >{INSPECTION_LEVELS[num].label}</button>
             ))}
           </div>
         </div>
@@ -825,15 +860,27 @@ function InspectionRecordsPanel() {
         {filtered.map(rec => {
           const isExpanded = expandedId === rec.id
           const hasViolations = rec.violations > 0
+          const { num: levelNum, meta: levelMeta } = parseLevel(rec.level)
+          const fullState = stateName(rec.state)
+          const stateCode = (rec.state || '').toUpperCase()
           return (
-            <div key={rec.id} className="rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
+            <div key={rec.id} className={`rounded-xl overflow-hidden border ${rec.oos ? 'border-red-200 bg-red-50/30' : hasViolations ? 'border-yellow-200 bg-yellow-50/20' : 'border-gray-200 bg-gray-50'}`}>
               <button onClick={() => setExpandedId(isExpanded ? null : rec.id)}
-                className="w-full px-4 py-3.5 flex items-center justify-between hover:bg-gray-100 transition-colors"
+                className="w-full px-4 py-3.5 flex items-center justify-between gap-3 hover:bg-white/60 transition-colors"
               >
-                <div className="flex items-center gap-4 text-left flex-wrap">
-                  <span className="text-sm font-bold text-gray-900 min-w-[100px]">{safeFmtDate(rec.date)}</span>
-                  <span className="text-sm font-medium text-gray-500">{rec.state}</span>
-                  <span className="text-sm text-gray-700">{rec.level}</span>
+                <div className="flex items-center gap-3 text-left flex-wrap min-w-0">
+                  <span className={`text-[10px] text-white font-bold px-2 py-1 rounded ${levelMeta.color}`}>L{levelNum}</span>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-gray-900 leading-tight">
+                      {levelMeta.label} — {levelMeta.description}
+                      {rec.type && <span className="ml-2 text-[10px] font-medium text-gray-500 bg-gray-100 border border-gray-200 px-1.5 py-0.5 rounded align-middle">{rec.type}</span>}
+                    </p>
+                    <p className="text-[11px] text-gray-500 mt-0.5 flex items-center flex-wrap gap-x-2 gap-y-0.5">
+                      <span className="flex items-center gap-1"><Calendar className="w-3 h-3 text-gray-400" />{safeFmtDate(rec.date)}</span>
+                      <span className="text-gray-300">·</span>
+                      <span className="flex items-center gap-1"><MapPin className="w-3 h-3 text-gray-400" />{fullState}{US_STATE_NAMES[stateCode] ? ` (${stateCode})` : ''}</span>
+                    </p>
+                  </div>
                   <a href={`https://ai.fmcsa.dot.gov/SMS/Event/Inspection/${rec.fmcsaId}.aspx`} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
                     className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-200 hover:border-indigo-300 transition-colors"
                   >{rec.reportNumber}<ExternalLink className="w-3 h-3" /></a>
@@ -842,13 +889,39 @@ function InspectionRecordsPanel() {
                   {!hasViolations && <span className="text-xs px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 font-medium">Clean</span>}
                   {rec.violations > 0 && <span className="text-xs px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 border border-yellow-200 font-medium">{rec.violations} Violation{rec.violations > 1 ? 's' : ''}</span>}
                   {rec.oosViolations > 0 && <span className="text-xs px-3 py-1 rounded-full bg-red-100 text-red-700 border border-red-200 font-medium">{rec.oosViolations} OOS</span>}
-                  {hasViolations ? (isExpanded ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />) : <div className="w-4" />}
+                  {isExpanded ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
                 </div>
               </button>
               <AnimatePresence>
-                {isExpanded && hasViolations && (
+                {isExpanded && (
                   <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
-                    <div className="border-t border-gray-200 overflow-x-auto">
+                    <div className="border-t border-gray-200 bg-white px-4 py-3">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                        <div className="col-span-2">
+                          <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-0.5">Inspection Level</p>
+                          <p className="font-semibold text-gray-800">{levelMeta.label} — {levelMeta.description}</p>
+                          {levelMeta.scope && <p className="text-[10px] text-gray-400 mt-0.5">{levelMeta.scope}</p>}
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-0.5">Inspection Type</p>
+                          <p className="font-semibold text-gray-800">{rec.type || '—'}</p>
+                          <p className="text-[10px] text-gray-400 mt-0.5">Report {rec.reportNumber || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-0.5">Date &amp; State</p>
+                          <p className="font-semibold text-gray-800">{safeFmtDate(rec.date)}</p>
+                          <p className="text-[10px] text-gray-400 mt-0.5">{fullState}</p>
+                        </div>
+                      </div>
+                    </div>
+                    {!hasViolations ? (
+                      <div className="border-t border-gray-100 bg-white px-4 py-5 text-center">
+                        <CheckCircle className="w-7 h-7 text-emerald-400 mx-auto mb-2" />
+                        <p className="text-sm font-semibold text-emerald-700">Clean Inspection</p>
+                        <p className="text-xs text-gray-400 mt-1">No violations recorded during this {levelMeta.description.toLowerCase()} inspection in {fullState}</p>
+                      </div>
+                    ) : (
+                    <div className="border-t border-gray-100 overflow-x-auto">
                       <table className="w-full text-xs">
                         <thead>
                           <tr className="border-b border-gray-200 bg-white">
@@ -872,6 +945,7 @@ function InspectionRecordsPanel() {
                         </tbody>
                       </table>
                     </div>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>

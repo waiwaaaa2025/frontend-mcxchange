@@ -72,6 +72,11 @@ const formatStatus = (status: string) => {
   return status.replace(/_/g, ' ').toLowerCase()
 }
 
+// Stripe reports paid money as 'succeeded' (payment intents/charges) or 'paid' (checkout sessions).
+// The Stripe tab only shows money that actually landed, so everything else is filtered out.
+const isPaidStripeTransaction = (txn: StripeTransaction) =>
+  ['succeeded', 'paid'].includes((txn.status || '').toLowerCase())
+
 const getStatusBadge = (status: string) => {
   switch (status) {
     case 'COMPLETED':
@@ -120,7 +125,6 @@ const AdminTransactionsPage = () => {
   const [stripeLoading, setStripeLoading] = useState(false)
   const [stripeError, setStripeError] = useState<string | null>(null)
   const [stripeBalance, setStripeBalance] = useState<{ available: number; pending: number } | null>(null)
-  const [stripeStatusFilter, setStripeStatusFilter] = useState<'all' | 'succeeded' | 'pending' | 'failed'>('all')
   const [stripeSearchQuery, setStripeSearchQuery] = useState('')
   const [selectedStripeTransaction, setSelectedStripeTransaction] = useState<string | null>(null)
 
@@ -213,14 +217,12 @@ const AdminTransactionsPage = () => {
         setStripeError(null)
 
         const [transactionsRes, balanceRes] = await Promise.all([
-          api.getStripeTransactions({
-            limit: 100,
-            status: stripeStatusFilter === 'all' ? undefined : stripeStatusFilter
-          }),
+          // Only paid transactions — backend maps 'succeeded' to paid checkout sessions too
+          api.getStripeTransactions({ limit: 100, status: 'succeeded' }),
           api.getStripeBalance()
         ])
 
-        setStripeTransactions(transactionsRes.data || [])
+        setStripeTransactions((transactionsRes.data || []).filter(isPaidStripeTransaction))
         if (balanceRes.data) {
           setStripeBalance(balanceRes.data)
         }
@@ -234,7 +236,7 @@ const AdminTransactionsPage = () => {
     if (activeTab === 'stripe') {
       loadStripeData()
     }
-  }, [activeTab, stripeStatusFilter])
+  }, [activeTab])
 
   // Filtered Stripe transactions based on search
   const filteredStripeTransactions = useMemo(() => {
@@ -320,8 +322,8 @@ const AdminTransactionsPage = () => {
             onClick={() => {
               if (activeTab === 'stripe') {
                 setStripeLoading(true)
-                api.getStripeTransactions({ limit: 100, status: stripeStatusFilter === 'all' ? undefined : stripeStatusFilter })
-                  .then(res => setStripeTransactions(res.data || []))
+                api.getStripeTransactions({ limit: 100, status: 'succeeded' })
+                  .then(res => setStripeTransactions((res.data || []).filter(isPaidStripeTransaction)))
                   .finally(() => setStripeLoading(false))
               }
             }}
@@ -450,16 +452,10 @@ const AdminTransactionsPage = () => {
                     className="w-full bg-white border border-gray-200 rounded-lg pl-10 pr-4 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary-500"
                   />
                 </div>
-                <select
-                  value={stripeStatusFilter}
-                  onChange={(e) => setStripeStatusFilter(e.target.value as typeof stripeStatusFilter)}
-                  className="bg-white border border-gray-200 rounded-lg px-4 py-2 text-gray-900 focus:outline-none focus:border-primary-500"
-                >
-                  <option value="all">All Statuses</option>
-                  <option value="succeeded">Succeeded</option>
-                  <option value="pending">Pending</option>
-                  <option value="failed">Failed</option>
-                </select>
+                <div className="flex items-center gap-2 bg-trust-high/10 border border-trust-high/30 rounded-lg px-4 py-2 text-sm text-trust-high font-medium">
+                  <CheckCircle className="w-4 h-4" />
+                  Paid transactions only
+                </div>
               </div>
             </Card>
 
