@@ -51,7 +51,7 @@ const TIERS: Tier[] = [
     name: 'For Brokers & Marketers',
     audience: 'Brokers, marketers, and service sellers prospecting in bulk',
     audienceIcon: Megaphone,
-    price: 299,
+    price: 499,
     popular: true,
     bullets: [
       'Everything in the Buyer tier, including click-to-call phone numbers',
@@ -340,7 +340,7 @@ export default function LeadGeneratorLandingPage() {
           </p>
           <div className="mt-6 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
             <Button variant="primary" className="w-full sm:w-auto" onClick={() => handleSubscribe('LEAD_GENERATOR_BROKER')}>
-              Subscribe — $299/mo Broker
+              Subscribe — $499/mo Broker
             </Button>
             <Button variant="secondary" className="w-full sm:w-auto" onClick={() => handleSubscribe('LEAD_GENERATOR_BUYER')}>
               Subscribe — $49/mo Buyer

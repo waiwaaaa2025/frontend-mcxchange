@@ -62,7 +62,7 @@ const solutionsByUseCase: MenuItem[] = [
 
 const productItems: MenuItem[] = [
   { name: 'Carrier Pulse', desc: 'Search 63M+ trucking data records to discover carriers and operating signals.', href: '/carrier-pulse-preview', icon: Search },
-  { name: 'Lead Generator', desc: 'Prospect carriers in bulk — Buyer ($49/mo) and Broker ($299/mo) plans.', href: '/lead-generator', icon: UserSearch },
+  { name: 'Lead Generator', desc: 'Prospect carriers in bulk — Buyer ($49/mo) and Broker ($499/mo) plans.', href: '/lead-generator', icon: UserSearch },
   { name: 'Safety & Compliance', desc: 'SMS, authority, insurance, filings, and FMCSA changes in one place.', href: '/product/safety', icon: ShieldCheck },
   { name: 'MorPro API', desc: 'MorPro-powered APIs behind Domilea’s intelligence stack.', href: '/contact', icon: Network },
   { name: 'How to Buy a Trucking Business', desc: 'Step-by-step due diligence guide for acquiring a motor carrier.', href: '/resources/how-to-buy-a-trucking-business', icon: GraduationCap },
