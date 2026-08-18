@@ -3816,6 +3816,19 @@ class ApiService {
     }>(`/lead-generator/carrier/${encodeURIComponent(dot)}/contact`);
   }
 
+  // Phone/email for a page of carriers in one request — Broker/Admin only.
+  // Lets the results table show contact info filled in rather than one reveal
+  // click (and one round-trip) per row.
+  async leadGeneratorGetContactsBatch(dots: string[]) {
+    return this.request<{
+      success: boolean;
+      data: { contacts: Record<string, { phone: string | null; email: string | null }> };
+    }>(`/lead-generator/contacts`, {
+      method: 'POST',
+      body: JSON.stringify({ dots }),
+    });
+  }
+
   async leadGeneratorListSaves() {
     return this.request<{
       success: boolean;

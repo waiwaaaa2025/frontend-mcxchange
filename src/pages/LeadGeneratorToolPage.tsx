@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   Search,
@@ -12,6 +12,7 @@ import {
   Loader2,
   Crown,
   Phone,
+  Mail,
   ShieldAlert,
   Handshake,
 } from 'lucide-react'
@@ -203,6 +204,13 @@ export default function LeadGeneratorToolPage() {
   const [contacts, setContacts] = useState<
     Record<string, { phone: string | null; email: string | null; loading: boolean }>
   >({})
+  // Mirror of `contacts` for the batch fetch to read without taking a dependency
+  // on it — otherwise every enrichment would rebuild the callback and re-trigger
+  // the effect that calls it.
+  const contactsRef = useRef(contacts)
+  useEffect(() => {
+    contactsRef.current = contacts
+  }, [contacts])
 
   const isBroker = tier === 'BROKER' || tier === 'ADMIN'
 
@@ -218,6 +226,40 @@ export default function LeadGeneratorToolPage() {
       default: return `/carrier-pulse-preview/${dot}`
     }
   }
+
+  // Broker/Admin: pull contact info for a whole page of DOTs in one request so
+  // phone and email render filled in. Buyer tier keeps the per-row reveal below.
+  // Rows already fetched are skipped, so paging back and forth doesn't refetch.
+  const fetchContactsBatch = useCallback(async (dots: string[]) => {
+    const wanted = dots.filter((d) => d && !contactsRef.current[d])
+    if (wanted.length === 0) return
+
+    setContacts((c) => {
+      const next = { ...c }
+      for (const d of wanted) next[d] = { phone: null, email: null, loading: true }
+      return next
+    })
+
+    try {
+      const res = await api.leadGeneratorGetContactsBatch(wanted)
+      setContacts((c) => {
+        const next = { ...c }
+        for (const d of wanted) {
+          const hit = res.data.contacts[d]
+          next[d] = { phone: hit?.phone ?? null, email: hit?.email ?? null, loading: false }
+        }
+        return next
+      })
+    } catch {
+      // Contact enrichment is additive — on failure the rows just show no
+      // contact rather than the whole result set erroring out.
+      setContacts((c) => {
+        const next = { ...c }
+        for (const d of wanted) next[d] = { phone: null, email: null, loading: false }
+        return next
+      })
+    }
+  }, [])
 
   const fetchContact = useCallback(async (dot: string) => {
     setContacts((c) => ({ ...c, [dot]: { phone: null, email: null, loading: true } }))
@@ -267,6 +309,12 @@ export default function LeadGeneratorToolPage() {
     if (tier) loadSaves()
   }, [tier, loadSaves])
 
+  // Saved leads get the same treatment as search results for broker/admin.
+  useEffect(() => {
+    if (!isBroker || saves.length === 0) return
+    void fetchContactsBatch(saves.map((s) => s.dotNumber))
+  }, [isBroker, saves, fetchContactsBatch])
+
   const runSearch = useCallback(async (nextPage = 1) => {
     setSearching(true)
     try {
@@ -274,12 +322,19 @@ export default function LeadGeneratorToolPage() {
       setRows(res.data.carriers)
       setHasMore(res.data.hasMore)
       setPage(res.data.page)
+      // Broker/Admin see contact info filled in, so pull it for this page as
+      // soon as the rows land. Deliberately not awaited: the table paints
+      // immediately and phone/email fill in a moment later.
+      const brokerTier = res.data.tier === 'BROKER' || res.data.tier === 'ADMIN'
+      if (brokerTier) {
+        void fetchContactsBatch(res.data.carriers.map((c) => c.dotNumber))
+      }
     } catch (err) {
       console.error('Lead Generator search failed', err)
     } finally {
       setSearching(false)
     }
-  }, [filters])
+  }, [filters, fetchContactsBatch])
 
   const handleSave = async (row: CarrierRow) => {
     try {
@@ -319,6 +374,63 @@ export default function LeadGeneratorToolPage() {
     } finally {
       setExporting(false)
     }
+  }
+
+  // Download just the ticked rows, built client-side from what is already on
+  // screen — the contact info for the visible page is loaded, so this needs no
+  // round-trip and no re-fetch of LINQ details. The server-side export above
+  // remains the way to pull the full result set beyond the current page.
+  const handleExportSelected = () => {
+    const picked = rows.filter((r) => selected.has(r.dotNumber))
+    if (picked.length === 0) return
+
+    const headers = [
+      'dot_number',
+      'legal_name',
+      'dba',
+      'state',
+      'total_power_units',
+      'total_drivers',
+      'authority_status',
+      'safety_rating',
+      'phone',
+      'email',
+    ]
+    const escape = (v: unknown) => {
+      if (v == null) return ''
+      const str = String(v)
+      return /[",\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str
+    }
+    const lines = [headers.join(',')]
+    for (const r of picked) {
+      const c = contacts[r.dotNumber]
+      lines.push(
+        [
+          r.dotNumber,
+          r.legalName,
+          r.dba,
+          r.state,
+          r.totalPowerUnits,
+          r.totalDrivers,
+          r.authorityStatus,
+          r.safetyRating,
+          c?.phone,
+          c?.email,
+        ]
+          .map(escape)
+          .join(',')
+      )
+    }
+
+    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `lead-generator-selected-${new Date().toISOString().slice(0, 10)}.csv`
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
   }
 
   const savedDots = useMemo(() => new Set(saves.map((s) => s.dotNumber)), [saves])
@@ -374,7 +486,7 @@ export default function LeadGeneratorToolPage() {
           <p className="mt-1 text-sm text-slate-500">
             {tier === 'BROKER' && (
               <span className="inline-flex items-center gap-1">
-                <Crown className="h-3.5 w-3.5 text-amber-500" /> Broker tier — advanced filters and CSV export unlocked
+                <Crown className="h-3.5 w-3.5 text-amber-500" /> Broker tier — advanced filters, phone &amp; email shown, and CSV export unlocked
               </span>
             )}
             {tier === 'BUYER' && (
@@ -494,6 +606,12 @@ export default function LeadGeneratorToolPage() {
             <Button variant="secondary" onClick={() => setFilters(EMPTY_FILTERS)}>
               Clear
             </Button>
+            {isBroker && selected.size > 0 && (
+              <Button variant="secondary" onClick={handleExportSelected}>
+                <Download className="mr-2 h-4 w-4" />
+                Download selected ({selected.size})
+              </Button>
+            )}
             <Button variant="secondary" disabled={exporting || rows.length === 0} onClick={handleExport}>
               <Download className="mr-2 h-4 w-4" />
               {exporting
@@ -535,13 +653,14 @@ export default function LeadGeneratorToolPage() {
               <th className="px-3 py-3">Authority</th>
               <th className="px-3 py-3">Safety</th>
               <th className="px-3 py-3">Phone</th>
+              {isBroker && <th className="px-3 py-3">Email</th>}
               <th className="px-3 py-3"></th>
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 && !searching && (
               <tr>
-                <td colSpan={isBroker ? 9 : 8} className="px-3 py-12 text-center text-slate-500">
+                <td colSpan={isBroker ? 10 : 8} className="px-3 py-12 text-center text-slate-500">
                   Set filters and hit Search to see live carriers — here’s an example of what you’ll get:
                 </td>
               </tr>
@@ -579,11 +698,20 @@ export default function LeadGeneratorToolPage() {
                 <td className="px-3 py-3">{r.authorityStatus || '—'}</td>
                 <td className="px-3 py-3">{r.safetyRating || '—'}</td>
                 <td className="px-3 py-3">
-                  <CallAction
-                    contact={contacts[r.dotNumber]}
-                    onReveal={() => fetchContact(r.dotNumber)}
-                  />
+                  {isBroker ? (
+                    <PhoneCell contact={contacts[r.dotNumber]} />
+                  ) : (
+                    <CallAction
+                      contact={contacts[r.dotNumber]}
+                      onReveal={() => fetchContact(r.dotNumber)}
+                    />
+                  )}
                 </td>
+                {isBroker && (
+                  <td className="px-3 py-3">
+                    <EmailCell contact={contacts[r.dotNumber]} />
+                  </td>
+                )}
                 <td className="px-3 py-3 text-right">
                   {savedDots.has(r.dotNumber) ? (
                     <span className="inline-flex items-center gap-1 text-xs text-emerald-600">
@@ -653,11 +781,18 @@ export default function LeadGeneratorToolPage() {
                     </button>
                   </div>
                   {s.notes && <p className="mt-2 text-xs text-slate-600">{s.notes}</p>}
-                  <div className="mt-2">
-                    <CallAction
-                      contact={contacts[s.dotNumber]}
-                      onReveal={() => fetchContact(s.dotNumber)}
-                    />
+                  <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
+                    {isBroker ? (
+                      <>
+                        <PhoneCell contact={contacts[s.dotNumber]} />
+                        <EmailCell contact={contacts[s.dotNumber]} />
+                      </>
+                    ) : (
+                      <CallAction
+                        contact={contacts[s.dotNumber]}
+                        onReveal={() => fetchContact(s.dotNumber)}
+                      />
+                    )}
                   </div>
                 </div>
               ))}
@@ -666,6 +801,53 @@ export default function LeadGeneratorToolPage() {
         </div>
       )}
     </div>
+  )
+}
+
+// Broker/Admin contact cells. Contact info is already loaded in bulk for the
+// visible rows, so these just render it — no reveal step. `undefined` means the
+// batch fetch hasn't reached this row yet.
+function PhoneCell({
+  contact,
+}: {
+  contact: { phone: string | null; email: string | null; loading: boolean } | undefined
+}) {
+  if (!contact || contact.loading) {
+    return <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+  }
+  if (!contact.phone) {
+    return <span className="text-xs text-slate-400">No phone on file</span>
+  }
+  return (
+    <a
+      href={`tel:${contact.phone}`}
+      className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 hover:text-emerald-700"
+    >
+      <Phone className="h-4 w-4" /> {contact.phone}
+    </a>
+  )
+}
+
+function EmailCell({
+  contact,
+}: {
+  contact: { phone: string | null; email: string | null; loading: boolean } | undefined
+}) {
+  if (!contact || contact.loading) {
+    return <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+  }
+  if (!contact.email) {
+    return <span className="text-xs text-slate-400">No email on file</span>
+  }
+  return (
+    <a
+      href={`mailto:${contact.email}`}
+      className="inline-flex items-center gap-1 text-xs font-medium text-cyan-600 hover:text-cyan-800"
+      title={contact.email}
+    >
+      <Mail className="h-4 w-4 shrink-0" />
+      <span className="max-w-[180px] truncate">{contact.email}</span>
+    </a>
   )
 }
 
