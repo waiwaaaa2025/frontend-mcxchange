@@ -27,7 +27,8 @@ import {
   ChevronRight,
   ArrowRight,
   Lock,
-  ShieldCheck
+  ShieldCheck,
+  Download
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import IdentityVerificationBanner from '../components/IdentityVerificationBanner'
@@ -234,6 +235,147 @@ interface BuyerOffer {
   }
 }
 
+// ============================================================
+// BROKER LEAD GENERATOR — bulk CSV export
+// Only rendered for users whose Lead Generator entitlement is the Broker tier
+// (admins included). The server-side export enriches every row with phone +
+// email for those tiers, so this is the one place a broker can pull the whole
+// list of contacts without paging through the tool.
+// ============================================================
+const LEAD_EXPORT_STATES = ['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY']
+
+function BrokerLeadExportCard() {
+  const [tier, setTier] = useState<'BUYER' | 'BROKER' | 'ADMIN' | null>(null)
+  const [state, setState] = useState('')
+  const [authorityStatus, setAuthorityStatus] = useState('ACTIVE')
+  const [limit, setLimit] = useState('1000')
+  const [exporting, setExporting] = useState(false)
+  const [exportError, setExportError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let alive = true
+    ;(async () => {
+      try {
+        const res = await api.leadGeneratorAccess()
+        if (alive) setTier(res.data.hasAccess ? res.data.tier : null)
+      } catch {
+        if (alive) setTier(null)
+      }
+    })()
+    return () => { alive = false }
+  }, [])
+
+  const handleExport = async () => {
+    setExporting(true)
+    setExportError(null)
+    try {
+      await api.leadGeneratorExportCsv({
+        state: state || undefined,
+        authorityStatus: authorityStatus || undefined,
+        limit,
+      })
+    } catch (err) {
+      console.error('Lead export failed', err)
+      setExportError('CSV export failed. Please try again.')
+    } finally {
+      setExporting(false)
+    }
+  }
+
+  // Buyer tier exports only the page they're viewing inside the tool, so this
+  // bulk card stays hidden for them.
+  if (tier !== 'BROKER' && tier !== 'ADMIN') return null
+
+  return (
+    <Card className="mb-6 overflow-hidden">
+      <div className="bg-gradient-to-r from-cyan-50 via-sky-50 to-blue-50 -m-6 p-5">
+        <div className="flex flex-col lg:flex-row lg:items-end gap-4">
+          <div className="flex items-start gap-4 flex-1">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg flex-shrink-0">
+              <Download className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-lg font-bold text-gray-900">Broker Lead Export</span>
+                <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold uppercase tracking-wide">
+                  Broker
+                </span>
+              </div>
+              <p className="text-sm text-gray-600 mt-1">
+                Download a CSV of carrier leads with phone numbers and emails included.
+                Large exports can take a couple of minutes to build.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 lg:w-auto w-full">
+            <Select
+              label="State"
+              value={state}
+              onChange={(e) => setState(e.target.value)}
+              options={[
+                { value: '', label: 'All states' },
+                ...LEAD_EXPORT_STATES.map((s) => ({ value: s, label: s })),
+              ]}
+            />
+            <Select
+              label="Authority"
+              value={authorityStatus}
+              onChange={(e) => setAuthorityStatus(e.target.value)}
+              options={[
+                { value: 'ACTIVE', label: 'Active' },
+                { value: 'INACTIVE', label: 'Inactive' },
+                { value: '', label: 'Any' },
+              ]}
+            />
+            <Select
+              label="Rows"
+              value={limit}
+              onChange={(e) => setLimit(e.target.value)}
+              options={[
+                { value: '500', label: '500' },
+                { value: '1000', label: '1,000' },
+                { value: '2500', label: '2,500' },
+                { value: '5000', label: '5,000' },
+              ]}
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <Button
+              onClick={handleExport}
+              disabled={exporting}
+              className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700"
+            >
+              {exporting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Building CSV…
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4 mr-2" />
+                  Download CSV
+                </>
+              )}
+            </Button>
+            <Link
+              to="/buyer/lead-generator"
+              className="text-xs text-center text-cyan-700 hover:text-cyan-800 font-medium"
+            >
+              Open Lead Generator
+            </Link>
+          </div>
+        </div>
+
+        {exportError && (
+          <p className="mt-3 text-sm text-red-600">{exportError}</p>
+        )}
+      </div>
+    </Card>
+  )
+}
+
 const BuyerDashboard = () => {
   const { user, isIdentityVerified } = useAuth()
   const [searchParams] = useSearchParams()
@@ -303,6 +445,7 @@ const BuyerDashboard = () => {
           highwaySetup: listing.highwaySetup || false,
           sellingWithEmail: listing.sellingWithEmail || false,
           sellingWithPhone: listing.sellingWithPhone || false,
+          authorityType: listing.authorityType || 'MOTOR_CARRIER',
           trustScore: listing.seller?.trustScore || 70,
           trustLevel: 'medium',
           createdAt: new Date(listing.createdAt),
@@ -598,6 +741,9 @@ const BuyerDashboard = () => {
             </div>
           </div>
         </Card>
+
+        {/* Broker Lead Generator bulk CSV export (renders only for Broker tier) */}
+        <BrokerLeadExportCard />
 
         {/* Tabs - Mobile Friendly */}
         <div className="mb-8">
