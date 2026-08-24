@@ -370,7 +370,7 @@ export default function LeadGeneratorToolPage() {
       }
     } catch (err) {
       console.error('Export failed', err)
-      alert('CSV export failed. Please try again.')
+      alert((err as Error)?.message || 'CSV export failed. Please try again.')
     } finally {
       setExporting(false)
     }

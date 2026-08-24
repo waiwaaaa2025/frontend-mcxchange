@@ -3875,7 +3875,14 @@ class ApiService {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
     if (!res.ok) {
-      throw new Error(`Export failed (${res.status})`);
+      // The export fails before any CSV bytes are sent, so the body is a JSON
+      // error — surface its message ("no carriers matched…", "search unavailable")
+      // rather than a bare status code.
+      const message = await res
+        .json()
+        .then((b) => b?.error)
+        .catch(() => null);
+      throw new Error(message || `Export failed (${res.status})`);
     }
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);

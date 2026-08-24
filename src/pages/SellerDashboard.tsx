@@ -24,6 +24,7 @@ import { MCListing } from '../types'
 import CarrierPulseOnboardingModal from '../components/CarrierPulseOnboardingModal'
 import MCPricingEstimator from '../components/MCPricingEstimator'
 import EditListingModal from '../components/EditListingModal'
+import BrokerLeadExportCard from '../components/BrokerLeadExportCard'
 
 interface SellerOffer {
   id: string
@@ -235,6 +236,9 @@ const SellerDashboard = () => {
             </Button>
           </Link>
         </div>
+
+        {/* Broker Lead Generator bulk CSV export (renders only for Broker tier) */}
+        <BrokerLeadExportCard />
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
