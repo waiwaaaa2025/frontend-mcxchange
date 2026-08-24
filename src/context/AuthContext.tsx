@@ -29,6 +29,7 @@ interface AuthContextType {
   checkProfileComplete: () => Promise<void>
   isIdentityVerified: boolean
   refreshIdentityStatus: () => Promise<void>
+  refreshUser: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -285,6 +286,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }
 
+  // Re-read the user from the API. Credit balances live on the user record, so
+  // anything that changes them (a subscription verify, an admin top-up) needs this
+  // to avoid the UI gating on a stale balance cached at login.
+  const refreshUser = async () => {
+    if (!user) return
+    try {
+      const response = await api.getCurrentUser()
+      if (response.user) {
+        setUser(response.user)
+        localStorage.setItem('mcx_user', JSON.stringify(response.user))
+      }
+    } catch (error) {
+      console.error('Failed to refresh user:', error)
+    }
+  }
+
   const logout = async () => {
     try {
       await api.logout()
@@ -312,7 +329,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         profileCompletionPercent,
         checkProfileComplete,
         isIdentityVerified,
-        refreshIdentityStatus
+        refreshIdentityStatus,
+        refreshUser
       }}
     >
       {children}

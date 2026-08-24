@@ -3501,7 +3501,7 @@ export default function MCDetailPageV2() {
   const [activeTab, setActiveTab] = useState('overview')
   const navigate = useNavigate()
   const { id } = useParams()
-  const { isAuthenticated, user, isIdentityVerified, isLoading: authLoading } = useAuth()
+  const { isAuthenticated, user, isIdentityVerified, isLoading: authLoading, refreshUser } = useAuth()
   const { listing, loading, error, isUnlocked, unlocking, unlock } = useListing(id)
 
   // Check if current user is the listing owner (seller viewing their own listing)
@@ -3865,6 +3865,33 @@ export default function MCDetailPageV2() {
     try { await unlock() } catch (err: any) {
       console.error('Failed to unlock listing:', err)
       alert(err.message || 'Failed to unlock listing. Please try again.')
+    }
+  }
+
+  // A buyer can hold an active plan and still have zero spendable credits: credits
+  // are written to the user record by the Stripe subscription webhook, so a dropped
+  // webhook leaves a paying buyer unable to unlock anything. Verify re-syncs against
+  // Stripe and grants the missing credits, then we re-read the user so the unlock
+  // button stops gating on the stale balance.
+  const [verifyingSub, setVerifyingSub] = useState(false)
+  const [verifyMessage, setVerifyMessage] = useState<string | null>(null)
+
+  const handleVerifySubscription = async () => {
+    setVerifyingSub(true)
+    setVerifyMessage(null)
+    try {
+      const res = await api.verifySubscription()
+      if (res.data?.fulfilled) {
+        await refreshUser()
+        setVerifyMessage(res.data.message || 'Subscription verified — your credits have been restored.')
+      } else {
+        setVerifyMessage(res.data?.message || 'No active subscription found for this account.')
+      }
+    } catch (err: any) {
+      console.error('Subscription verify failed:', err)
+      setVerifyMessage(err?.message || 'Could not verify your subscription. Please try again.')
+    } finally {
+      setVerifyingSub(false)
     }
   }
 
@@ -4233,18 +4260,44 @@ export default function MCDetailPageV2() {
                           </Button>
                         )}
 
-                        {!listing?.freeToUnlock && user?.totalCredits === 0 ? (
+                        {/* Three distinct states, previously collapsed into two: a buyer
+                            with an active plan whose credits never arrived was told
+                            "you don't have a subscription yet" and sent to buy a second
+                            one. If they have a plan, offer to verify it instead. */}
+                        {!listing?.freeToUnlock && userCredits < 1 && buyerPlan ? (
+                          <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-center">
+                            <p className="text-xs text-amber-700 mb-2">
+                              {user?.totalCredits === 0
+                                ? "Your plan's credits haven't been added to your account yet."
+                                : "You've used all of this month's credits."}
+                            </p>
+                            {user?.totalCredits === 0 ? (
+                              <Button
+                                size="sm"
+                                fullWidth
+                                onClick={handleVerifySubscription}
+                                disabled={verifyingSub}
+                              >
+                                {verifyingSub ? (
+                                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Verifying…</>
+                                ) : (
+                                  <><CreditCard className="w-4 h-4 mr-2" />Verify My Subscription</>
+                                )}
+                              </Button>
+                            ) : (
+                              <Link to="/buyer/subscription">
+                                <Button size="sm" fullWidth><CreditCard className="w-4 h-4 mr-2" />Buy More Credits</Button>
+                              </Link>
+                            )}
+                            {verifyMessage && (
+                              <p className="text-xs text-gray-600 mt-2">{verifyMessage}</p>
+                            )}
+                          </div>
+                        ) : !listing?.freeToUnlock && userCredits < 1 ? (
                           <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-center">
                             <p className="text-xs text-red-600 mb-2">You don't have a subscription yet</p>
                             <Link to="/buyer/subscription">
                               <Button size="sm" fullWidth><CreditCard className="w-4 h-4 mr-2" />Get Subscription</Button>
-                            </Link>
-                          </div>
-                        ) : userCredits < 1 ? (
-                          <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-center">
-                            <p className="text-xs text-red-600 mb-2">You're out of credits!</p>
-                            <Link to="/buyer/subscription">
-                              <Button size="sm" fullWidth><CreditCard className="w-4 h-4 mr-2" />Buy More Credits</Button>
                             </Link>
                           </div>
                         ) : null}

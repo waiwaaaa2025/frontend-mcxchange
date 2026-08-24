@@ -549,7 +549,14 @@ const BuyerSubscriptionPage = () => {
                   <div className="flex flex-wrap gap-4 mt-4 text-sm">
                     <div className="flex items-center gap-2 text-gray-600">
                       <Coins className="w-4 h-4 text-yellow-500" />
-                      <span>{subscription.creditsRemaining} credits remaining</span>
+                      {/* Spendable balance (users.totalCredits - usedCredits), NOT
+                          subscriptions.creditsRemaining — that column is only ever set to
+                          the plan's full allowance and is never decremented when a credit
+                          is spent, so showing it told buyers they had credits the unlock
+                          would then refuse. */}
+                      <span>
+                        {currentCredits} of {subscription.creditsPerMonth} credits remaining
+                      </span>
                     </div>
                     <div className="flex items-center gap-2 text-gray-600">
                       <Calendar className="w-4 h-4 text-gray-400" />
