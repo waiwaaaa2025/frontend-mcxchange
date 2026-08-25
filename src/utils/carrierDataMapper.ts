@@ -285,20 +285,14 @@ export function calculateCarrierHealthScore(
   const activePolicies = insurance.activePolicies || []
   if (activePolicies.length > 0) {
     insuranceScore += 30
-    const bipdPolicy = activePolicies.find((p: any) => {
-      const t = String(p.insuranceType || p.type || '').toLowerCase()
-      return t.includes('bipd') || t.includes('liability') || t.includes('bodily')
-    })
+    const bipdPolicy = activePolicies.find((p: any) => mapInsuranceType(p) === 'BIPD')
     if (bipdPolicy) {
       const coverage = coverageToDollars(bipdPolicy.coverageAmount || bipdPolicy.coverage)
       if (coverage >= 1000000) insuranceScore += 20
       else if (coverage >= 750000) insuranceScore += 15
       else if (coverage >= 300000) insuranceScore += 10
     }
-    const cargoPolicy = activePolicies.find((p: any) => {
-      const t = String(p.insuranceType || p.type || '').toLowerCase()
-      return t.includes('cargo')
-    })
+    const cargoPolicy = activePolicies.find((p: any) => mapInsuranceType(p) === 'Cargo')
     if (cargoPolicy) insuranceScore += 10
     if (activePolicies.length >= 3) insuranceScore += 10
   } else {
@@ -1283,7 +1277,7 @@ export function mapToV2InsurancePolicies(report: any): V2InsurancePolicy[] {
   return policies.map((p: any) => ({
     insurer: p.insurerName || p.insurer || '',
     policyNumber: p.policyNumber || '',
-    type: mapInsuranceType(p.insuranceType || p.type || ''),
+    type: mapInsuranceType(p),
     coverage: coverageToDollars(p.coverageAmount || p.coverage),
     required: coverageToDollars(p.requiredAmount || p.required),
     status: mapInsuranceStatus(p.status),
@@ -1292,11 +1286,20 @@ export function mapToV2InsurancePolicies(report: any): V2InsurancePolicy[] {
   }))
 }
 
-function mapInsuranceType(type: string): 'BIPD' | 'Cargo' | 'Bond' | 'General' {
-  const lower = String(type).toLowerCase()
-  if (lower.includes('bipd') || lower.includes('liability') || lower.includes('bodily')) return 'BIPD'
-  if (lower.includes('cargo')) return 'Cargo'
-  if (lower.includes('bond') || lower.includes('surety')) return 'Bond'
+// MorPro puts the raw L&I filing code in `type` (91X, 34, 84, 85) and the human
+// label in `typeLabel`; FMCSA-shaped payloads carry the label in `insuranceType`.
+// Reading only `insuranceType || type` classified every MorPro policy as
+// "General" — a public-liability filing arrived as the bare code "91X".
+export function mapInsuranceType(policy: any): 'BIPD' | 'Cargo' | 'Bond' | 'General' {
+  const label = String(policy?.typeLabel || policy?.insuranceType || '').toLowerCase()
+  if (label.includes('bipd') || label.includes('liability') || label.includes('bodily')) return 'BIPD'
+  if (label.includes('cargo')) return 'Cargo'
+  if (label.includes('bond') || label.includes('surety') || label.includes('trust fund')) return 'Bond'
+
+  const code = String(policy?.type || '').toUpperCase().trim()
+  if (code === '91X' || code === '91') return 'BIPD'   // public liability (BIPD)
+  if (code === '34') return 'Cargo'                    // cargo insurance
+  if (code === '84' || code === '85') return 'Bond'    // surety bond / trust fund
   return 'General'
 }
 
@@ -1311,7 +1314,7 @@ function mapInsuranceStatus(status: string | undefined): 'active' | 'expired' | 
 export function mapToV2RenewalTimeline(report: any): V2RenewalEvent[] {
   const timeline = report?.insurance?.renewalTimeline || []
   return timeline.map((r: any) => ({
-    policyType: r.policyType || r.type || '',
+    policyType: r.typeLabel || r.policyType || r.type || '',
     date: normalizeDate(r.date || r.renewalDate || ''),
     daysUntil: r.daysUntil || 0,
     urgency: mapUrgency(r.daysUntil || r.urgency),
@@ -1335,7 +1338,7 @@ export function mapToV2PolicyHistory(report: any): V2PolicyEvent[] {
     date: normalizeDate(h.date || h.effectiveDate || ''),
     event: h.event || h.description || '',
     type: (h.type || 'renewed') as V2PolicyEvent['type'],
-    policyType: h.policyType || h.insuranceType || '',
+    policyType: h.typeLabel || h.policyType || h.insuranceType || '',
   }))
 }
 
