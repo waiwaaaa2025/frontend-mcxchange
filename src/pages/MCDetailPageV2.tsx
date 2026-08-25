@@ -3807,6 +3807,13 @@ export default function MCDetailPageV2() {
   // Upgrade modal
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
+  // Subscription re-verify — see handleVerifySubscription below. Declared up
+  // here with the rest of the state: the early returns further down would skip
+  // these hooks on the first render and change the hook order once the listing
+  // resolves.
+  const [verifyingSub, setVerifyingSub] = useState(false)
+  const [verifyMessage, setVerifyMessage] = useState<string | null>(null)
+
   // Not authenticated — show auth prompt
   if (!authLoading && !isAuthenticated) {
     return (
@@ -3923,9 +3930,6 @@ export default function MCDetailPageV2() {
   // webhook leaves a paying buyer unable to unlock anything. Verify re-syncs against
   // Stripe and grants the missing credits, then we re-read the user so the unlock
   // button stops gating on the stale balance.
-  const [verifyingSub, setVerifyingSub] = useState(false)
-  const [verifyMessage, setVerifyMessage] = useState<string | null>(null)
-
   const handleVerifySubscription = async () => {
     setVerifyingSub(true)
     setVerifyMessage(null)
