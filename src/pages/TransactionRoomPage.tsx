@@ -72,6 +72,7 @@ import AgreementApprovalPanel from '../components/AgreementApprovalPanel'
 import { useAuth } from '../context/AuthContext'
 import { TransactionRoom, TransactionStatus, TransactionMessage, TransactionDocument, TransactionCredential } from '../types'
 import { REQUIRED_DOCUMENTS } from '../constants/documents'
+import { coverageToDollars } from '../utils/carrierDataMapper'
 import api from '../services/api'
 import toast from 'react-hot-toast'
 
@@ -1031,7 +1032,8 @@ const TransactionRoomPage = () => {
                   insurerName: ins.insurerName || 'Unknown',
                   policyNumber: ins.policyNumber || 'N/A',
                   insuranceType: ins.insuranceType || 'Unknown',
-                  coverageAmount: ins.coverageAmount || 0,
+                  // Filed with FMCSA in thousands — 750 means $750,000
+                  coverageAmount: coverageToDollars(ins.coverageAmount),
                   effectiveDate: ins.effectiveDate || '',
                   cancellationDate: ins.cancellationDate,
                   status: ins.status || 'Unknown',

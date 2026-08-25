@@ -15,6 +15,16 @@ import type {
   V2ChameleonAnalysis, V2ChameleonFlag, ChameleonSeverity, V2ChameleonLinkedCarrier,
 } from '../components/v2/mockData'
 
+// FMCSA's L&I system files coverage in THOUSANDS of dollars — a $750,000 BIPD
+// policy is filed as 750 — and MorPro passes that through untouched. Everything
+// downstream (display, score thresholds) works in dollars, so convert here at
+// the boundary rather than at each render site.
+export function coverageToDollars(val: unknown): number {
+  const n = typeof val === 'string' ? parseFloat(val) : (val as number)
+  if (!n || isNaN(n) || n <= 0) return 0
+  return n * 1000
+}
+
 // ============================================================
 // INSURANCE SANITIZER — stopgap for upstream MorPro bug
 // ============================================================
@@ -280,7 +290,7 @@ export function calculateCarrierHealthScore(
       return t.includes('bipd') || t.includes('liability') || t.includes('bodily')
     })
     if (bipdPolicy) {
-      const coverage = bipdPolicy.coverageAmount || bipdPolicy.coverage || 0
+      const coverage = coverageToDollars(bipdPolicy.coverageAmount || bipdPolicy.coverage)
       if (coverage >= 1000000) insuranceScore += 20
       else if (coverage >= 750000) insuranceScore += 15
       else if (coverage >= 300000) insuranceScore += 10
@@ -1274,8 +1284,8 @@ export function mapToV2InsurancePolicies(report: any): V2InsurancePolicy[] {
     insurer: p.insurerName || p.insurer || '',
     policyNumber: p.policyNumber || '',
     type: mapInsuranceType(p.insuranceType || p.type || ''),
-    coverage: p.coverageAmount || p.coverage || 0,
-    required: p.requiredAmount || p.required || 0,
+    coverage: coverageToDollars(p.coverageAmount || p.coverage),
+    required: coverageToDollars(p.requiredAmount || p.required),
     status: mapInsuranceStatus(p.status),
     effectiveDate: normalizeDate(p.effectiveDate || ''),
     expirationDate: normalizeDate(p.expirationDate || p.cancellationDate || ''),
