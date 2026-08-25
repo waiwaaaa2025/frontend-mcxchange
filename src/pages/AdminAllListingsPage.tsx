@@ -51,12 +51,20 @@ import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import Select from '../components/ui/Select'
 import Textarea from '../components/ui/Textarea'
+import {
+  AUTHORITY_TYPE_OPTIONS,
+  AUTHORITY_TYPE_BADGE_LABELS,
+  AUTHORITY_TYPE_PILL_LABELS,
+  normalizeAuthorityType,
+  deriveAuthorityTypeFromHistory,
+} from '../constants/authority'
 import api from '../services/api'
 
 interface Listing {
   id: string
   mcNumber: string
   dotNumber: string
+  authorityType?: string
   title: string
   legalName: string
   dbaName: string
@@ -231,10 +239,15 @@ const AdminAllListingsPage = () => {
       }
 
       const carrier = response.data
-      if (!carrier || !carrier.dotNumber) {
+      if (!carrier) {
         setMcLookupError('No carrier data found. Please verify the number and try again.')
         setMcLookupLoading(false)
         return
+      }
+      if (!carrier.dotNumber) {
+        // Broker / freight-forwarder dockets have no USDOT and no carrier census
+        // record. Informational only — the form stays manually fillable.
+        setMcLookupError('No USDOT on file for this docket — fill in the details manually (expected for broker authorities).')
       }
 
       // Map the API response to form fields (same as CreateListingPage)
@@ -661,10 +674,14 @@ const AdminAllListingsPage = () => {
       }
 
       const carrier = response.data
-      if (!carrier || !carrier.dotNumber) {
+      if (!carrier) {
         setAddListingFmcsaError('No carrier data found. Please verify the number and try again.')
         setAddListingFmcsaLoading(false)
         return
+      }
+      if (!carrier.dotNumber) {
+        // Broker / freight-forwarder dockets have no USDOT — informational only.
+        setAddListingFmcsaError('No USDOT on file for this docket — fill in the details manually (expected for broker authorities).')
       }
 
       // Map safety rating
@@ -725,12 +742,7 @@ const AdminAllListingsPage = () => {
             setAddListingAuthorityHistory(authResponse.data)
             // Auto-fill authority date fields if available
             const auth = authResponse.data
-            const carrierActive = auth.commonAuthorityStatus === 'ACTIVE' || auth.contractAuthorityStatus === 'ACTIVE'
-            const brokerActive = auth.brokerAuthorityStatus === 'ACTIVE'
-            let derivedType: 'MOTOR_CARRIER' | 'BROKER' | 'MOTOR_CARRIER_AND_BROKER' | 'FREIGHT_FORWARDER' = 'MOTOR_CARRIER'
-            if (carrierActive && brokerActive) derivedType = 'MOTOR_CARRIER_AND_BROKER'
-            else if (brokerActive) derivedType = 'BROKER'
-            else if (carrierActive) derivedType = 'MOTOR_CARRIER'
+            const derivedType = deriveAuthorityTypeFromHistory(auth)
             setNewListing(prev => ({
               ...prev,
               applicationDate: auth.applicationDate || prev.applicationDate,
@@ -1396,7 +1408,13 @@ const AdminAllListingsPage = () => {
                         {listing.isVip && <span title="VIP"><Crown className="w-4 h-4 text-yellow-500" /></span>}
                         <div>
                           <p className="font-semibold text-gray-900">MC-{listing.mcNumber}</p>
-                          <p className="text-xs text-gray-500">DOT-{listing.dotNumber}</p>
+                          {listing.dotNumber ? (
+                            <p className="text-xs text-gray-500">DOT-{listing.dotNumber}</p>
+                          ) : (
+                            <p className="text-xs text-indigo-600 font-medium">
+                              {AUTHORITY_TYPE_BADGE_LABELS[normalizeAuthorityType(listing.authorityType)]}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </td>
@@ -1548,7 +1566,13 @@ const AdminAllListingsPage = () => {
                     {listing.isPremium && <Crown className="w-4 h-4 text-amber-500" />}
                     <h3 className="font-semibold text-gray-900">MC-{listing.mcNumber}</h3>
                   </div>
-                  <p className="text-xs text-gray-500">DOT-{listing.dotNumber}</p>
+                  {listing.dotNumber ? (
+                    <p className="text-xs text-gray-500">DOT-{listing.dotNumber}</p>
+                  ) : (
+                    <p className="text-xs text-indigo-600 font-medium">
+                      {AUTHORITY_TYPE_BADGE_LABELS[normalizeAuthorityType(listing.authorityType)]}
+                    </p>
+                  )}
                 </div>
                 <span className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${getStatusBadge(listing.status)}`}>
                   {listing.status}
@@ -1617,7 +1641,11 @@ const AdminAllListingsPage = () => {
                       </span>
                     </div>
                     <h2 className="text-2xl font-bold">MC-{selectedListing.mcNumber}</h2>
-                    <p className="text-indigo-200">DOT-{selectedListing.dotNumber}</p>
+                    <p className="text-indigo-200">
+                      {selectedListing.dotNumber
+                        ? `DOT-${selectedListing.dotNumber}`
+                        : AUTHORITY_TYPE_PILL_LABELS[normalizeAuthorityType(selectedListing.authorityType)]}
+                    </p>
                   </div>
                   <button
                     onClick={() => setShowDetailModal(false)}
@@ -1813,12 +1841,7 @@ const AdminAllListingsPage = () => {
                         Authority Type
                       </h3>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        {[
-                          { value: 'MOTOR_CARRIER', label: 'Motor Carrier', sub: 'Common / Contract' },
-                          { value: 'BROKER', label: 'Broker', sub: 'Brokerage authority' },
-                          { value: 'MOTOR_CARRIER_AND_BROKER', label: 'Carrier + Broker', sub: 'Dual authority' },
-                          { value: 'FREIGHT_FORWARDER', label: 'Freight Forwarder', sub: 'Forwarder authority' },
-                        ].map((option) => {
+                        {AUTHORITY_TYPE_OPTIONS.map((option) => {
                           const selected = editForm.authorityType === option.value
                           return (
                             <button
@@ -2615,12 +2638,7 @@ const AdminAllListingsPage = () => {
                     {addListingFmcsaSuccess && !addListingAuthorityTypeTouched && <span className="text-xs font-normal text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Auto-detected</span>}
                   </h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {[
-                      { value: 'MOTOR_CARRIER', label: 'Motor Carrier', sub: 'Common / Contract' },
-                      { value: 'BROKER', label: 'Broker', sub: 'Brokerage authority' },
-                      { value: 'MOTOR_CARRIER_AND_BROKER', label: 'Carrier + Broker', sub: 'Dual authority' },
-                      { value: 'FREIGHT_FORWARDER', label: 'Freight Forwarder', sub: 'Forwarder authority' },
-                    ].map((option) => {
+                    {AUTHORITY_TYPE_OPTIONS.map((option) => {
                       const selected = newListing.authorityType === option.value
                       return (
                         <button

@@ -20,6 +20,12 @@ import {
 import api from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import TruckFormSection, { TruckFormValue } from '../components/TruckFormSection'
+import {
+  AUTHORITY_TYPE_OPTIONS,
+  hasCarrierOperations,
+  deriveAuthorityTypeFromHistory,
+} from '../constants/authority'
+import type { AuthorityType } from '../types'
 
 export default function SellerCreateListingPage() {
   const navigate = useNavigate()
@@ -39,9 +45,24 @@ export default function SellerCreateListingPage() {
   const [searchLoading, setSearchLoading] = useState(false)
   const [searchError, setSearchError] = useState('')
 
+  // Search mode. Brokers and freight forwarders register under a docket (MC)
+  // number and often have no USDOT, so they can't use the DOT/CarrierPulse path.
+  const [searchMode, setSearchMode] = useState<'dot' | 'mc'>('dot')
+  // True when we're building a listing by hand because FMCSA has no carrier
+  // census record for the docket (expected for broker-only authorities).
+  const [manualBroker, setManualBroker] = useState(false)
+
+  // What kind of authority is being sold
+  const [authorityType, setAuthorityType] = useState<AuthorityType>('MOTOR_CARRIER')
+  const [authorityTypeTouched, setAuthorityTypeTouched] = useState(false)
+
   // FMCSA data
   const [carrierData, setCarrierData] = useState<any>(null)
   const [fmcsaLoading, setFmcsaLoading] = useState(false)
+
+  // Edit a field on the (possibly hand-entered) carrier record
+  const updateCarrier = (field: string, value: any) =>
+    setCarrierData((prev: any) => ({ ...(prev || {}), [field]: value }))
 
   // Form
   const [title, setTitle] = useState('')
@@ -67,6 +88,8 @@ export default function SellerCreateListingPage() {
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
   const [createdListing, setCreatedListing] = useState<any>(null)
+  const [submittedForReview, setSubmittedForReview] = useState(false)
+  const [draftNotice, setDraftNotice] = useState('')
 
   // Auto-fetch carrier data from MorPro when coming from CarrierPulse
   useEffect(() => {
@@ -104,6 +127,17 @@ export default function SellerCreateListingPage() {
           cargoTypes: report.cargo ? Object.entries(report.cargo).filter(([, v]) => v === true).map(([k]) => k) : [],
         })
         setTitle(`${carrier.legalName || 'Carrier'} - DOT #${cleanDot}`)
+
+        // Pre-select the authority type from FMCSA's active authorities so a
+        // dual-authority carrier isn't mislabeled as carrier-only.
+        try {
+          const authResponse = await api.fmcsaGetAuthorityHistory(cleanDot)
+          if (authResponse?.data && !authorityTypeTouched) {
+            setAuthorityType(deriveAuthorityTypeFromHistory(authResponse.data))
+          }
+        } catch {
+          // Authority history is a nicety here — the seller can still pick manually.
+        }
       } else {
         setSearchError('Carrier data not found for this DOT number.')
       }
@@ -124,11 +158,71 @@ export default function SellerCreateListingPage() {
     navigate(`/seller/carrier-pulse/${cleaned}?fromAdmin=true`)
   }
 
+  // MC/docket search → for brokers and freight forwarders.
+  // Dual-authority holders DO appear in the FMCSA carrier census, so try the
+  // lookup first and route them through the richer DOT path when it hits.
+  const handleMCSearch = async () => {
+    const mc = mcInput.replace(/^MC-?/i, '').replace(/\D/g, '')
+    if (!mc) {
+      setSearchError('Please enter a valid MC/docket number')
+      return
+    }
+
+    setSearchLoading(true)
+    setSearchError('')
+
+    let carrier: any = null
+    try {
+      const response = await api.fmcsaLookupByMC(mc)
+      carrier = response?.success ? response.data : null
+    } catch {
+      // Broker-only dockets have no carrier census record — expected miss.
+    }
+
+    if (carrier?.dotNumber) {
+      setSearchLoading(false)
+      navigate(`/seller/carrier-pulse/${carrier.dotNumber}?fromAdmin=true&mc=${mc}`)
+      return
+    }
+
+    // No USDOT on file: build the listing by hand. Admin review verifies it.
+    setManualBroker(true)
+    setAuthorityType('BROKER')
+    setCarrierData({
+      mcNumber: mc,
+      dotNumber: '',
+      legalName: carrier?.legalName || '',
+      dbaName: carrier?.dbaName || '',
+      hqCity: '',
+      hqState: '',
+      physicalAddress: '',
+      totalPowerUnits: 0,
+      totalDrivers: 0,
+      safetyRating: '',
+      insuranceOnFile: false,
+      bondOnFile: 0,
+      cargoTypes: [],
+    })
+    setSearchLoading(false)
+    setPageState('form')
+  }
+
   // Submit listing — auto-assigned to logged-in seller
   const handleSubmit = async () => {
     if (!carrierData) {
       setSubmitError('Carrier data is required')
       return
+    }
+    if (manualBroker) {
+      // Hand-entered listing — FMCSA gave us nothing to validate against.
+      if (!carrierData.legalName?.trim()) {
+        setSubmitError('Please enter the legal name on the authority')
+        return
+      }
+      if (!carrierData.hqCity?.trim() || !carrierData.hqState?.trim()) {
+        setSubmitError('Please enter the city and state for the authority')
+        return
+      }
     }
     if (!price) {
       setSubmitError('Please enter an asking price')
@@ -163,9 +257,12 @@ export default function SellerCreateListingPage() {
           description: t.description.trim() || null,
         }))
 
+      const operatesTrucks = hasCarrierOperations(authorityType)
+
       const response = await api.createListing({
         mcNumber: pulseMC || carrier.mcNumber || '',
-        dotNumber: carrier.dotNumber,
+        // Brokers/forwarders may have no USDOT — the backend stores ''
+        dotNumber: carrier.dotNumber || '',
         legalName: carrier.legalName,
         dbaName: carrier.dbaName || undefined,
         title: title || `${carrier.legalName} - MC #${pulseMC || carrier.mcNumber}`,
@@ -174,10 +271,16 @@ export default function SellerCreateListingPage() {
         city,
         state: carrier.hqState || undefined,
         address: fullAddress || undefined,
-        yearsActive: carrier.mcs150Date ? Math.floor((Date.now() - new Date(carrier.mcs150Date).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) : undefined,
-        fleetSize: carrier.totalPowerUnits || undefined,
-        totalDrivers: carrier.totalDrivers || undefined,
-        safetyRating,
+        yearsActive: carrier.mcs150Date
+          ? Math.floor((Date.now() - new Date(carrier.mcs150Date).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
+          : carrier.yearsActive
+            ? parseInt(String(carrier.yearsActive), 10) || undefined
+            : undefined,
+        authorityType,
+        // Fleet and safety only mean something for authorities that run trucks
+        fleetSize: operatesTrucks ? carrier.totalPowerUnits || undefined : 0,
+        totalDrivers: operatesTrucks ? carrier.totalDrivers || undefined : 0,
+        safetyRating: operatesTrucks ? safetyRating : 'NONE',
         insuranceOnFile: carrier.insuranceOnFile || false,
         bipdCoverage: carrier.bipdOnFile || undefined,
         cargoCoverage: carrier.cargoOnFile || undefined,
@@ -214,6 +317,20 @@ export default function SellerCreateListingPage() {
             }
           }
         }
+        // A newly created listing is a DRAFT — it stays invisible until it's
+        // pushed into the admin review queue. The server enforces the listing
+        // fee here, so surface that instead of silently leaving a draft behind.
+        try {
+          await api.submitListingForReview(response.data.id)
+          setSubmittedForReview(true)
+        } catch (submitErr: any) {
+          setSubmittedForReview(false)
+          setDraftNotice(
+            submitErr?.message ||
+              'Your listing was saved as a draft but could not be submitted for review. Open it from My Listings to finish submitting.'
+          )
+        }
+
         setCreatedListing(response.data)
         setPageState('success')
       } else {
@@ -238,7 +355,35 @@ export default function SellerCreateListingPage() {
             <Package className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-black text-gray-900 tracking-tight">List Your Authority</h1>
-          <p className="text-gray-500 mt-2 mb-8">Look up your carrier by DOT number to view the full profile, then create a listing</p>
+          <p className="text-gray-500 mt-2 mb-6">
+            {searchMode === 'dot'
+              ? 'Look up your carrier by DOT number to view the full profile, then create a listing'
+              : 'Enter your MC/docket number. Brokers and freight forwarders often have no USDOT number.'}
+          </p>
+
+          {/* What kind of authority are you listing? */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-5">
+            {[
+              { mode: 'dot' as const, label: 'I have a USDOT number', sub: 'Motor carriers' },
+              { mode: 'mc' as const, label: 'MC/docket number only', sub: 'Broker / freight forwarder' },
+            ].map(option => (
+              <button
+                key={option.mode}
+                type="button"
+                onClick={() => { setSearchMode(option.mode); setSearchError('') }}
+                className={`px-4 py-3 rounded-xl border-2 text-left transition-all ${
+                  searchMode === option.mode
+                    ? 'border-indigo-500 bg-indigo-50'
+                    : 'border-gray-200 bg-white hover:border-gray-300'
+                }`}
+              >
+                <p className={`text-sm font-semibold ${searchMode === option.mode ? 'text-indigo-700' : 'text-gray-700'}`}>
+                  {option.label}
+                </p>
+                <p className="text-xs text-gray-500 mt-0.5">{option.sub}</p>
+              </button>
+            ))}
+          </div>
 
           <div className="flex gap-2">
             <div className="relative flex-1">
@@ -247,14 +392,14 @@ export default function SellerCreateListingPage() {
                 type="text"
                 value={mcInput}
                 onChange={e => { setMcInput(e.target.value); setSearchError('') }}
-                onKeyDown={e => e.key === 'Enter' && handleDOTSearch()}
-                placeholder="Enter DOT number..."
+                onKeyDown={e => e.key === 'Enter' && (searchMode === 'dot' ? handleDOTSearch() : handleMCSearch())}
+                placeholder={searchMode === 'dot' ? 'Enter DOT number...' : 'Enter MC/docket number...'}
                 className="w-full pl-10 pr-4 py-3.5 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-lg font-medium transition-all outline-none"
                 autoFocus
               />
             </div>
             <button
-              onClick={handleDOTSearch}
+              onClick={searchMode === 'dot' ? handleDOTSearch : handleMCSearch}
               disabled={!mcInput.trim() || searchLoading}
               className="px-6 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 text-white font-semibold transition-colors flex items-center gap-2"
             >
@@ -271,8 +416,17 @@ export default function SellerCreateListingPage() {
           )}
 
           <p className="mt-6 text-xs text-gray-400">
-            This will open the full CarrierPulse view. After reviewing, click "List This Authority" to create the listing.
-            Your DOT number can be found on your FMCSA registration or at <a href="https://safer.fmcsa.dot.gov" target="_blank" rel="noopener noreferrer" className="text-indigo-500 hover:underline">SAFER</a>.
+            {searchMode === 'dot' ? (
+              <>
+                This will open the full CarrierPulse view. After reviewing, click "List This Authority" to create the listing.
+                Your DOT number can be found on your FMCSA registration or at <a href="https://safer.fmcsa.dot.gov" target="_blank" rel="noopener noreferrer" className="text-indigo-500 hover:underline">SAFER</a>.
+              </>
+            ) : (
+              <>
+                If your docket has a USDOT on file we'll pull the full profile automatically. Otherwise you'll fill in the
+                details yourself and our team will verify them against FMCSA before your listing goes live.
+              </>
+            )}
           </p>
         </motion.div>
       </div>
@@ -289,15 +443,19 @@ export default function SellerCreateListingPage() {
           <div className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-10 h-10 text-emerald-500" />
           </div>
-          <h1 className="text-3xl font-black text-gray-900 mb-2">Listing Submitted!</h1>
+          <h1 className="text-3xl font-black text-gray-900 mb-2">
+            {submittedForReview ? 'Listing Submitted!' : 'Listing Saved as Draft'}
+          </h1>
           <p className="text-gray-500 mb-8">
-            {carrierData?.legalName} - MC #{pulseMC} has been submitted for review. We'll notify you once it's approved.
+            {submittedForReview
+              ? `${carrierData?.legalName} - MC #${pulseMC || carrierData?.mcNumber} has been submitted for review. We'll notify you once it's approved.`
+              : draftNotice}
           </p>
 
           <div className="bg-gray-50 rounded-xl p-4 mb-6 text-left space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">MC Number</span>
-              <span className="font-medium">{pulseMC}</span>
+              <span className="font-medium">{pulseMC || carrierData?.mcNumber}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Asking Price</span>
@@ -305,7 +463,9 @@ export default function SellerCreateListingPage() {
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Status</span>
-              <span className="font-medium text-amber-600">Pending Review</span>
+              <span className={`font-medium ${submittedForReview ? 'text-amber-600' : 'text-gray-600'}`}>
+                {submittedForReview ? 'Pending Review' : 'Draft'}
+              </span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Seller</span>
@@ -328,6 +488,11 @@ export default function SellerCreateListingPage() {
                 setDescription('')
                 setPrice('')
                 setMcInput('')
+                setManualBroker(false)
+                setAuthorityType('MOTOR_CARRIER')
+                setAuthorityTypeTouched(false)
+                setSubmittedForReview(false)
+                setDraftNotice('')
                 navigate('/seller/create-listing', { replace: true })
               }}
               className="flex-1 px-4 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium transition-colors flex items-center justify-center gap-2"
@@ -359,7 +524,11 @@ export default function SellerCreateListingPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-2xl font-black text-gray-900">List Your Authority</h1>
-          <p className="text-gray-500 mt-1">Fill in the listing details below. Carrier data has been auto-filled from FMCSA.</p>
+          <p className="text-gray-500 mt-1">
+            {manualBroker
+              ? 'Fill in the listing details below. FMCSA has no carrier record for this docket, so enter the details yourself.'
+              : 'Fill in the listing details below. Carrier data has been auto-filled from FMCSA.'}
+          </p>
         </div>
 
         {/* Loading state */}
@@ -372,35 +541,147 @@ export default function SellerCreateListingPage() {
 
         {!fmcsaLoading && carrierData && (
           <div className="space-y-6">
-            {/* Carrier Summary Card */}
-            <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-5 sm:p-6 text-white">
-              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-emerald-400 mb-1">
-                    {carrierData.allowedToOperate === 'Y' ? 'Authorized Carrier' : 'Not Authorized'}
-                  </p>
-                  <h2 className="text-xl font-bold">{carrierData.legalName}</h2>
-                  {carrierData.dbaName && <p className="text-white/50 text-sm mt-0.5">DBA: {carrierData.dbaName}</p>}
+            {/* Carrier Summary Card — FMCSA-sourced listings only. A hand-entered
+                broker listing has none of these fields, so it gets a form instead. */}
+            {!manualBroker && (
+              <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-5 sm:p-6 text-white">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-emerald-400 mb-1">
+                      {carrierData.allowedToOperate === 'Y' ? 'Authorized Carrier' : 'Not Authorized'}
+                    </p>
+                    <h2 className="text-xl font-bold">{carrierData.legalName}</h2>
+                    {carrierData.dbaName && <p className="text-white/50 text-sm mt-0.5">DBA: {carrierData.dbaName}</p>}
+                  </div>
+                  <div className="text-left sm:text-right">
+                    <p className="text-xs text-white/40">MC# {pulseMC || carrierData.mcNumber}</p>
+                    {carrierData.dotNumber && <p className="text-xs text-white/40">DOT# {carrierData.dotNumber}</p>}
+                  </div>
                 </div>
-                <div className="text-left sm:text-right">
-                  <p className="text-xs text-white/40">MC# {pulseMC || carrierData.mcNumber}</p>
-                  <p className="text-xs text-white/40">DOT# {carrierData.dotNumber}</p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+                  {[
+                    { label: 'Location', value: `${carrierData.hqCity}, ${carrierData.hqState}` },
+                    ...(hasCarrierOperations(authorityType)
+                      ? [
+                          { label: 'Power Units', value: carrierData.totalPowerUnits || '0' },
+                          { label: 'Drivers', value: carrierData.totalDrivers || '0' },
+                          { label: 'Safety', value: carrierData.safetyRating || 'Not Rated' },
+                        ]
+                      : []),
+                  ].map(s => (
+                    <div key={s.label} className="bg-white/5 rounded-lg px-3 py-2">
+                      <p className="text-[10px] uppercase tracking-wider text-white/30">{s.label}</p>
+                      <p className="text-sm font-bold text-white/90">{s.value}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
-                {[
-                  { label: 'Location', value: `${carrierData.hqCity}, ${carrierData.hqState}` },
-                  { label: 'Power Units', value: carrierData.totalPowerUnits || '0' },
-                  { label: 'Drivers', value: carrierData.totalDrivers || '0' },
-                  { label: 'Safety', value: carrierData.safetyRating || 'Not Rated' },
-                ].map(s => (
-                  <div key={s.label} className="bg-white/5 rounded-lg px-3 py-2">
-                    <p className="text-[10px] uppercase tracking-wider text-white/30">{s.label}</p>
-                    <p className="text-sm font-bold text-white/90">{s.value}</p>
-                  </div>
-                ))}
+            )}
+
+            {/* Authority Type — what is actually being sold */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
+                <Shield className="w-5 h-5 text-indigo-500" />
+                Authority Type
+              </h3>
+              <p className="text-sm text-gray-500 mb-4">Tell buyers which type of FMCSA authority this listing represents.</p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {AUTHORITY_TYPE_OPTIONS.map(option => {
+                  const selected = authorityType === option.value
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => { setAuthorityTypeTouched(true); setAuthorityType(option.value) }}
+                      className={`p-3 rounded-xl border-2 text-center transition-all ${
+                        selected ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 bg-gray-50 hover:border-gray-300'
+                      }`}
+                    >
+                      <p className={`text-sm font-semibold ${selected ? 'text-indigo-700' : 'text-gray-700'}`}>{option.label}</p>
+                      <p className="text-[11px] text-gray-500 mt-0.5">{option.sub}</p>
+                    </button>
+                  )
+                })}
               </div>
             </div>
+
+            {/* Manual authority details — FMCSA has no record for this docket */}
+            {manualBroker && (
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-indigo-500" />
+                  Authority Details
+                </h3>
+                <p className="text-sm text-gray-500 mb-4">
+                  FMCSA has no carrier record for MC #{carrierData.mcNumber} — normal for broker-only authorities.
+                  Enter the details below; our team verifies them against FMCSA before your listing goes live.
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Legal Name *</label>
+                    <input
+                      type="text"
+                      value={carrierData.legalName || ''}
+                      onChange={e => updateCarrier('legalName', e.target.value)}
+                      placeholder="Legal name on the authority"
+                      className="w-full px-3 py-2.5 rounded-lg border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-medium text-gray-600 mb-1">DBA Name</label>
+                    <input
+                      type="text"
+                      value={carrierData.dbaName || ''}
+                      onChange={e => updateCarrier('dbaName', e.target.value)}
+                      placeholder="Optional"
+                      className="w-full px-3 py-2.5 rounded-lg border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">City *</label>
+                    <input
+                      type="text"
+                      value={carrierData.hqCity || ''}
+                      onChange={e => updateCarrier('hqCity', e.target.value)}
+                      className="w-full px-3 py-2.5 rounded-lg border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">State *</label>
+                    <input
+                      type="text"
+                      maxLength={2}
+                      value={carrierData.hqState || ''}
+                      onChange={e => updateCarrier('hqState', e.target.value.toUpperCase())}
+                      placeholder="TX"
+                      className="w-full px-3 py-2.5 rounded-lg border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all uppercase"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Years Active</label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={carrierData.yearsActive || ''}
+                      onChange={e => updateCarrier('yearsActive', e.target.value)}
+                      className="w-full px-3 py-2.5 rounded-lg border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Surety Bond (BMC-84)</label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={carrierData.bondOnFile || ''}
+                      onChange={e => updateCarrier('bondOnFile', e.target.value ? parseFloat(e.target.value) : 0)}
+                      placeholder="75000"
+                      className="w-full px-3 py-2.5 rounded-lg border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Listing Details */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
@@ -613,8 +894,10 @@ export default function SellerCreateListingPage() {
               </div>
             </div>
 
-            {/* Trucks included in this sale */}
-            <TruckFormSection value={trucks} onChange={setTrucks} />
+            {/* Trucks included in this sale — brokers and forwarders don't run equipment */}
+            {hasCarrierOperations(authorityType) && (
+              <TruckFormSection value={trucks} onChange={setTrucks} />
+            )}
 
             {/* Insurance Details */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">

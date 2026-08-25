@@ -18,6 +18,11 @@ import {
 import GlassCard from '../components/ui/GlassCard'
 import Button from '../components/ui/Button'
 import EditListingModal from '../components/EditListingModal'
+import {
+  AUTHORITY_TYPE_BADGE_LABELS,
+  normalizeAuthorityType,
+  hasCarrierOperations,
+} from '../constants/authority'
 import api from '../services/api'
 
 interface Listing {
@@ -34,6 +39,7 @@ interface Listing {
   yearsInBusiness?: number
   yearsActive?: number
   fleetSize?: number
+  authorityType?: string
   trustScore?: number
   _count?: {
     offers: number
@@ -253,6 +259,11 @@ const SellerListingsPage = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-1">
                         <h3 className="text-lg font-bold text-gray-900">MC #{listing.mcNumber}</h3>
+                        {listing.authorityType && listing.authorityType !== 'MOTOR_CARRIER' && (
+                          <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 border border-indigo-200 text-indigo-700">
+                            {AUTHORITY_TYPE_BADGE_LABELS[normalizeAuthorityType(listing.authorityType)]}
+                          </span>
+                        )}
                         <span className={`bg-gray-100 px-2 py-0.5 rounded-full text-xs flex items-center gap-1 ${getStatusColor(listing.status)}`}>
                           {getStatusIcon(listing.status)}
                           <span className="capitalize">{formatStatus(listing.status)}</span>
@@ -297,7 +308,7 @@ const SellerListingsPage = () => {
                           <div className="font-semibold text-gray-900 text-sm">{listing.yearsInBusiness || listing.yearsActive}</div>
                         </div>
                       )}
-                      {listing.fleetSize && (
+                      {listing.fleetSize && hasCarrierOperations(listing.authorityType) && (
                         <div className="bg-gray-50 rounded-lg px-3 py-2 flex-1">
                           <div className="text-xs text-gray-500">Fleet</div>
                           <div className="font-semibold text-gray-900 text-sm">{listing.fleetSize} trucks</div>
@@ -379,6 +390,11 @@ const SellerListingsPage = () => {
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         <h3 className="text-xl font-bold text-gray-900">MC #{listing.mcNumber}</h3>
+                        {listing.authorityType && listing.authorityType !== 'MOTOR_CARRIER' && (
+                          <span className="px-3 py-1 rounded-full text-sm font-semibold bg-indigo-50 border border-indigo-200 text-indigo-700">
+                            {AUTHORITY_TYPE_BADGE_LABELS[normalizeAuthorityType(listing.authorityType)]}
+                          </span>
+                        )}
                         <span className={`bg-gray-100 px-3 py-1 rounded-full text-sm flex items-center gap-1.5 ${getStatusColor(listing.status)}`}>
                           {getStatusIcon(listing.status)}
                           <span className="capitalize">{formatStatus(listing.status)}</span>
@@ -421,7 +437,7 @@ const SellerListingsPage = () => {
                           <div className="font-semibold text-gray-900">{listing.yearsInBusiness || listing.yearsActive} years</div>
                         </div>
                       )}
-                      {listing.fleetSize && (
+                      {listing.fleetSize && hasCarrierOperations(listing.authorityType) && (
                         <div className="bg-gray-50 rounded-lg p-3">
                           <div className="text-xs text-gray-500 mb-1">Fleet Size</div>
                           <div className="font-semibold text-gray-900">{listing.fleetSize} trucks</div>

@@ -824,8 +824,9 @@ class ApiService {
       insuranceOnFile?: boolean;
       amazonStatus?: string;
       amazonRelayScore?: string;
+      authorityType?: string;
       highwaySetup?: boolean;
-    rmisSetup?: boolean;
+      rmisSetup?: boolean;
       sellingWithEmail?: boolean;
       sellingWithPhone?: boolean;
       status?: string;
@@ -1339,7 +1340,8 @@ class ApiService {
   // Create listing
   async createListing(data: {
     mcNumber: string;
-    dotNumber: string;
+    // Optional: broker / freight-forwarder authorities may have no USDOT number
+    dotNumber?: string;
     legalName: string;
     dbaName?: string;
     title: string;
@@ -1389,6 +1391,18 @@ class ApiService {
     }>('/listings', {
       method: 'POST',
       body: JSON.stringify(data),
+    });
+  }
+
+  // Move a DRAFT/REJECTED listing into the admin review queue.
+  // Enforces the listing-fee gate server-side.
+  async submitListingForReview(listingId: string) {
+    return this.request<{
+      success: boolean;
+      data: any;
+      message: string;
+    }>(`/listings/${listingId}/submit`, {
+      method: 'POST',
     });
   }
 

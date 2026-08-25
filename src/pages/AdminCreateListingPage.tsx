@@ -20,6 +20,8 @@ import {
   XCircle,
   AlertTriangle,
 } from 'lucide-react'
+import { AUTHORITY_TYPE_OPTIONS, hasCarrierOperations } from '../constants/authority'
+import type { AuthorityType } from '../types'
 import api from '../services/api'
 
 export default function AdminCreateListingPage() {
@@ -48,6 +50,7 @@ export default function AdminCreateListingPage() {
   const [description, setDescription] = useState('')
   const [price, setPrice] = useState('')
   const [status, setStatus] = useState('ACTIVE')
+  const [authorityType, setAuthorityType] = useState<AuthorityType>('MOTOR_CARRIER')
 
   // Additional questions
   const [amazonStatus, setAmazonStatus] = useState('')
@@ -194,7 +197,8 @@ export default function AdminCreateListingPage() {
 
       const listingData = {
         mcNumber: pulseMC || carrier.mcNumber || '',
-        dotNumber: carrier.dotNumber,
+        // Brokers/forwarders may have no USDOT — the backend stores ''
+        dotNumber: carrier.dotNumber || '',
         legalName: carrier.legalName,
         dbaName: carrier.dbaName || undefined,
         title: title || `${carrier.legalName} - MC #${pulseMC || carrier.mcNumber}`,
@@ -204,9 +208,11 @@ export default function AdminCreateListingPage() {
         state: carrier.hqState || undefined,
         address: fullAddress || undefined,
         yearsActive: carrier.mcs150Date ? Math.floor((Date.now() - new Date(carrier.mcs150Date).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) : undefined,
-        fleetSize: carrier.totalPowerUnits || undefined,
-        totalDrivers: carrier.totalDrivers || undefined,
-        safetyRating,
+        authorityType,
+        // Fleet and safety only mean something for authorities that run trucks
+        fleetSize: hasCarrierOperations(authorityType) ? carrier.totalPowerUnits || undefined : 0,
+        totalDrivers: hasCarrierOperations(authorityType) ? carrier.totalDrivers || undefined : 0,
+        safetyRating: hasCarrierOperations(authorityType) ? safetyRating : 'NONE',
         insuranceOnFile: carrier.insuranceOnFile || false,
         bipdCoverage: carrier.bipdOnFile || undefined,
         cargoCoverage: carrier.cargoOnFile || undefined,
@@ -449,6 +455,33 @@ export default function AdminCreateListingPage() {
                     <p className="text-sm font-bold text-white/90">{s.value}</p>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* Authority Type — what is actually being sold */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
+                <Shield className="w-5 h-5 text-indigo-500" />
+                Authority Type
+              </h3>
+              <p className="text-sm text-gray-500 mb-4">Which type of FMCSA authority this listing represents.</p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {AUTHORITY_TYPE_OPTIONS.map(option => {
+                  const selected = authorityType === option.value
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setAuthorityType(option.value)}
+                      className={`p-3 rounded-xl border-2 text-center transition-all ${
+                        selected ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 bg-gray-50 hover:border-gray-300'
+                      }`}
+                    >
+                      <p className={`text-sm font-semibold ${selected ? 'text-indigo-700' : 'text-gray-700'}`}>{option.label}</p>
+                      <p className="text-[11px] text-gray-500 mt-0.5">{option.sub}</p>
+                    </button>
+                  )
+                })}
               </div>
             </div>
 

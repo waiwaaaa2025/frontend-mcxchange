@@ -147,12 +147,9 @@ export type AuthorityType =
   | 'MOTOR_CARRIER_AND_BROKER'
   | 'FREIGHT_FORWARDER'
 
-export const AUTHORITY_TYPE_LABELS: Record<AuthorityType, string> = {
-  MOTOR_CARRIER: 'Motor Carrier',
-  BROKER: 'Broker',
-  MOTOR_CARRIER_AND_BROKER: 'Motor Carrier + Broker',
-  FREIGHT_FORWARDER: 'Freight Forwarder',
-}
+// Labels and helpers live in constants/authority.ts — re-exported here so the
+// existing `import { AUTHORITY_TYPE_LABELS } from '../types'` call sites keep working.
+export { AUTHORITY_TYPE_LABELS } from '../constants/authority'
 
 export interface MCListing {
   id: string

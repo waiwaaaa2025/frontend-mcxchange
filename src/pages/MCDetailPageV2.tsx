@@ -12,7 +12,7 @@ function safeFmtDate(dateStr: string | null | undefined, fmt: string = 'MMM d, y
   }
 }
 import {
-  LayoutDashboard, Shield, Activity, Umbrella, Truck, FileText,
+  LayoutDashboard, Shield, Activity, Umbrella, Truck, FileText, Briefcase,
   CheckCircle, XCircle, AlertTriangle, ArrowLeft, ArrowRight, MapPin,
   Calendar, Users, Hash, Phone, Building2, Package, DollarSign,
   TrendingUp, TrendingDown, Star, Clock, ExternalLink, Mail,
@@ -88,6 +88,12 @@ import {
   V2NetworkSignal, V2BenchmarkData, V2DocumentItem, V2ChameleonAnalysis,
 } from '../components/v2/mockData'
 import { useCarrierData } from '../hooks/useCarrierData'
+import {
+  AUTHORITY_TYPE_PILL_LABELS,
+  normalizeAuthorityType,
+  isBrokerAuthority,
+  hasCarrierOperations,
+} from '../constants/authority'
 import {
   mapToV2CarrierData, mapToV2AuthorityData, mapToV2AuthorityHistory,
   mapToV2AuthorityPending, mapToV2BasicScores, mapToV2BasicAlerts,
@@ -172,6 +178,9 @@ const tabs: TabItem[] = [
   { id: 'chameleon', label: 'Chameleon Check', icon: ShieldAlert },
   { id: 'safety-improvement', label: 'Safety Improvement Report', icon: Zap },
 ]
+
+// Tabs that only make sense for authorities that actually operate trucks.
+const CARRIER_ONLY_TABS = ['safety', 'fleet', 'safety-improvement', 'chameleon']
 
 // Format currency helper
 function fmtCurrency(n: number) {
@@ -439,20 +448,13 @@ function LockedTabOverlay({ tabLabel, isAuthenticated, isPremium, freeToUnlock, 
 // ============================================================
 // HERO HEADER
 // ============================================================
-const AUTHORITY_TYPE_PILL_LABELS: Record<string, string> = {
-  MOTOR_CARRIER: 'Motor Carrier',
-  BROKER: 'Broker Authority',
-  MOTOR_CARRIER_AND_BROKER: 'Carrier + Broker',
-  FREIGHT_FORWARDER: 'Freight Forwarder',
-}
-
 function HeroHeader({ unlocked, authorityType }: { unlocked: boolean; authorityType?: string }) {
   const { carrier: mockCarrier } = useCarrierDataContext()
   const healthColor = mockCarrier.carrierHealthScore >= 80 ? '#34d399' : mockCarrier.carrierHealthScore >= 60 ? '#fbbf24' : '#f87171'
   const healthRadius = 30
   const healthCirc = 2 * Math.PI * healthRadius
-  const normalizedAuthorityType = authorityType || 'MOTOR_CARRIER'
-  const isBrokerish = normalizedAuthorityType === 'BROKER' || normalizedAuthorityType === 'MOTOR_CARRIER_AND_BROKER'
+  const normalizedAuthorityType = normalizeAuthorityType(authorityType)
+  const isBrokerish = isBrokerAuthority(normalizedAuthorityType)
 
   return (
     <div className="max-w-7xl mx-auto px-0 sm:px-4 pt-0 sm:pt-8">
@@ -564,7 +566,7 @@ function HeroHeader({ unlocked, authorityType }: { unlocked: boolean; authorityT
           >
             {[
               { label: 'MC Number', value: mockCarrier.mcNumber || 'N/A', accent: false, sensitive: true },
-              { label: 'DOT Number', value: mockCarrier.dotNumber, accent: false, sensitive: true },
+              { label: 'DOT Number', value: mockCarrier.dotNumber || 'N/A', accent: false, sensitive: true },
               { label: 'Location', value: mockCarrier.location, accent: false, sensitive: false },
               { label: 'Authority Age', value: `${mockCarrier.yearsActive} yrs`, accent: false, sensitive: false },
               { label: 'Annual Miles', value: mockCarrier.mcs150Mileage >= 1000000 ? `${(mockCarrier.mcs150Mileage / 1000000).toFixed(1)}M mi` : mockCarrier.mcs150Mileage > 0 ? `${mockCarrier.mcs150Mileage.toLocaleString()} mi` : 'N/A', accent: true, sensitive: false },
@@ -607,10 +609,17 @@ function HeroHeader({ unlocked, authorityType }: { unlocked: boolean; authorityT
           >
             {/* Status chips */}
             {([
-              { label: 'Safety', value: mockCarrier.safetyRating === 'not-rated' ? 'Not Rated' : mockCarrier.safetyRating === 'satisfactory' ? 'Satisfactory' : mockCarrier.safetyRating === 'conditional' ? 'Conditional' : mockCarrier.safetyRating === 'unsatisfactory' ? 'Unsatisfactory' : 'Not Rated', color: mockCarrier.safetyRating === 'satisfactory' ? 'emerald' : mockCarrier.safetyRating === 'conditional' ? 'amber' : mockCarrier.safetyRating === 'unsatisfactory' ? 'red' : 'gray' },
+              // Safety, fleet and driver counts don't exist for a broker authority
+              ...(hasCarrierOperations(authorityType)
+                ? [{ label: 'Safety', value: mockCarrier.safetyRating === 'not-rated' ? 'Not Rated' : mockCarrier.safetyRating === 'satisfactory' ? 'Satisfactory' : mockCarrier.safetyRating === 'conditional' ? 'Conditional' : mockCarrier.safetyRating === 'unsatisfactory' ? 'Unsatisfactory' : 'Not Rated', color: mockCarrier.safetyRating === 'satisfactory' ? 'emerald' : mockCarrier.safetyRating === 'conditional' ? 'amber' : mockCarrier.safetyRating === 'unsatisfactory' ? 'red' : 'gray' }]
+                : []),
               { label: 'Insurance', value: mockCarrier.insuranceStatus === 'current' ? 'Current' : mockCarrier.insuranceStatus === 'pending' ? 'Pending' : mockCarrier.insuranceStatus === 'expired' ? 'Expired' : 'Unknown', color: mockCarrier.insuranceStatus === 'current' ? 'emerald' : mockCarrier.insuranceStatus === 'pending' ? 'amber' : 'red' },
-              { label: 'Fleet', value: `${mockCarrier.powerUnits} Units`, color: 'cyan' },
-              { label: 'Drivers', value: `${mockCarrier.totalDriversCDL} CDL`, color: 'cyan' },
+              ...(hasCarrierOperations(authorityType)
+                ? [
+                    { label: 'Fleet', value: `${mockCarrier.powerUnits} Units`, color: 'cyan' },
+                    { label: 'Drivers', value: `${mockCarrier.totalDriversCDL} CDL`, color: 'cyan' },
+                  ]
+                : []),
             ] as { label: string; value: string; color: string }[]).map((chip, i) => (
               <div key={chip.label} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.06]">
                 <div className={`w-1.5 h-1.5 rounded-full ${chip.color === 'emerald' ? 'bg-emerald-400' : chip.color === 'amber' ? 'bg-amber-400' : chip.color === 'red' ? 'bg-red-400' : chip.color === 'gray' ? 'bg-gray-400' : 'bg-cyan-400'}`} />
@@ -654,7 +663,10 @@ function HeroHeader({ unlocked, authorityType }: { unlocked: boolean; authorityT
 // ============================================================
 // TAB 1: OVERVIEW
 // ============================================================
-function OverviewTab() {
+function OverviewTab({ authorityType, bondAmount }: { authorityType?: string; bondAmount?: number | string }) {
+  const operatesTrucks = hasCarrierOperations(authorityType)
+  // DECIMAL columns come back from the API as strings
+  const bondValue = Number(bondAmount) || 0
   const ctx = useCarrierDataContext()
   const { carrier: mockCarrier, complianceFinancials: mockComplianceFinancials, cargoCapabilities: mockCargoCapabilities, percentiles: mockCarrierPercentiles, networkSignals: mockNetworkSignals, benchmarks: mockBenchmarks, healthCategories } = ctx
   const safetyLevel = getStatusLevel('safety', mockCarrier.safetyRating)
@@ -694,9 +706,17 @@ function OverviewTab() {
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-3">Score Summary</h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <ScoreCard icon={Activity} label="Safety" value={mockCarrier.safetyRating === 'not-rated' ? 'Not Rated' : mockCarrier.safetyRating || 'Not Rated'} level={safetyLevel} />
+          {operatesTrucks ? (
+            <ScoreCard icon={Activity} label="Safety" value={mockCarrier.safetyRating === 'not-rated' ? 'Not Rated' : mockCarrier.safetyRating || 'Not Rated'} level={safetyLevel} />
+          ) : (
+            <ScoreCard icon={Briefcase} label="Authority Type" value={AUTHORITY_TYPE_PILL_LABELS[normalizeAuthorityType(authorityType)]} level="neutral" />
+          )}
           <ScoreCard icon={Umbrella} label="Insurance" value={mockCarrier.insuranceStatus === 'current' ? 'Current' : mockCarrier.insuranceStatus === 'pending' ? 'Pending' : mockCarrier.insuranceStatus === 'expired' ? 'Expired' : 'Unknown'} level={insuranceLevel} />
-          <ScoreCard icon={Truck} label="Fleet Size" value={`${mockCarrier.powerUnits} Units`} level={mockCarrier.powerUnits > 0 ? 'good' : 'neutral'} />
+          {operatesTrucks ? (
+            <ScoreCard icon={Truck} label="Fleet Size" value={`${mockCarrier.powerUnits} Units`} level={mockCarrier.powerUnits > 0 ? 'good' : 'neutral'} />
+          ) : (
+            <ScoreCard icon={DollarSign} label="Surety Bond" value={bondValue ? `$${bondValue.toLocaleString()}` : 'Not Listed'} level={bondValue ? 'good' : 'neutral'} />
+          )}
           <ScoreCard icon={CheckCircle} label="Authority" value={mockCarrier.operatingStatus === 'authorized' ? 'Active' : mockCarrier.operatingStatus || 'Unknown'} level={authorityLevel} />
         </div>
       </div>
@@ -3507,15 +3527,52 @@ export default function MCDetailPageV2() {
   // Check if current user is the listing owner (seller viewing their own listing)
   const isListingOwner = listing?.sellerId === user?.id || listing?.isOwner
 
-  // Preview mode: logged in but not identity verified (admins, sellers, and listing owners bypass)
-  const isPreviewMode = isAuthenticated && !isIdentityVerified && user?.role !== 'admin' && user?.role !== 'seller' && !isListingOwner
+  // Subscription plan + status. Loaded before the preview gate is evaluated so a
+  // paying buyer never flashes the "buy a subscription" banner on first paint.
+  const [buyerPlan, setBuyerPlan] = useState<string | null>(null)
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false)
+  const [subscriptionLoaded, setSubscriptionLoaded] = useState(false)
+  useEffect(() => {
+    if (user?.role !== 'buyer') { setSubscriptionLoaded(true); return }
+    let active = true
+    api.getSubscription().then((res) => {
+      if (!active) return
+      const sub = res.data?.subscription
+      setBuyerPlan(sub?.plan || null)
+      setHasActiveSubscription(
+        sub?.status === 'ACTIVE' && (!sub?.endDate || new Date(sub.endDate) >= new Date())
+      )
+    }).catch(() => {
+      if (active) { setBuyerPlan(null); setHasActiveSubscription(false) }
+    }).finally(() => { if (active) setSubscriptionLoaded(true) })
+    return () => { active = false }
+  }, [user?.role])
+
+  // Preview mode: logged in, not identity verified, and not a paying subscriber.
+  // An active subscription stands in for identity verification here — a subscriber
+  // holding credits must be able to unlock even if their verification webhook
+  // never landed. Admins, sellers, and listing owners bypass entirely.
+  const isPreviewMode = isAuthenticated && !isIdentityVerified && !hasActiveSubscription
+    && subscriptionLoaded && user?.role !== 'admin' && user?.role !== 'seller' && !isListingOwner
 
   // Mark non-overview tabs as locked until listing is unlocked (admins and listing owners bypass)
   const canAccessAllTabs = isUnlocked || user?.role === 'admin' || isListingOwner
-  const visibleTabs = tabs.map(t => ({
-    ...t,
-    locked: !canAccessAllTabs && t.id !== 'overview',
-  }))
+
+  // Brokers and freight forwarders don't operate trucks, so BASIC scores,
+  // inspections, crashes, power units and chameleon analysis don't apply.
+  const carrierOps = hasCarrierOperations((listing as any)?.authorityType)
+  const visibleTabs = tabs
+    .filter(t => carrierOps || !CARRIER_ONLY_TABS.includes(t.id))
+    .map(t => ({
+      ...t,
+      locked: !canAccessAllTabs && t.id !== 'overview',
+    }))
+
+  // A deep link (or a stale selection) can point at a tab we hide for brokers
+  const visibleTabIds = visibleTabs.map(t => t.id).join(',')
+  useEffect(() => {
+    if (!visibleTabIds.split(',').includes(activeTab)) setActiveTab('overview')
+  }, [visibleTabIds, activeTab])
 
   // Use real DOT number for API calls (backend provides _realDotNumber when dotNumber is masked)
   const carrierDotNumber = listing?._realDotNumber || listing?.dotNumber
@@ -3601,10 +3658,14 @@ export default function MCDetailPageV2() {
     // Real data mode — pass loading/error state through so components can show skeletons
     if (!carrierReport || !listing) {
       return {
-        carrier: fallbackCarrier,
-        authority: fallbackAuthority,
+        // Never fall back to mock data here: a broker/freight-forwarder listing has
+        // no DOT number, so its MorPro report is permanently null and the mock would
+        // be shown forever. Derive from the listing instead — these mappers already
+        // degrade to listing fields / honest blanks when the report is empty.
+        carrier: mapToV2CarrierData({}, listing || undefined),
+        authority: mapToV2AuthorityData({}, fmcsaAuthority),
         authorityHistory: [],
-        authorityPending: fallbackAuthorityPending,
+        authorityPending: mapToV2AuthorityPending({}),
         // No MorPro report — show ONLY real data. Never fabricate safety/inspection
         // numbers: use honest-empty mappers (zeros / "Not Scored") so a carrier with
         // no FMCSA history reads as N/A, not as a fake risky record. SMS data is
@@ -3625,17 +3686,17 @@ export default function MCDetailPageV2() {
         insuranceGaps: [],
         trucks: [],
         trailers: [],
-        sharedEquipment: fallbackSharedEquipment,
-        cargoCapabilities: fallbackCargoCapabilities,
+        sharedEquipment: mapToV2SharedEquipment({}),
+        cargoCapabilities: mapToV2CargoCapabilities({}, fmcsaCargoTypes),
         documents: [],
         verificationChecks: [],
         availableDocuments: [],
-        complianceFinancials: fallbackComplianceFinancials,
+        complianceFinancials: mapToV2ComplianceFinancials(listing || undefined, null),
         relatedCarriers: [],
         percentiles: [],
         monitoringAlerts: [],
         riskScoreTrend: [],
-        contactHistory: fallbackContactHistory,
+        contactHistory: mapToV2ContactHistory({}),
         vinInspections: [],
         networkSignals: [],
         benchmarks: [],
@@ -3711,17 +3772,6 @@ export default function MCDetailPageV2() {
 
   // Credits
   const userCredits = user?.totalCredits ? (user.totalCredits - (user.usedCredits || 0)) : 0
-
-  // Subscription plan
-  const [buyerPlan, setBuyerPlan] = useState<string | null>(null)
-  useEffect(() => {
-    if (user?.role !== 'buyer') return
-    let active = true
-    api.getSubscription().then((res) => {
-      if (active) setBuyerPlan(res.data?.subscription?.plan || null)
-    }).catch(() => { if (active) setBuyerPlan(null) })
-    return () => { active = false }
-  }, [user?.role])
 
   // Premium request state
   const isPremiumListing = listing?.isPremium || listing?.isVip || false
@@ -3983,7 +4033,12 @@ export default function MCDetailPageV2() {
   const showSkeleton = !USE_MOCK && carrierLoading && !carrierReport
 
   const tabContent: Record<string, JSX.Element> = {
-    overview: showSkeleton ? <CarrierLoadingSkeleton /> : <OverviewTab />,
+    overview: showSkeleton ? <CarrierLoadingSkeleton /> : (
+      <OverviewTab
+        authorityType={(listing as any)?.authorityType}
+        bondAmount={(listing as any)?.bondAmount}
+      />
+    ),
     authority: showSkeleton ? <CarrierLoadingSkeleton /> : <AuthorityTab />,
     safety: showSkeleton ? <CarrierLoadingSkeleton /> : <SafetyTab />,
     insurance: showSkeleton ? <CarrierLoadingSkeleton /> : <InsuranceTab />,

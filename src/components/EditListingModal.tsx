@@ -5,6 +5,7 @@ import Button from './ui/Button'
 import Input from './ui/Input'
 import Textarea from './ui/Textarea'
 import Select from './ui/Select'
+import { AUTHORITY_TYPE_OPTIONS } from '../constants/authority'
 import api from '../services/api'
 
 const US_STATES = [
@@ -359,12 +360,7 @@ const EditListingModal = ({ isOpen, onClose, listingId, onSuccess }: EditListing
                     <div>
                       <label className="block text-xs font-medium text-gray-600 mb-2">Authority Type</label>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                        {[
-                          { value: 'MOTOR_CARRIER', label: 'Motor Carrier' },
-                          { value: 'BROKER', label: 'Broker' },
-                          { value: 'MOTOR_CARRIER_AND_BROKER', label: 'Carrier + Broker' },
-                          { value: 'FREIGHT_FORWARDER', label: 'Freight Forwarder' },
-                        ].map((option) => {
+                        {AUTHORITY_TYPE_OPTIONS.map((option) => {
                           const selected = formData.authorityType === option.value
                           return (
                             <button

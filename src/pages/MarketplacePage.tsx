@@ -216,6 +216,7 @@ const MarketplacePage = () => {
             highwaySetup: listing.highwaySetup || false,
             sellingWithEmail: listing.sellingWithEmail || false,
             sellingWithPhone: listing.sellingWithPhone || false,
+            authorityType: listing.authorityType || 'MOTOR_CARRIER',
             soldAt: listing.soldAt,
           }))
           setSoldListings(soldData)

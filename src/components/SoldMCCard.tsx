@@ -7,8 +7,10 @@ import {
   Truck,
   AlertTriangle,
   BadgeCheck,
+  Briefcase,
 } from 'lucide-react'
 import Card from './ui/Card'
+import { AUTHORITY_TYPE_BADGE_LABELS, normalizeAuthorityType } from '../constants/authority'
 import clsx from 'clsx'
 
 interface SoldMCCardProps {
@@ -26,6 +28,7 @@ interface SoldMCCardProps {
     highwaySetup?: boolean
     sellingWithEmail?: boolean
     sellingWithPhone?: boolean
+    authorityType?: string
     soldAt?: string
   }
 }
@@ -99,6 +102,14 @@ const SoldMCCard = ({ listing }: SoldMCCardProps) => {
 
         {/* Platform Badges */}
         <div className="flex flex-wrap gap-1.5 mb-3">
+          {listing.authorityType && listing.authorityType !== 'MOTOR_CARRIER' && (
+            <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-indigo-50 border border-indigo-200">
+              <Briefcase className="w-3 h-3 text-indigo-600" />
+              <span className="text-[11px] font-bold text-indigo-700">
+                {AUTHORITY_TYPE_BADGE_LABELS[normalizeAuthorityType(listing.authorityType)]}
+              </span>
+            </div>
+          )}
           {listing.amazonStatus === 'active' && (
             <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-emerald-50 border border-emerald-200">
               <span className="text-xs">📦</span>
