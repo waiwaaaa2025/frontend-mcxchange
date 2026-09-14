@@ -96,6 +96,10 @@ class ApiService {
       const data = await response.json();
 
       if (!response.ok) {
+        // Dispatch identity verification required event
+        if (data.code === 'IDENTITY_VERIFICATION_REQUIRED') {
+          window.dispatchEvent(new CustomEvent('identity-verification-required'));
+        }
         const err = new Error(data.error || data.message || 'API request failed') as Error & { code?: string };
         err.code = data.code;
         throw err;
@@ -185,6 +189,28 @@ class ApiService {
   async getCurrentUser() {
     const response = await this.request<{ success: boolean; data: any }>('/auth/me');
     return { user: response.data };
+  }
+
+  // Identity Verification
+  async createVerificationSession(returnPath?: string) {
+    return this.request<{
+      success: boolean;
+      data: { sessionId: string; url: string };
+    }>('/identity/create-session', {
+      method: 'POST',
+      body: JSON.stringify(returnPath ? { returnPath } : {}),
+    });
+  }
+
+  async getIdentityStatus() {
+    return this.request<{
+      success: boolean;
+      data: {
+        identityVerified: boolean;
+        identityVerificationStatus: string | null;
+        identityVerifiedAt: string | null;
+      };
+    }>('/identity/status');
   }
 
   // User Profile

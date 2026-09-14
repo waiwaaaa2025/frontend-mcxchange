@@ -8,6 +8,7 @@ import ComplianceLayout from './layouts/ComplianceLayout'
 import AIChatWidget from './components/AIChatWidget'
 import ProtectedRoute from './components/ProtectedRoute'
 import AuthRequiredRoute from './components/AuthRequiredRoute'
+import VerificationRequiredRoute from './components/VerificationRequiredRoute'
 
 // Eagerly loaded - landing page (first paint)
 import HomePage from './pages/HomePage'
@@ -133,6 +134,7 @@ const ChameleonCheckPage = lazy(() => import('./pages/ChameleonCheckPage'))
 
 // Shared pages
 const ProfilePage = lazy(() => import('./pages/ProfilePage'))
+const SettingsPage = lazy(() => import('./pages/SettingsPage'))
 const TransactionRoomPage = lazy(() => import('./pages/TransactionRoomPage'))
 const DisputePage = lazy(() => import('./pages/DisputePage'))
 
@@ -277,7 +279,7 @@ function App() {
               <Route path="credit-report" element={<CreditReportPurchasePage />} />
               <Route path="vip-marketplace" element={<VipMarketplacePage />} />
               <Route path="unlocked" element={<BuyerUnlockedMCsPage />} />
-              <Route path="deposit/:offerId" element={<BuyerDepositPage />} />
+              <Route path="deposit/:offerId" element={<VerificationRequiredRoute><BuyerDepositPage /></VerificationRequiredRoute>} />
               <Route path="transactions" element={<BuyerTransactionsPage />} />
               <Route path="carrier-pulse" element={<CarrierPulsePage />} />
               <Route path="carrier-pulse/:dotNumber" element={<CarrierPulsePage />} />
@@ -370,7 +372,7 @@ function App() {
               element={
                 <ProtectedRoute>
                   <DashboardLayout>
-                    <TransactionRoomPage />
+                    <VerificationRequiredRoute roles={['buyer']}><TransactionRoomPage /></VerificationRequiredRoute>
                   </DashboardLayout>
                 </ProtectedRoute>
               }
@@ -383,6 +385,16 @@ function App() {
                 <ProtectedRoute>
                   <DashboardLayout>
                     <ProfilePage />
+                  </DashboardLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="settings"
+              element={
+                <ProtectedRoute>
+                  <DashboardLayout>
+                    <SettingsPage />
                   </DashboardLayout>
                 </ProtectedRoute>
               }

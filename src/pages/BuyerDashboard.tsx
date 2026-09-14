@@ -56,6 +56,11 @@ const GUIDE_STEPS = [
     desc: 'Subscribe to a plan to get credits each month. Browse the marketplace freely — when you find a business you\'re interested in, use 1 credit to unlock the full details and documents. Then make an offer.',
   },
   {
+    icon: '🪪',
+    title: 'Verify When You Buy',
+    desc: 'You only verify your identity when you buy a business. Once a seller accepts your offer, you\'ll verify with a government-issued ID through Stripe Identity (about 2 minutes) before paying the deposit. Browsing, unlocking listings, making offers, messaging, and our tools (Carrier Pulse, Chameleon Check, etc.) never require verification.',
+  },
+  {
     icon: '📊',
     title: 'AI-Powered Tools',
     desc: 'Our AI analyzes safety records, compliance history, and authority data to flag potential risks. Credit reports are available with select subscription plans or can be purchased individually. You also get access to a 24/7 AI assistant and dedicated support on higher-tier plans. Please note: all tools are provided for informational purposes only — buyers are responsible for conducting their own due diligence, and Domilea is not liable for any errors or omissions in the data provided.',
