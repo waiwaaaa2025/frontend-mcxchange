@@ -69,8 +69,11 @@ export default function BrokerLeadExportCard() {
   const [contacts, setContacts] = useState<
     Record<string, { phone: string | null; email: string | null }>
   >({})
-  const [page, setPage] = useState(1)
+  // LINQ search pages by cursor: one entry per page visited, last = current page.
+  const [cursors, setCursors] = useState<(string | null)[]>([null])
+  const page = cursors.length
   const [hasMore, setHasMore] = useState(false)
+  const [nextCursor, setNextCursor] = useState<string | null>(null)
   const [searched, setSearched] = useState(false)
   const [searching, setSearching] = useState(false)
   const [limit, setLimit] = useState('1000')
@@ -93,14 +96,16 @@ export default function BrokerLeadExportCard() {
   const setFilter = (key: keyof Filters, value: string) =>
     setFilters((f) => ({ ...f, [key]: value }))
 
-  const runSearch = async (nextPage = 1) => {
+  const runSearch = async (stack: (string | null)[] = [null]) => {
     setSearching(true)
     setMessage(null)
     try {
-      const res = await api.leadGeneratorSearch({ ...filters, page: nextPage, limit: 25 })
+      const cursor = stack[stack.length - 1]
+      const res = await api.leadGeneratorSearch({ ...filters, cursor: cursor ?? undefined, limit: 25 })
       setRows(res.data.carriers)
       setHasMore(res.data.hasMore)
-      setPage(res.data.page)
+      setNextCursor(res.data.nextCursor)
+      setCursors(stack)
       setSearched(true)
       if (res.data.carriers.length === 0) {
         setMessage('No carriers matched those filters. Try widening them.')
@@ -290,7 +295,7 @@ export default function BrokerLeadExportCard() {
                 >
                   Clear
                 </Button>
-                <Button onClick={() => runSearch(1)} disabled={searching}>
+                <Button onClick={() => runSearch()} disabled={searching}>
                   {searching ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   ) : (
@@ -379,14 +384,14 @@ export default function BrokerLeadExportCard() {
                   <Button
                     variant="outline"
                     disabled={page <= 1 || searching}
-                    onClick={() => runSearch(page - 1)}
+                    onClick={() => runSearch(cursors.slice(0, -1))}
                   >
                     Previous
                   </Button>
                   <Button
                     variant="outline"
-                    disabled={!hasMore || searching}
-                    onClick={() => runSearch(page + 1)}
+                    disabled={!hasMore || !nextCursor || searching}
+                    onClick={() => runSearch([...cursors, nextCursor])}
                   >
                     Next
                   </Button>

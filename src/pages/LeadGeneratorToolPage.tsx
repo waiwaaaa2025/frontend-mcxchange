@@ -193,8 +193,11 @@ export default function LeadGeneratorToolPage() {
   const [tier, setTier] = useState<Tier | null>(null)
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
   const [rows, setRows] = useState<CarrierRow[]>([])
-  const [page, setPage] = useState(1)
+  // LINQ search pages by cursor: one entry per page visited, last = current page.
+  const [cursors, setCursors] = useState<(string | null)[]>([null])
+  const page = cursors.length
   const [hasMore, setHasMore] = useState(false)
+  const [nextCursor, setNextCursor] = useState<string | null>(null)
   const [searching, setSearching] = useState(false)
   const [saves, setSaves] = useState<SavedRow[]>([])
   const [selected, setSelected] = useState<Set<string>>(new Set())
@@ -315,13 +318,15 @@ export default function LeadGeneratorToolPage() {
     void fetchContactsBatch(saves.map((s) => s.dotNumber))
   }, [isBroker, saves, fetchContactsBatch])
 
-  const runSearch = useCallback(async (nextPage = 1) => {
+  const runSearch = useCallback(async (stack: (string | null)[] = [null]) => {
     setSearching(true)
     try {
-      const res = await api.leadGeneratorSearch({ ...filters, page: nextPage, limit: 25 })
+      const cursor = stack[stack.length - 1]
+      const res = await api.leadGeneratorSearch({ ...filters, cursor: cursor ?? undefined, limit: 25 })
       setRows(res.data.carriers)
       setHasMore(res.data.hasMore)
-      setPage(res.data.page)
+      setNextCursor(res.data.nextCursor)
+      setCursors(stack)
       // Broker/Admin see contact info filled in, so pull it for this page as
       // soon as the rows land. Deliberately not awaited: the table paints
       // immediately and phone/email fill in a moment later.
@@ -366,7 +371,7 @@ export default function LeadGeneratorToolPage() {
         await api.leadGeneratorExportCsv({ ...filters, limit: 1000 })
       } else {
         // Buyer: just the current page (25 carriers).
-        await api.leadGeneratorExportCsv({ ...filters, page, limit: 25 })
+        await api.leadGeneratorExportCsv({ ...filters, cursor: cursors[cursors.length - 1] ?? undefined, limit: 25 })
       }
     } catch (err) {
       console.error('Export failed', err)
@@ -620,7 +625,7 @@ export default function LeadGeneratorToolPage() {
                   ? 'Download all (CSV + phone/email)'
                   : 'Download page (25)'}
             </Button>
-            <Button variant="primary" onClick={() => runSearch(1)} disabled={searching}>
+            <Button variant="primary" onClick={() => runSearch()} disabled={searching}>
               <Search className="mr-2 h-4 w-4" />
               {searching ? 'Searching…' : 'Search'}
             </Button>
@@ -732,9 +737,9 @@ export default function LeadGeneratorToolPage() {
         </table>
         </div>
 
-        {hasMore && (
+        {hasMore && nextCursor && (
           <div className="border-t border-slate-100 p-3 text-center">
-            <Button variant="secondary" onClick={() => runSearch(page + 1)} disabled={searching}>
+            <Button variant="secondary" onClick={() => runSearch([...cursors, nextCursor])} disabled={searching}>
               Load page {page + 1}
             </Button>
           </div>

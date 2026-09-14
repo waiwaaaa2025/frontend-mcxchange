@@ -37,10 +37,13 @@ const EMPTY_FILTERS: Filters = {
 export default function AdminLeadsPage() {
   const [tab, setTab] = useState<'search' | 'pipeline'>('search')
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
-  const [page, setPage] = useState(1)
+  // LINQ search pages by cursor: one entry per page visited, last = current page.
+  const [cursors, setCursors] = useState<(string | null)[]>([null])
+  const page = cursors.length
   const [limit, setLimit] = useState(25)
   const [results, setResults] = useState<any[]>([])
   const [hasMore, setHasMore] = useState(false)
+  const [nextCursor, setNextCursor] = useState<string | null>(null)
   const [insuranceHorizon, setInsuranceHorizon] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -57,7 +60,10 @@ export default function AdminLeadsPage() {
   const [activityLoading, setActivityLoading] = useState(false)
   const [logPopover, setLogPopover] = useState<{ leadId: string; kind: 'call' | 'email' | 'voicemail' } | null>(null)
 
-  const searchParams = useMemo(() => ({ ...filters, page, limit }), [filters, page, limit])
+  const searchParams = useMemo(
+    () => ({ ...filters, cursor: cursors[cursors.length - 1] ?? undefined, limit }),
+    [filters, cursors, limit]
+  )
 
   async function runSearch() {
     setLoading(true); setError(null)
@@ -65,6 +71,7 @@ export default function AdminLeadsPage() {
       const res = await api.leadsSearchCarriers(searchParams)
       setResults(res.data.carriers)
       setHasMore(!!res.data.hasMore)
+      setNextCursor(res.data.nextCursor ?? null)
       setInsuranceHorizon((res.data as any).insuranceHorizon || null)
     } catch (e: any) {
       setError(e.message || 'Search failed')
@@ -128,7 +135,7 @@ export default function AdminLeadsPage() {
     })
   }, [leads, statFilter])
 
-  useEffect(() => { if (tab === 'search') runSearch() }, [tab, page, limit])
+  useEffect(() => { if (tab === 'search') runSearch() }, [tab, cursors, limit])
   useEffect(() => {
     if (tab === 'pipeline') {
       loadPipeline()
@@ -227,10 +234,10 @@ export default function AdminLeadsPage() {
               <Field label="Carrier added after"><input type="date" value={filters.addedAfter} onChange={e=>setFilters(f=>({...f,addedAfter:e.target.value}))} className="input"/></Field>
 
               <div className="flex gap-2 pt-2">
-                <button onClick={()=>{ setPage(1); runSearch() }} className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700 flex items-center justify-center gap-1">
+                <button onClick={()=>{ if (cursors.length === 1) runSearch(); else setCursors([null]) }} className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700 flex items-center justify-center gap-1">
                   <Search className="w-4 h-4" /> Search
                 </button>
-                <button onClick={()=>{ setFilters(EMPTY_FILTERS); setPage(1) }} className="px-3 py-2 border rounded-lg text-sm text-gray-700">Clear</button>
+                <button onClick={()=>{ setFilters(EMPTY_FILTERS); setCursors([null]) }} className="px-3 py-2 border rounded-lg text-sm text-gray-700">Clear</button>
               </div>
             </aside>
 
@@ -243,8 +250,8 @@ export default function AdminLeadsPage() {
                   <div className="flex items-center gap-3">
                     <label className="text-sm text-gray-600 flex items-center gap-1">
                       Rows:
-                      <select value={limit} onChange={e=>{ setLimit(Number(e.target.value)); setPage(1) }} className="border rounded px-2 py-1 text-sm">
-                        {[10,25,50,100,250,500].map(n => <option key={n} value={n}>{n}</option>)}
+                      <select value={limit} onChange={e=>{ setLimit(Number(e.target.value)); setCursors([null]) }} className="border rounded px-2 py-1 text-sm">
+                        {[10,25,50].map(n => <option key={n} value={n}>{n}</option>)}
                       </select>
                     </label>
                     <button onClick={downloadCsv} className="flex items-center gap-1 px-3 py-1.5 border rounded-lg text-sm text-gray-700 hover:bg-gray-50">
@@ -312,9 +319,9 @@ export default function AdminLeadsPage() {
 
                 {(page > 1 || hasMore) && (
                   <div className="flex items-center justify-between p-3 border-t text-sm">
-                    <button disabled={page<=1} onClick={()=>setPage(p=>p-1)} className="px-3 py-1 border rounded disabled:opacity-40">Prev</button>
+                    <button disabled={page<=1} onClick={()=>setCursors(c=>c.slice(0,-1))} className="px-3 py-1 border rounded disabled:opacity-40">Prev</button>
                     <div>Page {page}</div>
-                    <button disabled={!hasMore} onClick={()=>setPage(p=>p+1)} className="px-3 py-1 border rounded disabled:opacity-40">Next</button>
+                    <button disabled={!hasMore || !nextCursor} onClick={()=>setCursors(c=>[...c, nextCursor])} className="px-3 py-1 border rounded disabled:opacity-40">Next</button>
                   </div>
                 )}
               </div>

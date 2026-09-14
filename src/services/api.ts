@@ -3697,9 +3697,9 @@ class ApiService {
       success: boolean;
       data: {
         carriers: Array<Record<string, any>>;
-        page: number;
         limit: number;
         hasMore: boolean;
+        nextCursor: string | null;
       };
     }>(`/admin/leads/carriers/search?${qs}`);
   }
@@ -3805,9 +3805,9 @@ class ApiService {
           authorityStatus: string | null;
           safetyRating: string | null;
         }>;
-        page: number;
         limit: number;
         hasMore: boolean;
+        nextCursor: string | null;
         tier: 'BUYER' | 'BROKER' | 'ADMIN';
       };
     }>(`/lead-generator/search?${qs.toString()}`);
