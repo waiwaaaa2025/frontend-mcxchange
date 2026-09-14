@@ -234,87 +234,6 @@ function CarrierLoadingSkeleton() {
 }
 
 // ============================================================
-// VERIFICATION PREVIEW OVERLAY — shown over tab content when not verified
-// ============================================================
-function VerificationPreviewOverlay() {
-  const [vLoading, setVLoading] = useState(false)
-  const [vError, setVError] = useState<string | null>(null)
-
-  const handleVerify = async () => {
-    setVLoading(true)
-    setVError(null)
-    try {
-      const response = await api.createVerificationSession()
-      if (response.success && response.data?.url) {
-        window.location.href = response.data.url
-      } else {
-        setVError('Failed to start verification. Please try again.')
-      }
-    } catch (err: any) {
-      setVError(err.message || 'Failed to start verification')
-    } finally {
-      setVLoading(false)
-    }
-  }
-
-  return (
-    <div className="relative">
-      {/* Blurred placeholder content behind */}
-      <div className="filter blur-sm opacity-40 pointer-events-none select-none">
-        <CarrierLoadingSkeleton />
-      </div>
-
-      {/* Overlay card */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-lg mx-4"
-        >
-          <Card padding="lg">
-            <div className="text-center">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center mx-auto mb-4">
-                <Shield className="w-7 h-7 text-amber-600" />
-              </div>
-              <h2 className="text-xl font-bold text-gray-900 mb-2">Verify Your Identity</h2>
-              <p className="text-sm text-gray-500 mb-6 max-w-sm mx-auto">
-                Complete a quick identity verification to access detailed carrier data, safety records, insurance info, and more.
-              </p>
-
-              <div className="grid grid-cols-3 gap-3 mb-6">
-                <div className="p-3 rounded-xl bg-gray-50">
-                  <Shield className="w-6 h-6 text-indigo-500 mx-auto mb-1.5" />
-                  <div className="text-xs font-medium text-gray-900">Government ID</div>
-                </div>
-                <div className="p-3 rounded-xl bg-gray-50">
-                  <CheckCircle className="w-6 h-6 text-emerald-500 mx-auto mb-1.5" />
-                  <div className="text-xs font-medium text-gray-900">~2 Minutes</div>
-                </div>
-                <div className="p-3 rounded-xl bg-gray-50">
-                  <Lock className="w-6 h-6 text-purple-500 mx-auto mb-1.5" />
-                  <div className="text-xs font-medium text-gray-900">Secure</div>
-                </div>
-              </div>
-
-              <Button fullWidth size="lg" onClick={handleVerify} loading={vLoading}>
-                <Shield className="w-5 h-5 mr-2" />
-                Verify My Identity
-              </Button>
-
-              {vError && <p className="text-sm text-red-500 mt-3">{vError}</p>}
-
-              <p className="text-xs text-gray-400 mt-4">
-                Powered by Stripe Identity. Your data is never stored on our servers.
-              </p>
-            </div>
-          </Card>
-        </motion.div>
-      </div>
-    </div>
-  )
-}
-
-// ============================================================
 // LOCKED TAB OVERLAY — shown when user clicks a tab that requires unlock
 // ============================================================
 function LockedTabOverlay({ tabLabel, isAuthenticated, isPremium, freeToUnlock, userCredits, unlocking, userRole, onUnlock, onPremiumRequest, onNavigate }: {
@@ -3521,7 +3440,7 @@ export default function MCDetailPageV2() {
   const [activeTab, setActiveTab] = useState('overview')
   const navigate = useNavigate()
   const { id } = useParams()
-  const { isAuthenticated, user, isIdentityVerified, isLoading: authLoading, refreshUser } = useAuth()
+  const { isAuthenticated, user, isLoading: authLoading, refreshUser } = useAuth()
   const { listing, loading, error, isUnlocked, unlocking, unlock } = useListing(id)
 
   // Check if current user is the listing owner (seller viewing their own listing)
@@ -3547,13 +3466,6 @@ export default function MCDetailPageV2() {
     }).finally(() => { if (active) setSubscriptionLoaded(true) })
     return () => { active = false }
   }, [user?.role])
-
-  // Preview mode: logged in, not identity verified, and not a paying subscriber.
-  // An active subscription stands in for identity verification here — a subscriber
-  // holding credits must be able to unlock even if their verification webhook
-  // never landed. Admins, sellers, and listing owners bypass entirely.
-  const isPreviewMode = isAuthenticated && !isIdentityVerified && !hasActiveSubscription
-    && subscriptionLoaded && user?.role !== 'admin' && user?.role !== 'seller' && !isListingOwner
 
   // Mark non-overview tabs as locked until listing is unlocked (admins and listing owners bypass)
   const canAccessAllTabs = isUnlocked || user?.role === 'admin' || isListingOwner
@@ -4066,24 +3978,6 @@ export default function MCDetailPageV2() {
         </button>
       </div>
 
-      {/* Preview Mode Banner */}
-      {isPreviewMode && (
-        <div className="max-w-7xl mx-auto px-4 mt-3">
-          <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-amber-50 border border-amber-200">
-            <Eye className="w-5 h-5 text-amber-600 flex-shrink-0" />
-            <div className="flex-1">
-              <span className="text-sm font-semibold text-amber-800">Preview Mode</span>
-              <span className="text-sm text-amber-600 ml-1">— Buy a subscription to see full listing details.</span>
-            </div>
-            <Link to="/buyer/subscription">
-              <Button size="sm" variant="secondary">
-                <CreditCard className="w-3.5 h-3.5 mr-1" />Buy Now
-              </Button>
-            </Link>
-          </div>
-        </div>
-      )}
-
       {/* Hero Header */}
       <HeroHeader unlocked={!!canAccessAllTabs} authorityType={(listing as any)?.authorityType} />
 
@@ -4187,26 +4081,7 @@ export default function MCDetailPageV2() {
 
               {/* Credits & Actions Card */}
               <Card padding="md">
-                {isPreviewMode ? (
-                  <>
-                    <div className="flex items-center gap-2 mb-4">
-                      <CreditCard className="w-5 h-5 text-amber-500" />
-                      <span className="font-semibold text-gray-900">Subscription Required</span>
-                    </div>
-                    <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-center mb-3">
-                      <CreditCard className="w-8 h-8 text-amber-500 mx-auto mb-2" />
-                      <div className="font-bold text-gray-900 mb-1">Preview Mode</div>
-                      <div className="text-xs text-gray-500 mb-1">Buy a subscription to see full listing details, make offers, and purchase.</div>
-                    </div>
-                    <Link to="/buyer/subscription">
-                      <Button fullWidth>
-                        <CreditCard className="w-4 h-4 mr-2" />
-                        Buy Now
-                      </Button>
-                    </Link>
-                    <p className="text-xs text-gray-400 text-center mt-2">Choose a plan that fits your needs</p>
-                  </>
-                ) : isPremiumListing && !isUnlocked ? (
+                {isPremiumListing && !isUnlocked ? (
                   <>
                     <div className="flex items-center gap-2 mb-4">
                       <Crown className="w-5 h-5 text-yellow-500" />
@@ -4376,13 +4251,7 @@ export default function MCDetailPageV2() {
 
       {/* Mobile Sticky Bottom Bar */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 z-40 shadow-lg">
-        {isPreviewMode ? (
-          <Link to="/buyer/subscription" className="w-full">
-            <Button fullWidth size="sm">
-              <CreditCard className="w-4 h-4 mr-1" />Buy Subscription to Unlock
-            </Button>
-          </Link>
-        ) : isPremiumListing && !isUnlocked ? (
+        {isPremiumListing && !isUnlocked ? (
           <div className="flex gap-3">
             {isAuthenticated && user?.role === 'buyer' && (
               <Link to="/buyer/subscription" className="flex-1">

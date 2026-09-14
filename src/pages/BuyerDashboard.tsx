@@ -30,7 +30,6 @@ import {
   ShieldCheck
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
-import IdentityVerificationBanner from '../components/IdentityVerificationBanner'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
@@ -50,11 +49,6 @@ const GUIDE_STEPS = [
     icon: '⚠️',
     title: 'Important Things to Know',
     desc: 'You are purchasing a full trucking business entity (LLC/Inc) — not just an MC or DOT number. FMCSA requires the transfer of the entire business. Both buyer and seller must sign a Bill of Sale. Always do your due diligence using our tools before making an offer.',
-  },
-  {
-    icon: '🪪',
-    title: 'Verify Your Identity',
-    desc: 'Identity verification is required only for buyers looking to purchase a trucking business. If you are only looking to use our tools (Carrier Pulse, Chameleon Check, etc.), you do not need to verify. Verification uses a government-issued ID through Stripe Identity and takes less than 2 minutes.',
   },
   {
     icon: '🪙',
@@ -236,7 +230,7 @@ interface BuyerOffer {
 }
 
 const BuyerDashboard = () => {
-  const { user, isIdentityVerified } = useAuth()
+  const { user } = useAuth()
   const [searchParams] = useSearchParams()
   const [savedListings] = useState<Set<string>>(new Set())
   const initialTab = (() => {

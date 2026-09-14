@@ -8,7 +8,6 @@ import ComplianceLayout from './layouts/ComplianceLayout'
 import AIChatWidget from './components/AIChatWidget'
 import ProtectedRoute from './components/ProtectedRoute'
 import AuthRequiredRoute from './components/AuthRequiredRoute'
-import VerificationRequiredRoute from './components/VerificationRequiredRoute'
 
 // Eagerly loaded - landing page (first paint)
 import HomePage from './pages/HomePage'
@@ -134,7 +133,6 @@ const ChameleonCheckPage = lazy(() => import('./pages/ChameleonCheckPage'))
 
 // Shared pages
 const ProfilePage = lazy(() => import('./pages/ProfilePage'))
-const SettingsPage = lazy(() => import('./pages/SettingsPage'))
 const TransactionRoomPage = lazy(() => import('./pages/TransactionRoomPage'))
 const DisputePage = lazy(() => import('./pages/DisputePage'))
 
@@ -272,15 +270,15 @@ function App() {
             >
               <Route path="dashboard" element={<BuyerDashboard />} />
               <Route path="subscription" element={<BuyerSubscriptionPage />} />
-              <Route path="offers" element={<VerificationRequiredRoute><BuyerOffersPage /></VerificationRequiredRoute>} />
-              <Route path="purchases" element={<VerificationRequiredRoute><BuyerPurchasesPage /></VerificationRequiredRoute>} />
-              <Route path="messages" element={<VerificationRequiredRoute><BuyerMessagesPage /></VerificationRequiredRoute>} />
-              <Route path="creditsafe" element={<VerificationRequiredRoute><BuyerCreditsafePage /></VerificationRequiredRoute>} />
+              <Route path="offers" element={<BuyerOffersPage />} />
+              <Route path="purchases" element={<BuyerPurchasesPage />} />
+              <Route path="messages" element={<BuyerMessagesPage />} />
+              <Route path="creditsafe" element={<BuyerCreditsafePage />} />
               <Route path="credit-report" element={<CreditReportPurchasePage />} />
-              <Route path="vip-marketplace" element={<VerificationRequiredRoute><VipMarketplacePage /></VerificationRequiredRoute>} />
-              <Route path="unlocked" element={<VerificationRequiredRoute><BuyerUnlockedMCsPage /></VerificationRequiredRoute>} />
-              <Route path="deposit/:offerId" element={<VerificationRequiredRoute><BuyerDepositPage /></VerificationRequiredRoute>} />
-              <Route path="transactions" element={<VerificationRequiredRoute><BuyerTransactionsPage /></VerificationRequiredRoute>} />
+              <Route path="vip-marketplace" element={<VipMarketplacePage />} />
+              <Route path="unlocked" element={<BuyerUnlockedMCsPage />} />
+              <Route path="deposit/:offerId" element={<BuyerDepositPage />} />
+              <Route path="transactions" element={<BuyerTransactionsPage />} />
               <Route path="carrier-pulse" element={<CarrierPulsePage />} />
               <Route path="carrier-pulse/:dotNumber" element={<CarrierPulsePage />} />
               <Route path="insurance-leads" element={<InsuranceLeadsPage />} />
@@ -385,16 +383,6 @@ function App() {
                 <ProtectedRoute>
                   <DashboardLayout>
                     <ProfilePage />
-                  </DashboardLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="settings"
-              element={
-                <ProtectedRoute>
-                  <DashboardLayout>
-                    <SettingsPage />
                   </DashboardLayout>
                 </ProtectedRoute>
               }

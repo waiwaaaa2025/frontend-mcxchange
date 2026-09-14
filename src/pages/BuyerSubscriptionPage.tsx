@@ -119,7 +119,7 @@ interface Subscription {
 const BuyerSubscriptionPage = () => {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const { user, isLoading: authLoading, isIdentityVerified } = useAuth()
+  const { user, isLoading: authLoading } = useAuth()
   const [selectedPlan, setSelectedPlan] = useState<string | null>('premium')
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly')
   const [isProcessing, setIsProcessing] = useState(false)
@@ -237,25 +237,10 @@ const BuyerSubscriptionPage = () => {
         }
 
         // Lead Generator buyers get redirected straight into the tool — that's
-        // the whole point of the purchase. Skip identity verification gate.
+        // the whole point of the purchase.
         if (searchParams.get('tool') === 'lead_generator') {
           window.location.href = '/buyer/lead-generator'
           return
-        }
-
-        // Auto-trigger Stripe Identity verification if not yet verified
-        if (!isIdentityVerified) {
-          try {
-            const verifyResponse = await api.createVerificationSession()
-            if (verifyResponse.success && verifyResponse.data?.url) {
-              // Redirect straight to Stripe Identity — seamless post-payment flow
-              window.location.href = verifyResponse.data.url
-              return
-            }
-          } catch (err) {
-            console.error('Failed to auto-start identity verification:', err)
-            // Fall through to show success message — user can verify later from settings
-          }
         }
 
         setSuccessMessage('Subscription activated successfully! Your credits have been added.')
