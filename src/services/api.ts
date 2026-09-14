@@ -1179,6 +1179,7 @@ class ApiService {
       total: number;
       page: number;
       limit: number;
+      hasMore: boolean;
       results: Array<{
         dotNumber: string;
         mcNumber: string | null;

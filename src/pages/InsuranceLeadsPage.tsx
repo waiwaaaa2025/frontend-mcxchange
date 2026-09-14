@@ -37,11 +37,6 @@ const US_STATES = [
   { value: 'WI', label: 'Wisconsin' }, { value: 'WY', label: 'Wyoming' },
 ]
 
-const STATUS_OPTIONS = [
-  { value: 'pending', label: 'Pending cancellation' },
-  { value: 'expiring', label: 'Expiring soon' },
-]
-
 const WINDOW_OPTIONS = [
   { value: '7', label: 'Within 7 days' },
   { value: '14', label: 'Within 14 days' },
@@ -76,7 +71,6 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
   const [accessChecked, setAccessChecked] = useState(false)
   const [hasAccess, setHasAccess] = useState(false)
 
-  const [insuranceStatus, setInsuranceStatus] = useState<'pending' | 'expiring'>('pending')
   const [expiringWithinDays, setExpiringWithinDays] = useState('30')
   const [state, setState] = useState('')
   const [minUnits, setMinUnits] = useState('')
@@ -87,7 +81,7 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [leads, setLeads] = useState<Lead[]>([])
-  const [total, setTotal] = useState(0)
+  const [hasMore, setHasMore] = useState(false)
   const limit = 25
 
   const [outreachFor, setOutreachFor] = useState<Lead | null>(null)
@@ -130,7 +124,6 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
     setError(null)
     try {
       const res = await api.getInsuranceLeads({
-        insuranceStatus,
         expiringWithinDays: Number(expiringWithinDays),
         state: state || undefined,
         minUnits: minUnits ? Number(minUnits) : undefined,
@@ -142,7 +135,7 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
       })
       if (res.success && res.data) {
         setLeads(res.data.results)
-        setTotal(res.data.total)
+        setHasMore(res.data.hasMore)
       } else {
         setError('Could not load leads.')
       }
@@ -151,7 +144,7 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
     } finally {
       setLoading(false)
     }
-  }, [hasAccess, previewMode, insuranceStatus, expiringWithinDays, state, minUnits, maxUnits, minSafety, page])
+  }, [hasAccess, previewMode, expiringWithinDays, state, minUnits, maxUnits, minSafety, page])
 
   useEffect(() => { fetchLeads() }, [fetchLeads])
 
@@ -176,7 +169,8 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
     }
   }
 
-  const totalPages = Math.max(1, Math.ceil(total / limit))
+  const firstRow = (page - 1) * limit + 1
+  const lastRow = (page - 1) * limit + leads.length
 
   if (!accessChecked) {
     return (
@@ -231,13 +225,7 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
       {/* Filter bar */}
       <div className="bg-white border border-gray-200 rounded-2xl p-5 mt-4 mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <Select
-          label="Insurance status"
-          options={STATUS_OPTIONS}
-          value={insuranceStatus}
-          onChange={(e) => { setPage(1); setInsuranceStatus(e.target.value as 'pending' | 'expiring') }}
-        />
-        <Select
-          label="Expiring within"
+          label="Insurance cancelling within"
           options={WINDOW_OPTIONS}
           value={expiringWithinDays}
           onChange={(e) => { setPage(1); setExpiringWithinDays(e.target.value) }}
@@ -297,7 +285,9 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
 
       {!loading && !error && leads.length > 0 && (
         <>
-          <p className="text-sm text-gray-500 mb-3">{total.toLocaleString()} carriers found</p>
+          <p className="text-sm text-gray-500 mb-3">
+            Showing carriers {firstRow.toLocaleString()}–{lastRow.toLocaleString()}{hasMore ? ' (more available)' : ''}
+          </p>
           <div className="space-y-3">
             {leads.map((lead) => {
               const done = outreachDone.has(lead.dotNumber)
@@ -357,8 +347,8 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
             <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
               <ChevronLeft className="w-4 h-4 mr-1" /> Prev
             </Button>
-            <span className="text-sm text-gray-500">Page {page} of {totalPages}</span>
-            <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
+            <span className="text-sm text-gray-500">Page {page}</span>
+            <Button variant="outline" size="sm" disabled={!hasMore} onClick={() => setPage((p) => p + 1)}>
               Next <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           </div>
