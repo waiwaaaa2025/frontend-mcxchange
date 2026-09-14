@@ -617,7 +617,7 @@ export default function LeadGeneratorToolPage() {
                 Download selected ({selected.size})
               </Button>
             )}
-            <Button variant="secondary" disabled={exporting || rows.length === 0} onClick={handleExport}>
+            <Button variant="secondary" disabled={exporting || (rows.length === 0 && !hasMore)} onClick={handleExport}>
               <Download className="mr-2 h-4 w-4" />
               {exporting
                 ? 'Exporting…'
@@ -666,7 +666,9 @@ export default function LeadGeneratorToolPage() {
             {rows.length === 0 && !searching && (
               <tr>
                 <td colSpan={isBroker ? 10 : 8} className="px-3 py-12 text-center text-slate-500">
-                  Set filters and hit Search to see live carriers — here’s an example of what you’ll get:
+                  {hasMore
+                    ? 'No matches in this batch — load the next page to keep searching.'
+                    : 'Set filters and hit Search to see live carriers — here’s an example of what you’ll get:'}
                 </td>
               </tr>
             )}
@@ -747,7 +749,7 @@ export default function LeadGeneratorToolPage() {
       </section>
 
       {/* Preview of sample results before the first live search */}
-      {rows.length === 0 && !searching && (
+      {rows.length === 0 && !searching && !hasMore && (
         <div className="mt-6">
           <PreviewTable />
         </div>

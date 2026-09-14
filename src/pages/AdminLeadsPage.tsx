@@ -284,7 +284,9 @@ export default function AdminLeadsPage() {
                     <tbody className="divide-y">
                       {results.length === 0 && !loading && (
                         <tr><td colSpan={8} className="px-3 py-8 text-center text-gray-400">
-                          No carriers match these filters. Try widening the criteria.
+                          {hasMore
+                            ? 'No matches in this batch — click Next to keep searching.'
+                            : 'No carriers match these filters. Try widening the criteria.'}
                         </td></tr>
                       )}
                       {results.map(c => (

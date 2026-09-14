@@ -108,7 +108,11 @@ export default function BrokerLeadExportCard() {
       setCursors(stack)
       setSearched(true)
       if (res.data.carriers.length === 0) {
-        setMessage('No carriers matched those filters. Try widening them.')
+        setMessage(
+          res.data.hasMore
+            ? 'No matches in this batch — press Next to keep searching.'
+            : 'No carriers matched those filters. Try widening them.'
+        )
       }
       // Phone/email aren't in the search response — pull them for the page shown
       // so you can eyeball the contact data before downloading the full set.
@@ -316,7 +320,7 @@ export default function BrokerLeadExportCard() {
                 </select>
                 <Button
                   onClick={handleExport}
-                  disabled={exporting || !searched || rows.length === 0}
+                  disabled={exporting || !searched || (rows.length === 0 && !hasMore)}
                   className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700"
                   title={
                     searched && rows.length > 0
@@ -349,7 +353,7 @@ export default function BrokerLeadExportCard() {
             )}
 
             {/* Result preview — what the CSV will contain, one page at a time. */}
-            {searched && rows.length > 0 && (
+            {searched && (rows.length > 0 || hasMore) && (
               <div className="mt-4 overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <thead className="text-xs uppercase text-slate-500">
