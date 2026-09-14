@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -17,9 +18,11 @@ import {
   Zap,
   Eye,
   XCircle,
+  Loader2,
 } from 'lucide-react'
 import Button from '../components/ui/Button'
 import { useAuth } from '../context/AuthContext'
+import api from '../services/api'
 
 const sampleFlags = [
   {
@@ -99,16 +102,65 @@ const checkCategories = [
   },
 ]
 
+// Roles that have a Chameleon Check tool page on their dashboard.
+const TOOL_ROLES = ['buyer', 'seller', 'admin']
+
 export default function ChameleonCheckPreviewPage() {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, isLoading: authLoading } = useAuth()
+  // Hold the marketing page until we know whether this user already has the
+  // tool, so a subscriber never sees it flash before the redirect.
+  const [checkingAccess, setCheckingAccess] = useState(true)
+
+  // Same as the Carrier Pulse preview: a logged-in user who already has Chameleon
+  // Check (it rides on Carrier Pulse access) goes straight to the tool on their
+  // own dashboard. Logged-out visitors and buyers without access stay here.
+  useEffect(() => {
+    if (authLoading) return
+
+    if (user?.role === 'admin' || user?.role === 'seller') {
+      navigate(`/${user.role}/chameleon-check`, { replace: true })
+      return
+    }
+
+    if (user?.role !== 'buyer') {
+      setCheckingAccess(false)
+      return
+    }
+
+    let cancelled = false
+    api.getCarrierPulseAccess()
+      .then((res) => {
+        if (cancelled) return
+        if (res.success && res.data?.hasAccess) {
+          navigate('/buyer/chameleon-check', { replace: true })
+          return
+        }
+        setCheckingAccess(false)
+      })
+      .catch(() => {
+        // Can't confirm access — show the page rather than blocking.
+        if (!cancelled) setCheckingAccess(false)
+      })
+    return () => { cancelled = true }
+  }, [authLoading, user?.role, navigate])
 
   const handleGetStarted = () => {
-    if (user) {
-      navigate('/buyer/chameleon-check')
-    } else {
+    if (!user) {
       navigate('/register?redirect=/buyer/chameleon-check')
+    } else if (TOOL_ROLES.includes(user.role)) {
+      navigate(`/${user.role}/chameleon-check`)
+    } else {
+      navigate('/pricing')
     }
+  }
+
+  if (checkingAccess) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <Loader2 className="w-8 h-8 text-red-500 animate-spin" />
+      </div>
+    )
   }
 
   return (

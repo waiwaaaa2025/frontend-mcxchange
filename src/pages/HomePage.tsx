@@ -92,7 +92,7 @@ const tools = [
   { icon: Activity, title: 'CarrierPulse', tagline: 'Carrier Intelligence', description: 'Health scores, SMS analysis, FMCSA intelligence on any MC or DOT — in one screen.', href: '/carrier-pulse-preview', color: 'from-cyan-500 to-indigo-500' },
   { icon: Bot, title: 'Eva AI', tagline: 'AI Compliance Manager', description: 'Watches your authority, files paperwork, runs audits — 24/7. Like a CFO for compliance.', href: '/eva-ai', color: 'from-indigo-500 to-purple-500' },
   { icon: Umbrella, title: 'Insurance Leads', tagline: 'Lead Generation', description: 'Find carriers with upcoming BMC-91X cancellations before competitors call them.', href: '/insurance-leads-preview', color: 'from-amber-500 to-orange-500' },
-  { icon: ShieldCheck, title: 'Chameleon Check', tagline: 'Fraud Detection', description: 'Spot hidden ties between revoked authorities and freshly-issued ones — before the deal closes.', href: '/chameleon-check', color: 'from-rose-500 to-red-500' },
+  { icon: ShieldCheck, title: 'Chameleon Check', tagline: 'Fraud Detection', description: 'Spot hidden ties between revoked authorities and freshly-issued ones — before the deal closes.', href: '/chameleon-check-preview', color: 'from-rose-500 to-red-500' },
   { icon: FileSearch, title: 'Credit Reports', tagline: 'Business Credit Intelligence', description: 'UCC filings, tax liens, payment history, credit lines — the financial side of every carrier.', href: '/credit-report-preview', color: 'from-emerald-500 to-teal-500' },
   { icon: Sparkles, title: 'AI Due Diligence', tagline: 'Risk Analysis', description: 'AI-generated carrier risk reports — explainable, actionable, in plain English.', href: '/carrier-pulse-preview', color: 'from-purple-500 to-fuchsia-500' },
 ]
