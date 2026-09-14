@@ -2366,7 +2366,7 @@ export default function CarrierPulsePage({ previewMode = false }: { previewMode?
   const navigate = useNavigate()
   const { dotNumber: urlDotNumber } = useParams()
   const [searchParams] = useSearchParams()
-  const { user } = useAuth()
+  const { user, isLoading: authLoading } = useAuth()
   const [dotInput, setDotInput] = useState('')
   const [activeDot, setActiveDot] = useState<string | undefined>(urlDotNumber)
   const [activeTab, setActiveTab] = useState('overview')
@@ -2381,11 +2381,44 @@ export default function CarrierPulsePage({ previewMode = false }: { previewMode?
 
   // Check access on mount
   useEffect(() => {
-    // Preview mode — skip access gating, allow free search
+    // Preview mode (public /carrier-pulse-preview, where the home page search and
+    // navbar land). Logged-out visitors get the free preview. A logged-in user who
+    // already has Carrier Pulse is sent to the full report on their own dashboard
+    // route for the same DOT instead of seeing locked tabs and "View Plans".
     if (previewMode) {
-      setHasAccess(true)
-      setAccessChecked(true)
-      return
+      // Wait for the session to load so a subscriber never flashes the preview.
+      if (authLoading) return
+      const fullReportPath = (base: string) => `${base}${urlDotNumber ? `/${urlDotNumber}` : ''}`
+
+      if (user?.role === 'admin' || user?.role === 'seller') {
+        navigate(fullReportPath(`/${user.role}/carrier-pulse`), { replace: true })
+        return
+      }
+
+      if (user?.role !== 'buyer') {
+        setHasAccess(true)
+        setAccessChecked(true)
+        return
+      }
+
+      let cancelled = false
+      api.getCarrierPulseAccess()
+        .then((res) => {
+          if (cancelled) return
+          if (res.success && res.data?.hasAccess) {
+            navigate(fullReportPath('/buyer/carrier-pulse'), { replace: true })
+            return
+          }
+          setHasAccess(true)
+          setAccessChecked(true)
+        })
+        .catch(() => {
+          // Can't confirm access — fall back to the preview rather than blocking.
+          if (cancelled) return
+          setHasAccess(true)
+          setAccessChecked(true)
+        })
+      return () => { cancelled = true }
     }
 
     // Admin and seller always have access (no buyer subscription check needed)
@@ -2410,7 +2443,7 @@ export default function CarrierPulsePage({ previewMode = false }: { previewMode?
       }
     }
     checkAccess()
-  }, [user?.role, previewMode])
+  }, [user?.role, previewMode, authLoading, urlDotNumber, navigate])
 
   // Handle purchase success return
   useEffect(() => {
