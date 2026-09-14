@@ -19,7 +19,6 @@ import {
 import Button from '../components/ui/Button'
 import { useAuth } from '../context/AuthContext'
 import { api } from '../services/api'
-import { CARGO_TYPES } from '../constants/cargoTypes'
 
 type Tier = 'BUYER' | 'BROKER' | 'ADMIN'
 
@@ -53,7 +52,6 @@ interface Filters {
   // Broker-tier (gated)
   minFleet: string
   maxFleet: string
-  cargoType: string
   addedAfter: string
   addedBefore: string
 }
@@ -66,7 +64,6 @@ const EMPTY_FILTERS: Filters = {
   insuranceExpiresWithinDays: '',
   minFleet: '',
   maxFleet: '',
-  cargoType: '',
   addedAfter: '',
   addedBefore: '',
 }
@@ -580,16 +577,6 @@ export default function LeadGeneratorToolPage() {
                 placeholder="Max power units"
                 className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
               />
-              <input
-                value={filters.cargoType}
-                onChange={(e) => setFilters((f) => ({ ...f, cargoType: e.target.value }))}
-                placeholder="Cargo type (pick or type)"
-                list="lg-cargo-types"
-                className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
-              />
-              <datalist id="lg-cargo-types">
-                {CARGO_TYPES.map((c) => <option key={c} value={c} />)}
-              </datalist>
               <input
                 type="date"
                 value={filters.addedAfter}

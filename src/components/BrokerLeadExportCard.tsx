@@ -5,7 +5,6 @@ import { useAuth } from '../context/AuthContext'
 import Card from './ui/Card'
 import Button from './ui/Button'
 import api from '../services/api'
-import { CARGO_TYPES } from '../constants/cargoTypes'
 
 // ============================================================
 // BROKER LEAD GENERATOR — search + bulk CSV export
@@ -30,7 +29,6 @@ interface Filters {
   insuranceExpiresWithinDays: string
   minFleet: string
   maxFleet: string
-  cargoType: string
   addedAfter: string
   addedBefore: string
 }
@@ -43,7 +41,6 @@ const EMPTY_FILTERS: Filters = {
   insuranceExpiresWithinDays: '',
   minFleet: '',
   maxFleet: '',
-  cargoType: '',
   addedAfter: '',
   addedBefore: '',
 }
@@ -261,16 +258,6 @@ export default function BrokerLeadExportCard() {
                   placeholder="Max power units"
                   className={inputClass}
                 />
-                <input
-                  value={filters.cargoType}
-                  onChange={(e) => setFilter('cargoType', e.target.value)}
-                  placeholder="Cargo type (pick or type)"
-                  list="broker-cargo-types"
-                  className={inputClass}
-                />
-                <datalist id="broker-cargo-types">
-                  {CARGO_TYPES.map((c) => <option key={c} value={c} />)}
-                </datalist>
                 <input
                   type="date"
                   value={filters.addedAfter}

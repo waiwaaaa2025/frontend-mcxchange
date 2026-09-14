@@ -55,7 +55,7 @@ const TIERS: Tier[] = [
     popular: true,
     bullets: [
       'Everything in the Buyer tier, including click-to-call phone numbers',
-      'Advanced filters: power-units range, authority age, cargo type, multi-state',
+      'Advanced filters: power-units range, authority age, multi-state',
       'Bulk select + CSV download of every carrier matching your filter',
       'No row cap on exports — built for high-volume outreach',
     ],
