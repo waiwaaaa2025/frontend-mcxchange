@@ -1168,7 +1168,7 @@ class ApiService {
     maxUnits?: number;
     minSafety?: string;
     sort?: string;
-    page?: number;
+    cursor?: string;
     limit?: number;
   }) {
     const sp = new URLSearchParams();
@@ -1177,9 +1177,9 @@ class ApiService {
     });
     return this.request<ApiResponse<{
       total: number;
-      page: number;
       limit: number;
       hasMore: boolean;
+      nextCursor: string | null;
       results: Array<{
         dotNumber: string;
         mcNumber: string | null;

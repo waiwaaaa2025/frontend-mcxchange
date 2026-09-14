@@ -76,12 +76,15 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
   const [minUnits, setMinUnits] = useState('')
   const [maxUnits, setMaxUnits] = useState('')
   const [minSafety, setMinSafety] = useState('')
-  const [page, setPage] = useState(1)
+  // Cursor for each page visited; the last entry is the page being shown.
+  const [cursors, setCursors] = useState<(string | null)[]>([null])
+  const page = cursors.length
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [leads, setLeads] = useState<Lead[]>([])
   const [hasMore, setHasMore] = useState(false)
+  const [nextCursor, setNextCursor] = useState<string | null>(null)
   const limit = 25
 
   const [outreachFor, setOutreachFor] = useState<Lead | null>(null)
@@ -130,12 +133,13 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
         maxUnits: maxUnits ? Number(maxUnits) : undefined,
         minSafety: minSafety || undefined,
         sort: 'daysUntilExpiry',
-        page,
+        cursor: cursors[cursors.length - 1] ?? undefined,
         limit,
       })
       if (res.success && res.data) {
         setLeads(res.data.results)
         setHasMore(res.data.hasMore)
+        setNextCursor(res.data.nextCursor)
       } else {
         setError('Could not load leads.')
       }
@@ -144,7 +148,7 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
     } finally {
       setLoading(false)
     }
-  }, [hasAccess, previewMode, expiringWithinDays, state, minUnits, maxUnits, minSafety, page])
+  }, [hasAccess, previewMode, expiringWithinDays, state, minUnits, maxUnits, minSafety, cursors])
 
   useEffect(() => { fetchLeads() }, [fetchLeads])
 
@@ -168,9 +172,6 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
       setOutreachSubmitting(false)
     }
   }
-
-  const firstRow = (page - 1) * limit + 1
-  const lastRow = (page - 1) * limit + leads.length
 
   if (!accessChecked) {
     return (
@@ -228,33 +229,33 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
           label="Insurance cancelling within"
           options={WINDOW_OPTIONS}
           value={expiringWithinDays}
-          onChange={(e) => { setPage(1); setExpiringWithinDays(e.target.value) }}
+          onChange={(e) => { setCursors([null]);setExpiringWithinDays(e.target.value) }}
         />
         <Select
           label="State"
           options={US_STATES}
           value={state}
-          onChange={(e) => { setPage(1); setState(e.target.value) }}
+          onChange={(e) => { setCursors([null]);setState(e.target.value) }}
         />
         <Input
           label="Min power units"
           type="number"
           min={0}
           value={minUnits}
-          onChange={(e) => { setPage(1); setMinUnits(e.target.value) }}
+          onChange={(e) => { setCursors([null]);setMinUnits(e.target.value) }}
         />
         <Input
           label="Max power units"
           type="number"
           min={0}
           value={maxUnits}
-          onChange={(e) => { setPage(1); setMaxUnits(e.target.value) }}
+          onChange={(e) => { setCursors([null]);setMaxUnits(e.target.value) }}
         />
         <Select
           label="Safety rating"
           options={SAFETY_OPTIONS}
           value={minSafety}
-          onChange={(e) => { setPage(1); setMinSafety(e.target.value) }}
+          onChange={(e) => { setCursors([null]);setMinSafety(e.target.value) }}
         />
       </div>
 
@@ -286,7 +287,7 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
       {!loading && !error && leads.length > 0 && (
         <>
           <p className="text-sm text-gray-500 mb-3">
-            Showing carriers {firstRow.toLocaleString()}–{lastRow.toLocaleString()}{hasMore ? ' (more available)' : ''}
+            Page {page} · {leads.length.toLocaleString()} carriers{hasMore ? ' (more available)' : ''}
           </p>
           <div className="space-y-3">
             {leads.map((lead) => {
@@ -344,11 +345,11 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
 
           {/* Pagination */}
           <div className="flex items-center justify-between mt-6">
-            <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
+            <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setCursors((c) => c.slice(0, -1))}>
               <ChevronLeft className="w-4 h-4 mr-1" /> Prev
             </Button>
             <span className="text-sm text-gray-500">Page {page}</span>
-            <Button variant="outline" size="sm" disabled={!hasMore} onClick={() => setPage((p) => p + 1)}>
+            <Button variant="outline" size="sm" disabled={!hasMore || !nextCursor} onClick={() => setCursors((c) => [...c, nextCursor])}>
               Next <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           </div>
