@@ -19,6 +19,7 @@ import {
 import Button from '../components/ui/Button'
 import { useAuth } from '../context/AuthContext'
 import { api } from '../services/api'
+import { CARGO_TYPES } from '../constants/cargoTypes'
 
 type Tier = 'BUYER' | 'BROKER' | 'ADMIN'
 
@@ -582,9 +583,13 @@ export default function LeadGeneratorToolPage() {
               <input
                 value={filters.cargoType}
                 onChange={(e) => setFilters((f) => ({ ...f, cargoType: e.target.value }))}
-                placeholder="Cargo type"
+                placeholder="Cargo type (pick or type)"
+                list="lg-cargo-types"
                 className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
               />
+              <datalist id="lg-cargo-types">
+                {CARGO_TYPES.map((c) => <option key={c} value={c} />)}
+              </datalist>
               <input
                 type="date"
                 value={filters.addedAfter}

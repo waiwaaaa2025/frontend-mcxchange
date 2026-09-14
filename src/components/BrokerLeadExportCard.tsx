@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import Card from './ui/Card'
 import Button from './ui/Button'
 import api from '../services/api'
+import { CARGO_TYPES } from '../constants/cargoTypes'
 
 // ============================================================
 // BROKER LEAD GENERATOR — search + bulk CSV export
@@ -263,9 +264,13 @@ export default function BrokerLeadExportCard() {
                 <input
                   value={filters.cargoType}
                   onChange={(e) => setFilter('cargoType', e.target.value)}
-                  placeholder="Cargo type"
+                  placeholder="Cargo type (pick or type)"
+                  list="broker-cargo-types"
                   className={inputClass}
                 />
+                <datalist id="broker-cargo-types">
+                  {CARGO_TYPES.map((c) => <option key={c} value={c} />)}
+                </datalist>
                 <input
                   type="date"
                   value={filters.addedAfter}
