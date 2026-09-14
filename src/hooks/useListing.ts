@@ -136,11 +136,15 @@ export function useListing(listingId: string | undefined): UseListingResult {
   /**
    * Fetch listing data from API
    */
-  const fetchListing = useCallback(async () => {
+  // `quiet` refetches in the background without dropping into the page-level
+  // loading state — used after an unlock, where flashing the spinner (or
+  // blanking the listing on a transient error) would throw away a page the
+  // buyer just spent a credit on.
+  const fetchListing = useCallback(async (quiet = false) => {
     if (!listingId) return
 
     try {
-      setLoading(true)
+      if (!quiet) setLoading(true)
       setError(null)
 
       const response = await api.getListing(listingId)
@@ -163,12 +167,14 @@ export function useListing(listingId: string | undefined): UseListingResult {
       }
     } catch (err: any) {
       console.error('Failed to fetch listing:', err)
-      const msg = err?.message || 'Failed to load listing details'
-      const code = err?.code || ''
-      setError(code === 'ENTERPRISE_REQUIRED' ? 'ENTERPRISE_REQUIRED' : msg)
-      setListing(null)
+      if (!quiet) {
+        const msg = err?.message || 'Failed to load listing details'
+        const code = err?.code || ''
+        setError(code === 'ENTERPRISE_REQUIRED' ? 'ENTERPRISE_REQUIRED' : msg)
+        setListing(null)
+      }
     } finally {
-      setLoading(false)
+      if (!quiet) setLoading(false)
     }
   }, [listingId, isAuthenticated, user?.role, transformListing])
 
@@ -185,6 +191,10 @@ export function useListing(listingId: string | undefined): UseListingResult {
       const response = await api.unlockListing(listingId)
       if (response.success) {
         setIsUnlocked(true)
+        // The MC/DOT the buyer just paid for are masked server-side and only
+        // come back unmasked on a fresh read, so refetch or the page keeps
+        // showing the bulleted numbers from the pre-unlock payload.
+        await fetchListing(true)
         return true
       }
       return false
@@ -194,7 +204,7 @@ export function useListing(listingId: string | undefined): UseListingResult {
     } finally {
       setUnlocking(false)
     }
-  }, [listingId, isAuthenticated, user?.role])
+  }, [listingId, isAuthenticated, user?.role, fetchListing])
 
   // Fetch listing on mount and when dependencies change
   useEffect(() => {
@@ -226,6 +236,7 @@ export function useListing(listingId: string | undefined): UseListingResult {
           api.unlockListing(listingId).then((response) => {
             if (active && response.success) {
               setIsUnlocked(true)
+              fetchListing(true)
             }
           }).catch((err) => {
             console.error('Auto-unlock failed:', err)
@@ -236,7 +247,7 @@ export function useListing(listingId: string | undefined): UseListingResult {
       }).catch(() => {})
       return () => { active = false }
     }
-  }, [listing?.freeToUnlock, isUnlocked, unlocking, isAuthenticated, user?.role, listingId])
+  }, [listing?.freeToUnlock, isUnlocked, unlocking, isAuthenticated, user?.role, listingId, fetchListing])
 
   return {
     listing,
@@ -245,7 +256,9 @@ export function useListing(listingId: string | undefined): UseListingResult {
     isUnlocked,
     unlocking,
     unlock,
-    refetch: fetchListing,
+    // Wrapped, not passed through: a caller wiring this straight to an onClick
+    // would otherwise hand the click event in as `quiet`.
+    refetch: () => fetchListing(),
   }
 }
 
