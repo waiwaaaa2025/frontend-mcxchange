@@ -1156,6 +1156,10 @@ class ApiService {
     return this.request<ApiResponse<{ hasAccess: boolean; reason: string; currentPlan: string | null; isActive: boolean }>>('/buyer/carrier-pulse/access');
   }
 
+  async getInsuranceLeadsAccess() {
+    return this.request<ApiResponse<{ hasAccess: boolean; reason: string; currentPlan: string | null; isActive: boolean }>>('/buyer/insurance-leads/access');
+  }
+
   async createCarrierPulseCheckout(signature: string) {
     return this.request<ApiResponse<CheckoutSessionResponse>>('/buyer/carrier-pulse/checkout', {
       method: 'POST',

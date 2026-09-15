@@ -110,7 +110,7 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
     let cancelled = false
     ;(async () => {
       try {
-        const res = await api.getCarrierPulseAccess()
+        const res = await api.getInsuranceLeadsAccess()
         if (!cancelled && res.success && res.data) setHasAccess(res.data.hasAccess)
       } catch {
         if (!cancelled) setHasAccess(true)
