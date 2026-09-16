@@ -94,6 +94,7 @@ const AdminUsersPage = () => {
   const [userDetails, setUserDetails] = useState<any>(null)
   const [showDetailModal, setShowDetailModal] = useState(false)
   const [downloadingEvidence, setDownloadingEvidence] = useState(false)
+  const [downloadingEvidenceFields, setDownloadingEvidenceFields] = useState(false)
   const [showActionMenu, setShowActionMenu] = useState<string | null>(null)
   const [sortField, setSortField] = useState<'name' | 'memberSince' | 'lastActive' | 'trustScore'>('memberSince')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
@@ -392,6 +393,18 @@ const AdminUsersPage = () => {
       alert(err.message || 'Failed to generate dispute evidence')
     } finally {
       setDownloadingEvidence(false)
+    }
+  }
+
+  const handleDownloadEvidenceFields = async (user: UserData) => {
+    setDownloadingEvidenceFields(true)
+    try {
+      await api.downloadUserDisputeEvidenceFields(user.id, user.name)
+    } catch (err: any) {
+      console.error('Failed to download dispute evidence fields:', err)
+      alert(err.message || 'Failed to generate dispute evidence fields')
+    } finally {
+      setDownloadingEvidenceFields(false)
     }
   }
 
@@ -1910,6 +1923,15 @@ const AdminUsersPage = () => {
                   >
                     <Download className="w-4 h-4 mr-2" />
                     {downloadingEvidence ? 'Generating…' : 'Download Dispute Evidence'}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    disabled={downloadingEvidenceFields}
+                    onClick={() => handleDownloadEvidenceFields(selectedUser)}
+                    title="Structured Stripe evidence fields as JSON (purchase IP, service date, access activity log, rebuttal) — pass to submitDisputeEvidence.js --fields"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    {downloadingEvidenceFields ? 'Generating…' : 'Evidence Fields (JSON)'}
                   </Button>
                   {!selectedUser.verified && selectedUser.status !== 'BLOCKED' && selectedUser.role === 'SELLER' && (
                     <Button

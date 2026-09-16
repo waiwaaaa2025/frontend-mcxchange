@@ -683,6 +683,7 @@ function StripeDisputeMonitor() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
+  const [downloadingFieldsId, setDownloadingFieldsId] = useState<string | null>(null)
 
   const load = async () => {
     setLoading(true)
@@ -719,6 +720,20 @@ function StripeDisputeMonitor() {
       alert(err.message || 'Failed to generate evidence')
     } finally {
       setDownloadingId(null)
+    }
+  }
+
+  // The structured Stripe evidence fields (JSON) that back
+  // `scripts/submitDisputeEvidence.js --fields` — built for this specific dispute.
+  const handleDownloadFields = async (d: OpenDispute) => {
+    if (!d.userId) return
+    setDownloadingFieldsId(d.id)
+    try {
+      await api.downloadUserDisputeEvidenceFields(d.userId, d.userName || undefined, d.id)
+    } catch (err: any) {
+      alert(err.message || 'Failed to generate evidence fields')
+    } finally {
+      setDownloadingFieldsId(null)
     }
   }
 
@@ -790,12 +805,25 @@ function StripeDisputeMonitor() {
                     </td>
                     <td className="py-2 pr-3">
                       {d.userId ? (
-                        <Button variant="outline" onClick={() => handleDownload(d)} disabled={downloadingId === d.id}>
-                          {downloadingId === d.id
-                            ? <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                            : <Download className="w-4 h-4 mr-1" />}
-                          {downloadingId === d.id ? 'Generating…' : 'Evidence PDF'}
-                        </Button>
+                        <div className="flex flex-wrap gap-2">
+                          <Button variant="outline" onClick={() => handleDownload(d)} disabled={downloadingId === d.id}>
+                            {downloadingId === d.id
+                              ? <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                              : <Download className="w-4 h-4 mr-1" />}
+                            {downloadingId === d.id ? 'Generating…' : 'Evidence PDF'}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={() => handleDownloadFields(d)}
+                            disabled={downloadingFieldsId === d.id}
+                            title="Structured Stripe evidence fields for this dispute (customer IP, service date, access log, rebuttal) — pass to submitDisputeEvidence.js --fields"
+                          >
+                            {downloadingFieldsId === d.id
+                              ? <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                              : <Download className="w-4 h-4 mr-1" />}
+                            {downloadingFieldsId === d.id ? 'Generating…' : 'Evidence Fields (JSON)'}
+                          </Button>
+                        </div>
                       ) : (
                         <span className="text-xs text-gray-400">no matched user</span>
                       )}

@@ -3951,6 +3951,33 @@ class ApiService {
     URL.revokeObjectURL(url);
   }
 
+  // Downloads the STRUCTURED Stripe dispute-evidence fields for a user as JSON
+  // (customer identity, purchase IP, service date, access activity log, product
+  // description, cancellation disclosure, rebuttal). Feed it to
+  // `scripts/submitDisputeEvidence.js --fields` so the issuing bank receives the
+  // evidence in the fields it weighs, not only as a PDF attachment.
+  async downloadUserDisputeEvidenceFields(userId: string, userName?: string, disputeId?: string) {
+    const token = this.token || localStorage.getItem('mcx_token');
+    const qs = new URLSearchParams({ download: '1' });
+    if (disputeId) qs.set('disputeId', disputeId);
+    const res = await fetch(`${API_BASE_URL}/admin/users/${userId}/dispute-evidence-fields?${qs.toString()}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (!res.ok) {
+      throw new Error(`Evidence fields download failed (${res.status})`);
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const safe = (userName || userId).replace(/[^a-z0-9]+/gi, '-').toLowerCase();
+    a.download = `dispute-evidence-fields-${safe}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
   async leadGeneratorAdminListAllSaves(params: { userId?: string; dotNumber?: string; from?: string; to?: string; page?: number; limit?: number } = {}) {
     const qs = new URLSearchParams();
     for (const [k, v] of Object.entries(params)) {
