@@ -34,6 +34,9 @@ interface CarrierRow {
   // Straight from FMCSA — 'COVERAGE_LAPSED' | 'CANCELLATION_SCHEDULED' | 'COVERED'
   insuranceCancellationDate: string | null
   insuranceStatus: string | null
+  // FMCSA census contact, sent with the row for every tier.
+  phone: string | null
+  email: string | null
 }
 
 interface SavedRow {
@@ -278,6 +281,17 @@ export default function LeadGeneratorToolPage() {
     }
   }, [])
 
+  // Contact for a row: what the search already returned (FMCSA's census, sent with
+  // every tier's rows), falling back to whatever the reveal endpoints fetched.
+  // `undefined` means nothing is known yet, which is what leaves the reveal
+  // control in place for the rows the census has no contact for.
+  const rowContact = useCallback(
+    (r: CarrierRow) =>
+      contacts[r.dotNumber] ??
+      (r.phone || r.email ? { phone: r.phone, email: r.email, loading: false } : undefined),
+    [contacts]
+  )
+
   // Detect access on mount via the dedicated access endpoint, which resolves the
   // tier from the subscription alone. We deliberately do NOT gate on a search
   // call: search depends on the external carrier-data provider and returns 502
@@ -496,7 +510,7 @@ export default function LeadGeneratorToolPage() {
               </span>
             )}
             {tier === 'BUYER' && (
-              <span>Buyer tier — core filters, personal saves, and CSV download of the current page (25). <Link to="/lead-generator" className="text-cyan-600 underline">Upgrade to Broker</Link> to export the full list with phone &amp; email.</span>
+              <span>Buyer tier — core filters, personal saves, phone &amp; email on every row, and CSV download of the current page (25). <Link to="/lead-generator" className="text-cyan-600 underline">Upgrade to Broker</Link> to export the whole result set at once and unlock fleet-size and date filters.</span>
             )}
             {tier === 'ADMIN' && <span>Admin view — all tools unlocked.</span>}
           </p>
@@ -654,14 +668,14 @@ export default function LeadGeneratorToolPage() {
               <th className="px-3 py-3">Safety</th>
               <th className="px-3 py-3">Insurance</th>
               <th className="px-3 py-3">Phone</th>
-              {isBroker && <th className="px-3 py-3">Email</th>}
+              <th className="px-3 py-3">Email</th>
               <th className="px-3 py-3"></th>
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 && !searching && (
               <tr>
-                <td colSpan={isBroker ? 11 : 9} className="px-3 py-12 text-center text-slate-500">
+                <td colSpan={isBroker ? 11 : 10} className="px-3 py-12 text-center text-slate-500">
                   {hasMore
                     ? 'No matches in this batch — load the next page to keep searching.'
                     : 'Set filters and hit Search to see live carriers — here’s an example of what you’ll get:'}
@@ -715,19 +729,18 @@ export default function LeadGeneratorToolPage() {
                 </td>
                 <td className="px-3 py-3">
                   {isBroker ? (
-                    <PhoneCell contact={contacts[r.dotNumber]} />
+                    <PhoneCell contact={rowContact(r)} />
                   ) : (
-                    <CallAction
-                      contact={contacts[r.dotNumber]}
-                      onReveal={() => fetchContact(r.dotNumber)}
-                    />
+                    <CallAction contact={rowContact(r)} onReveal={() => fetchContact(r.dotNumber)} />
                   )}
                 </td>
-                {isBroker && (
-                  <td className="px-3 py-3">
-                    <EmailCell contact={contacts[r.dotNumber]} />
-                  </td>
-                )}
+                <td className="px-3 py-3">
+                  {isBroker ? (
+                    <EmailCell contact={rowContact(r)} />
+                  ) : (
+                    <EmailAction contact={rowContact(r)} onReveal={() => fetchContact(r.dotNumber)} />
+                  )}
+                </td>
                 <td className="px-3 py-3 text-right">
                   {savedDots.has(r.dotNumber) ? (
                     <span className="inline-flex items-center gap-1 text-xs text-emerald-600">
@@ -865,6 +878,31 @@ function EmailCell({
       <span className="max-w-[180px] truncate">{contact.email}</span>
     </a>
   )
+}
+
+// Email counterpart to CallAction, for tiers whose rows aren't batch-enriched:
+// shows the address when it came with the row, otherwise offers to look it up.
+function EmailAction({
+  contact,
+  onReveal,
+}: {
+  contact: { phone: string | null; email: string | null; loading: boolean } | undefined
+  onReveal: () => void
+}) {
+  if (!contact) {
+    return (
+      <button
+        onClick={onReveal}
+        className="inline-flex items-center gap-1 text-xs font-medium text-cyan-600 hover:text-cyan-800"
+      >
+        <Mail className="h-4 w-4" /> Show email
+      </button>
+    )
+  }
+  if (contact.loading) {
+    return <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+  }
+  return <EmailCell contact={contact} />
 }
 
 // Click-to-call control. Reveals the carrier's phone on demand, then renders a

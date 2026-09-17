@@ -3815,6 +3815,8 @@ class ApiService {
           safetyRating: string | null;
           insuranceCancellationDate: string | null;
           insuranceStatus: string | null;
+          phone: string | null;
+          email: string | null;
         }>;
         limit: number;
         hasMore: boolean;
