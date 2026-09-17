@@ -191,9 +191,9 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
         </div>
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Company Leads</h1>
         <p className="text-gray-600 mb-6">
-          Search companies whose insurance is pending cancellation or expiring soon,
-          and have Domilea reach the company owners directly on your behalf.
-          Included with any active subscription.
+          Search companies that have just lost their insurance, or have a cancellation
+          filed against it, and have Domilea reach the company owners directly on your
+          behalf. Included with any active subscription.
         </p>
         <Link to="/buyer/subscription">
           <Button>Upgrade to unlock</Button>
@@ -210,7 +210,7 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
         </div>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Company Leads</h1>
-          <p className="text-sm text-gray-500">Companies with pending insurance — potential acquisition targets</p>
+          <p className="text-sm text-gray-500">Companies losing their insurance — potential acquisition targets</p>
         </div>
       </div>
 
@@ -218,9 +218,9 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
       <div className="bg-indigo-50 border border-indigo-200 text-indigo-900 rounded-2xl p-4 mt-6 flex items-start gap-3">
         <Umbrella className="w-5 h-5 shrink-0 mt-0.5 text-indigo-600" />
         <p className="text-sm leading-relaxed">
-          Search companies whose insurance is <strong>pending cancellation</strong> or
-          <strong> expiring soon</strong> — strong signals an owner may be ready to sell.
-          Filter by state, fleet size and safety, then have Domilea
+          Straight from FMCSA: companies with <strong>no insurance on file</strong> today,
+          and companies with a <strong>cancellation already filed</strong> — strong signals an
+          owner may be ready to sell. Filter by state, fleet size and safety, then have Domilea
           <strong> reach the company owners directly</strong> on your behalf.
         </p>
       </div>
@@ -309,19 +309,33 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
                       >
                         {lead.legalName}
                       </Link>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${lead.insuranceStatus === 'pending' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'}`}>
-                        {lead.insuranceStatus === 'pending' ? 'Pending cancellation' : 'Expiring soon'}
-                      </span>
+                      {lead.pendingReason === 'COVERAGE_LAPSED' ? (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-red-50 text-red-700">
+                          No insurance on file
+                        </span>
+                      ) : (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-700">
+                          Pending cancellation
+                        </span>
+                      )}
                     </div>
                     <div className="text-sm text-gray-500 mt-1 flex flex-wrap gap-x-4 gap-y-0.5">
                       <span>DOT {lead.dotNumber}{lead.mcNumber ? ` · ${lead.mcNumber}` : ''}</span>
                       {lead.state && <span>{lead.state}</span>}
                       {lead.powerUnits != null && <span>{lead.powerUnits} units</span>}
                       {lead.safetyRating && <span>{lead.safetyRating}</span>}
-                      {lead.daysUntilExpiry != null && (
-                        <span className="text-red-600 font-medium">
-                          {lead.daysUntilExpiry <= 0 ? 'Lapsed' : `${lead.daysUntilExpiry} days left`}
-                        </span>
+                      {lead.insuranceExpiryDate && (
+                        lead.pendingReason === 'COVERAGE_LAPSED' ? (
+                          <span className="text-red-600 font-medium">
+                            Coverage ended {lead.insuranceExpiryDate}
+                          </span>
+                        ) : (
+                          <span className="text-amber-700 font-medium">
+                            Cancels {lead.insuranceExpiryDate}
+                            {lead.daysUntilExpiry != null &&
+                              ` · ${lead.daysUntilExpiry <= 0 ? 'today' : `${lead.daysUntilExpiry} day${lead.daysUntilExpiry === 1 ? '' : 's'} left`}`}
+                          </span>
+                        )
                       )}
                     </div>
                     {(lead.phone || lead.email) && (
