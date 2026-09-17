@@ -7,6 +7,7 @@ import { api } from '../services/api'
 import Button from '../components/ui/Button'
 import Select from '../components/ui/Select'
 import Input from '../components/ui/Input'
+import { InsuranceBadge } from '../components/InsuranceStatus'
 
 const US_STATES = [
   { value: '', label: 'All States' },
@@ -309,34 +310,13 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
                       >
                         {lead.legalName}
                       </Link>
-                      {lead.pendingReason === 'COVERAGE_LAPSED' ? (
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-red-50 text-red-700">
-                          No insurance on file
-                        </span>
-                      ) : (
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-700">
-                          Pending cancellation
-                        </span>
-                      )}
+                      <InsuranceBadge status={lead.pendingReason} date={lead.insuranceExpiryDate} />
                     </div>
                     <div className="text-sm text-gray-500 mt-1 flex flex-wrap gap-x-4 gap-y-0.5">
                       <span>DOT {lead.dotNumber}{lead.mcNumber ? ` · ${lead.mcNumber}` : ''}</span>
                       {lead.state && <span>{lead.state}</span>}
                       {lead.powerUnits != null && <span>{lead.powerUnits} units</span>}
                       {lead.safetyRating && <span>{lead.safetyRating}</span>}
-                      {lead.insuranceExpiryDate && (
-                        lead.pendingReason === 'COVERAGE_LAPSED' ? (
-                          <span className="text-red-600 font-medium">
-                            Coverage ended {lead.insuranceExpiryDate}
-                          </span>
-                        ) : (
-                          <span className="text-amber-700 font-medium">
-                            Cancels {lead.insuranceExpiryDate}
-                            {lead.daysUntilExpiry != null &&
-                              ` · ${lead.daysUntilExpiry <= 0 ? 'today' : `${lead.daysUntilExpiry} day${lead.daysUntilExpiry === 1 ? '' : 's'} left`}`}
-                          </span>
-                        )
-                      )}
                     </div>
                     {(lead.phone || lead.email) && (
                       <div className="text-sm text-gray-600 mt-1 flex flex-wrap gap-x-4 gap-y-0.5">

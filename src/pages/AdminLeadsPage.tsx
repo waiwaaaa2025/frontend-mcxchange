@@ -6,6 +6,7 @@ import {
   Activity, ExternalLink,
 } from 'lucide-react'
 import api from '../services/api'
+import { InsuranceText } from '../components/InsuranceStatus'
 
 // Carrier Pulse detail route for the full MC profile (safety, authority,
 // insurance, fleet, chameleon, etc.). Admin Leads lives under /admin, so the
@@ -313,7 +314,7 @@ export default function AdminLeadsPage() {
                           <td className="px-3 py-2 text-right">{c.totalPowerUnits ?? '—'}</td>
                           <td className="px-3 py-2">{c.authorityStatus || '—'}</td>
                           <td className="px-3 py-2">{c.safetyRating || '—'}</td>
-                          <td className="px-3 py-2"><InsuranceCell
+                          <td className="px-3 py-2"><InsuranceText
                             status={c.insuranceStatus}
                             date={c.insuranceCancellationDate}
                           /></td>
@@ -426,7 +427,7 @@ export default function AdminLeadsPage() {
                           : <span className="text-gray-400">—</span>}</td>
                         <td className="px-3 py-2">
                           {l.insuranceStatus ? (
-                            <InsuranceCell status={l.insuranceStatus} date={l.insuranceCancellationDate} />
+                            <InsuranceText status={l.insuranceStatus} date={l.insuranceCancellationDate} />
                           ) : l.insuranceCancellationSnapshot ? (
                             <span className="text-gray-500" title="Recorded when this lead was saved">
                               {String(l.insuranceCancellationSnapshot).slice(0, 10)} (at save)
@@ -766,22 +767,3 @@ function LogActivityPopover({
   )
 }
 
-// What FMCSA says about a carrier's liability coverage, worded the same here, in
-// Lead Generator and on the Company Leads cards: a carrier running with nothing on
-// file is a different (and better) lead than one whose cancellation is still ahead.
-function InsuranceCell({ status, date }: { status?: string | null; date?: string | null }) {
-  if (status === 'COVERAGE_LAPSED') {
-    return (
-      <span className="text-red-600 font-medium">
-        No insurance{date ? ` · ${date}` : ''}
-      </span>
-    )
-  }
-  if (status === 'CANCELLATION_SCHEDULED') {
-    return <span className="text-amber-700">Cancels {date || 'soon'}</span>
-  }
-  if (status === 'COVERED') {
-    return <span className="text-gray-400">Covered</span>
-  }
-  return <span className="text-gray-400">—</span>
-}

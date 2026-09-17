@@ -19,6 +19,7 @@ import {
 import Button from '../components/ui/Button'
 import { useAuth } from '../context/AuthContext'
 import { api } from '../services/api'
+import { InsuranceText } from '../components/InsuranceStatus'
 
 type Tier = 'BUYER' | 'BROKER' | 'ADMIN'
 
@@ -715,17 +716,7 @@ export default function LeadGeneratorToolPage() {
                 <td className="px-3 py-3">{r.authorityStatus || '—'}</td>
                 <td className="px-3 py-3">{r.safetyRating || '—'}</td>
                 <td className="px-3 py-3">
-                  {r.insuranceStatus === 'COVERAGE_LAPSED' ? (
-                    <span className="font-medium text-red-600">
-                      No insurance{r.insuranceCancellationDate ? ` · ${r.insuranceCancellationDate}` : ''}
-                    </span>
-                  ) : r.insuranceStatus === 'CANCELLATION_SCHEDULED' ? (
-                    <span className="text-amber-700">
-                      Cancels {r.insuranceCancellationDate || 'soon'}
-                    </span>
-                  ) : (
-                    <span className="text-slate-400">Covered</span>
-                  )}
+                  <InsuranceText status={r.insuranceStatus} date={r.insuranceCancellationDate} />
                 </td>
                 <td className="px-3 py-3">
                   {isBroker ? (
