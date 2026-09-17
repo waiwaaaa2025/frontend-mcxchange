@@ -717,7 +717,7 @@ export default function LeadGeneratorToolPage() {
                 <td className="px-3 py-3">
                   {r.insuranceStatus === 'COVERAGE_LAPSED' ? (
                     <span className="font-medium text-red-600">
-                      No coverage{r.insuranceCancellationDate ? ` · ${r.insuranceCancellationDate}` : ''}
+                      No insurance{r.insuranceCancellationDate ? ` · ${r.insuranceCancellationDate}` : ''}
                     </span>
                   ) : r.insuranceStatus === 'CANCELLATION_SCHEDULED' ? (
                     <span className="text-amber-700">

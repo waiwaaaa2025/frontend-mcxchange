@@ -124,9 +124,13 @@ export default function AdminLeadsPage() {
           && (!l.lastContactedAt || new Date(l.lastContactedAt).getTime() < followUpCutoff)
       }
       if (statFilter === 'expiring') {
-        const d = l.insuranceCancellationSnapshot
-        return d && d >= today && d <= weekOut
-          && !['WON', 'DEAD', 'NOT_INTERESTED'].includes(l.status)
+        if (['WON', 'DEAD', 'NOT_INTERESTED'].includes(l.status)) return false
+        // Same test the stat card counts: nothing on file today, or a cancellation
+        // inside the week. Falls back to the save-time date if FMCSA didn't answer.
+        if (l.insuranceStatus === 'COVERAGE_LAPSED') return true
+        const d = l.insuranceCancellationDate
+          || (l.insuranceCancellationSnapshot ? String(l.insuranceCancellationSnapshot).slice(0, 10) : null)
+        return !!d && d >= today && d <= weekOut
       }
       if (statFilter === 'won') {
         return l.status === 'WON' && new Date(l.updatedAt).getTime() >= startOfMonth
@@ -277,7 +281,7 @@ export default function AdminLeadsPage() {
                         <th className="px-3 py-2 text-right">Fleet</th>
                         <th className="px-3 py-2">Authority</th>
                         <th className="px-3 py-2">Safety</th>
-                        <th className="px-3 py-2">Ins. Cancels</th>
+                        <th className="px-3 py-2">Insurance</th>
                         <th className="px-3 py-2"></th>
                       </tr>
                     </thead>
@@ -309,17 +313,10 @@ export default function AdminLeadsPage() {
                           <td className="px-3 py-2 text-right">{c.totalPowerUnits ?? '—'}</td>
                           <td className="px-3 py-2">{c.authorityStatus || '—'}</td>
                           <td className="px-3 py-2">{c.safetyRating || '—'}</td>
-                          <td className="px-3 py-2">
-                            {c.insuranceStatus === 'COVERAGE_LAPSED' ? (
-                              <span className="text-red-600 font-medium">
-                                Lapsed{c.insuranceCancellationDate ? ` ${c.insuranceCancellationDate}` : ''}
-                              </span>
-                            ) : c.insuranceStatus === 'CANCELLATION_SCHEDULED' ? (
-                              <span className="text-amber-700">{c.insuranceCancellationDate || 'Cancelling'}</span>
-                            ) : (
-                              '—'
-                            )}
-                          </td>
+                          <td className="px-3 py-2"><InsuranceCell
+                            status={c.insuranceStatus}
+                            date={c.insuranceCancellationDate}
+                          /></td>
                           <td className="px-3 py-2">
                             <button onClick={(e)=>{ e.stopPropagation(); saveAsLead(c.dotNumber) }} className="text-xs text-blue-600 hover:underline">+ Save</button>
                           </td>
@@ -353,7 +350,7 @@ export default function AdminLeadsPage() {
               />
               <StatCard
                 icon={AlertTriangle} color="red"
-                label="Insurance expiring (7d)" value={stats?.expiring ?? null}
+                label="Uninsured or cancelling (7d)" value={stats?.expiring ?? null}
                 active={statFilter === 'expiring'}
                 onClick={() => setStatFilter(statFilter === 'expiring' ? 'all' : 'expiring')}
               />
@@ -392,7 +389,7 @@ export default function AdminLeadsPage() {
                       <th className="px-3 py-2">Carrier</th>
                       <th className="px-3 py-2">Phone</th>
                       <th className="px-3 py-2">Email</th>
-                      <th className="px-3 py-2">Ins. Cancels</th>
+                      <th className="px-3 py-2">Insurance</th>
                       <th className="px-3 py-2">Assignee</th>
                       <th className="px-3 py-2">Status</th>
                       <th className="px-3 py-2">Last Contact</th>
@@ -427,7 +424,17 @@ export default function AdminLeadsPage() {
                         <td className="px-3 py-2">{l.emailSnapshot
                           ? <a onClick={e=>e.stopPropagation()} href={`mailto:${l.emailSnapshot}`} className="text-blue-600 hover:underline">{l.emailSnapshot}</a>
                           : <span className="text-gray-400">—</span>}</td>
-                        <td className="px-3 py-2">{l.insuranceCancellationSnapshot || '—'}</td>
+                        <td className="px-3 py-2">
+                          {l.insuranceStatus ? (
+                            <InsuranceCell status={l.insuranceStatus} date={l.insuranceCancellationDate} />
+                          ) : l.insuranceCancellationSnapshot ? (
+                            <span className="text-gray-500" title="Recorded when this lead was saved">
+                              {String(l.insuranceCancellationSnapshot).slice(0, 10)} (at save)
+                            </span>
+                          ) : (
+                            '—'
+                          )}
+                        </td>
                         <td className="px-3 py-2">{l.assignee?.name || '—'}</td>
                         <td className="px-3 py-2" onClick={e=>e.stopPropagation()}>
                           <select value={l.status} onChange={e=>updateLeadStatus(l.id, e.target.value as LeadStatus)} className="text-xs border rounded px-2 py-1">
@@ -757,4 +764,24 @@ function LogActivityPopover({
       </div>
     </>
   )
+}
+
+// What FMCSA says about a carrier's liability coverage, worded the same here, in
+// Lead Generator and on the Company Leads cards: a carrier running with nothing on
+// file is a different (and better) lead than one whose cancellation is still ahead.
+function InsuranceCell({ status, date }: { status?: string | null; date?: string | null }) {
+  if (status === 'COVERAGE_LAPSED') {
+    return (
+      <span className="text-red-600 font-medium">
+        No insurance{date ? ` · ${date}` : ''}
+      </span>
+    )
+  }
+  if (status === 'CANCELLATION_SCHEDULED') {
+    return <span className="text-amber-700">Cancels {date || 'soon'}</span>
+  }
+  if (status === 'COVERED') {
+    return <span className="text-gray-400">Covered</span>
+  }
+  return <span className="text-gray-400">—</span>
 }
