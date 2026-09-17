@@ -263,7 +263,7 @@ export default function AdminLeadsPage() {
                 {error && <div className="p-3 text-sm text-red-600 bg-red-50">{error}</div>}
                 {insuranceHorizon && (
                   <div className="px-4 py-2.5 text-xs bg-amber-50 border-b border-amber-200 text-amber-900">
-                    🔥 Every row below has insurance expiring by <strong>{insuranceHorizon}</strong>. Click a row to see the exact cancellation date and contact info.
+                    🔥 Straight from FMCSA: every row below loses (or has already lost) liability coverage by <strong>{insuranceHorizon}</strong>. <span className="text-red-700 font-medium">Lapsed</span> means nothing is on file today. Click a row for the full record.
                   </div>
                 )}
 
@@ -309,7 +309,17 @@ export default function AdminLeadsPage() {
                           <td className="px-3 py-2 text-right">{c.totalPowerUnits ?? '—'}</td>
                           <td className="px-3 py-2">{c.authorityStatus || '—'}</td>
                           <td className="px-3 py-2">{c.safetyRating || '—'}</td>
-                          <td className="px-3 py-2">{c.insuranceCancellationDate || '—'}</td>
+                          <td className="px-3 py-2">
+                            {c.insuranceStatus === 'COVERAGE_LAPSED' ? (
+                              <span className="text-red-600 font-medium">
+                                Lapsed{c.insuranceCancellationDate ? ` ${c.insuranceCancellationDate}` : ''}
+                              </span>
+                            ) : c.insuranceStatus === 'CANCELLATION_SCHEDULED' ? (
+                              <span className="text-amber-700">{c.insuranceCancellationDate || 'Cancelling'}</span>
+                            ) : (
+                              '—'
+                            )}
+                          </td>
                           <td className="px-3 py-2">
                             <button onClick={(e)=>{ e.stopPropagation(); saveAsLead(c.dotNumber) }} className="text-xs text-blue-600 hover:underline">+ Save</button>
                           </td>

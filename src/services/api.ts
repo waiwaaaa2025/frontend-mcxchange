@@ -3813,6 +3813,8 @@ class ApiService {
           totalDrivers: number | null;
           authorityStatus: string | null;
           safetyRating: string | null;
+          insuranceCancellationDate: string | null;
+          insuranceStatus: string | null;
         }>;
         limit: number;
         hasMore: boolean;

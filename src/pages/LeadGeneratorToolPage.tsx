@@ -31,6 +31,9 @@ interface CarrierRow {
   totalDrivers: number | null
   authorityStatus: string | null
   safetyRating: string | null
+  // Straight from FMCSA — 'COVERAGE_LAPSED' | 'CANCELLATION_SCHEDULED' | 'COVERED'
+  insuranceCancellationDate: string | null
+  insuranceStatus: string | null
 }
 
 interface SavedRow {
@@ -649,6 +652,7 @@ export default function LeadGeneratorToolPage() {
               <th className="px-3 py-3">Units</th>
               <th className="px-3 py-3">Authority</th>
               <th className="px-3 py-3">Safety</th>
+              <th className="px-3 py-3">Insurance</th>
               <th className="px-3 py-3">Phone</th>
               {isBroker && <th className="px-3 py-3">Email</th>}
               <th className="px-3 py-3"></th>
@@ -657,7 +661,7 @@ export default function LeadGeneratorToolPage() {
           <tbody>
             {rows.length === 0 && !searching && (
               <tr>
-                <td colSpan={isBroker ? 10 : 8} className="px-3 py-12 text-center text-slate-500">
+                <td colSpan={isBroker ? 11 : 9} className="px-3 py-12 text-center text-slate-500">
                   {hasMore
                     ? 'No matches in this batch — load the next page to keep searching.'
                     : 'Set filters and hit Search to see live carriers — here’s an example of what you’ll get:'}
@@ -696,6 +700,19 @@ export default function LeadGeneratorToolPage() {
                 <td className="px-3 py-3">{r.totalPowerUnits ?? '—'}</td>
                 <td className="px-3 py-3">{r.authorityStatus || '—'}</td>
                 <td className="px-3 py-3">{r.safetyRating || '—'}</td>
+                <td className="px-3 py-3">
+                  {r.insuranceStatus === 'COVERAGE_LAPSED' ? (
+                    <span className="font-medium text-red-600">
+                      No coverage{r.insuranceCancellationDate ? ` · ${r.insuranceCancellationDate}` : ''}
+                    </span>
+                  ) : r.insuranceStatus === 'CANCELLATION_SCHEDULED' ? (
+                    <span className="text-amber-700">
+                      Cancels {r.insuranceCancellationDate || 'soon'}
+                    </span>
+                  ) : (
+                    <span className="text-slate-400">Covered</span>
+                  )}
+                </td>
                 <td className="px-3 py-3">
                   {isBroker ? (
                     <PhoneCell contact={contacts[r.dotNumber]} />
