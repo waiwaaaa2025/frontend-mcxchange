@@ -59,6 +59,8 @@ interface Lead {
   state: string | null
   powerUnits: number | null
   safetyRating: string | null
+  phone: string | null
+  email: string | null
   insuranceStatus: 'pending' | 'expiring'
   insuranceExpiryDate: string | null
   daysUntilExpiry: number | null
@@ -322,6 +324,20 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
                         </span>
                       )}
                     </div>
+                    {(lead.phone || lead.email) && (
+                      <div className="text-sm text-gray-600 mt-1 flex flex-wrap gap-x-4 gap-y-0.5">
+                        {lead.phone && (
+                          <a href={`tel:${lead.phone.replace(/\D/g, '')}`} className="hover:text-indigo-600">
+                            {lead.phone}
+                          </a>
+                        )}
+                        {lead.email && (
+                          <a href={`mailto:${lead.email}`} className="hover:text-indigo-600 truncate max-w-[16rem]">
+                            {lead.email}
+                          </a>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 shrink-0">
                     <Link to={`${pulseBase}/${lead.dotNumber}`} className="w-full sm:w-auto">
