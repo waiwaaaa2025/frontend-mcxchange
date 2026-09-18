@@ -46,6 +46,12 @@ const WINDOW_OPTIONS = [
   { value: '90', label: 'Within 90 days' },
 ]
 
+const LEAD_TYPE_OPTIONS = [
+  { value: 'all', label: 'Cancellations + renewals' },
+  { value: 'cancellation', label: 'Pending cancellation only' },
+  { value: 'renewal', label: 'Renewal due only' },
+]
+
 const SAFETY_OPTIONS = [
   { value: '', label: 'Any safety rating' },
   { value: 'SATISFACTORY', label: 'Satisfactory' },
@@ -67,6 +73,7 @@ interface Lead {
   daysUntilExpiry: number | null
   pendingReason: string | null
   insuranceCompany?: string | null
+  policyEffectiveDate?: string | null
 }
 
 export default function InsuranceLeadsPage({ previewMode = false }: { previewMode?: boolean } = {}) {
@@ -76,6 +83,7 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
   const [hasAccess, setHasAccess] = useState(false)
 
   const [expiringWithinDays, setExpiringWithinDays] = useState('30')
+  const [leadType, setLeadType] = useState('all')
   const [state, setState] = useState('')
   const [minUnits, setMinUnits] = useState('')
   const [maxUnits, setMaxUnits] = useState('')
@@ -88,6 +96,7 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
   const [error, setError] = useState<string | null>(null)
   const [leads, setLeads] = useState<Lead[]>([])
   const [hasMore, setHasMore] = useState(false)
+  const [total, setTotal] = useState<number | null>(null)
   const [nextCursor, setNextCursor] = useState<string | null>(null)
   const limit = 25
 
@@ -132,6 +141,7 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
     try {
       const res = await api.getInsuranceLeads({
         expiringWithinDays: Number(expiringWithinDays),
+        leadType,
         state: state || undefined,
         minUnits: minUnits ? Number(minUnits) : undefined,
         maxUnits: maxUnits ? Number(maxUnits) : undefined,
@@ -143,6 +153,7 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
       if (res.success && res.data) {
         setLeads(res.data.results)
         setHasMore(res.data.hasMore)
+        setTotal(typeof res.data.total === 'number' ? res.data.total : null)
         setNextCursor(res.data.nextCursor)
       } else {
         setError('Could not load leads.')
@@ -152,7 +163,7 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
     } finally {
       setLoading(false)
     }
-  }, [hasAccess, previewMode, expiringWithinDays, state, minUnits, maxUnits, minSafety, cursors])
+  }, [hasAccess, previewMode, expiringWithinDays, leadType, state, minUnits, maxUnits, minSafety, cursors])
 
   useEffect(() => { fetchLeads() }, [fetchLeads])
 
@@ -193,9 +204,9 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
         </div>
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Company Leads</h1>
         <p className="text-gray-600 mb-6">
-          Search companies that have just lost their insurance, or have a cancellation
-          filed against it, and have Domilea reach the company owners directly on your
-          behalf. Included with any active subscription.
+          Search companies with an insurance cancellation filed, or a liability policy
+          coming up for renewal, and have Domilea reach the company owners directly on
+          your behalf. Included with any active subscription.
         </p>
         <Link to="/buyer/subscription">
           <Button>Upgrade to unlock</Button>
@@ -212,7 +223,7 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
         </div>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Company Leads</h1>
-          <p className="text-sm text-gray-500">Companies losing their insurance — potential acquisition targets</p>
+          <p className="text-sm text-gray-500">Companies whose insurance is cancelling or coming up for renewal</p>
         </div>
       </div>
 
@@ -220,17 +231,25 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
       <div className="bg-indigo-50 border border-indigo-200 text-indigo-900 rounded-2xl p-4 mt-6 flex items-start gap-3">
         <Umbrella className="w-5 h-5 shrink-0 mt-0.5 text-indigo-600" />
         <p className="text-sm leading-relaxed">
-          Straight from FMCSA: companies with <strong>no insurance on file</strong> today,
-          and companies with a <strong>cancellation already filed</strong> — strong signals an
-          owner may be ready to sell. Filter by state, fleet size and safety, then have Domilea
-          <strong> reach the company owners directly</strong> on your behalf.
+          Straight from FMCSA: companies whose active liability policy has a
+          <strong> cancellation filed</strong>, and companies whose policy is
+          <strong> due for renewal</strong> — reach them before the date. Renewal dates are
+          estimated from the anniversary of the policy's FMCSA filing. Filter by state, fleet
+          size and safety, then have Domilea <strong>reach the company owners directly</strong> on
+          your behalf.
         </p>
       </div>
 
       {/* Filter bar */}
       <div className="bg-white border border-gray-200 rounded-2xl p-5 mt-4 mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <Select
-          label="Insurance cancelling within"
+          label="Show"
+          options={LEAD_TYPE_OPTIONS}
+          value={leadType}
+          onChange={(e) => { setCursors([null]);setLeadType(e.target.value) }}
+        />
+        <Select
+          label="Cancelling or renewing within"
           options={WINDOW_OPTIONS}
           value={expiringWithinDays}
           onChange={(e) => { setCursors([null]);setExpiringWithinDays(e.target.value) }}
@@ -291,7 +310,7 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
       {!loading && !error && leads.length > 0 && (
         <>
           <p className="text-sm text-gray-500 mb-3">
-            Page {page} · {leads.length.toLocaleString()} carriers{hasMore ? ' (more available)' : ''}
+            Page {page} · {total != null ? `${total.toLocaleString()} carriers` : `${leads.length.toLocaleString()} carriers${hasMore ? ' (more available)' : ''}`}
           </p>
           <div className="space-y-3">
             {leads.map((lead) => {
@@ -322,6 +341,9 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
                     {lead.insuranceCompany && (
                       <div className="text-sm text-gray-700 mt-1">
                         Insurer: <span className="font-medium">{lead.insuranceCompany}</span>
+                        {lead.policyEffectiveDate && (
+                          <span className="text-gray-500"> · on file since {lead.policyEffectiveDate}</span>
+                        )}
                       </div>
                     )}
                     {(lead.phone || lead.email) && (

@@ -1170,6 +1170,7 @@ class ApiService {
   async getInsuranceLeads(params: {
     insuranceStatus?: 'pending' | 'expiring';
     expiringWithinDays?: number;
+    leadType?: string;
     state?: string;
     minUnits?: number;
     maxUnits?: number;
@@ -1201,6 +1202,7 @@ class ApiService {
         daysUntilExpiry: number | null;
         pendingReason: string | null;
         insuranceCompany?: string | null;
+        policyEffectiveDate?: string | null;
       }>;
     }>>(`/buyer/insurance-leads?${sp.toString()}`);
   }
@@ -3858,6 +3860,7 @@ class ApiService {
           insuranceCancellationDate: string | null;
           insuranceStatus: string | null;
           insuranceCompany?: string | null;
+          insuranceRenewalDate?: string | null;
           phone: string | null;
           email: string | null;
         }>;

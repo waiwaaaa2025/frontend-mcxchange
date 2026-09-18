@@ -32,10 +32,11 @@ interface CarrierRow {
   totalDrivers: number | null
   authorityStatus: string | null
   safetyRating: string | null
-  // Straight from FMCSA — 'COVERAGE_LAPSED' | 'CANCELLATION_SCHEDULED' | 'COVERED'
+  // Straight from FMCSA — 'COVERAGE_LAPSED' | 'CANCELLATION_SCHEDULED' | 'RENEWAL_DUE' | 'COVERED'
   insuranceCancellationDate: string | null
   insuranceStatus: string | null
   insuranceCompany?: string | null
+  insuranceRenewalDate?: string | null
   // FMCSA census contact, sent with the row for every tier.
   phone: string | null
   email: string | null
@@ -57,6 +58,7 @@ interface Filters {
   safetyRating: string
   name: string
   insuranceExpiresWithinDays: string
+  insuranceLeadType: string
   // Broker-tier (gated)
   minFleet: string
   maxFleet: string
@@ -70,6 +72,7 @@ const EMPTY_FILTERS: Filters = {
   safetyRating: '',
   name: '',
   insuranceExpiresWithinDays: '',
+  insuranceLeadType: '',
   minFleet: '',
   maxFleet: '',
   addedAfter: '',
@@ -569,13 +572,24 @@ export default function LeadGeneratorToolPage() {
             onChange={(e) => setFilters((f) => ({ ...f, insuranceExpiresWithinDays: e.target.value }))}
             className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
           >
-            <option value="">Insurance expiry: Any</option>
-            <option value="7">Expires in 7 days</option>
-            <option value="14">Expires in 14 days</option>
-            <option value="30">Expires in 30 days</option>
-            <option value="60">Expires in 60 days</option>
-            <option value="90">Expires in 90 days</option>
+            <option value="">Insurance: Any</option>
+            <option value="7">Cancels or renews in 7 days</option>
+            <option value="14">Cancels or renews in 14 days</option>
+            <option value="30">Cancels or renews in 30 days</option>
+            <option value="60">Cancels or renews in 60 days</option>
+            <option value="90">Cancels or renews in 90 days</option>
           </select>
+          {filters.insuranceExpiresWithinDays && (
+            <select
+              value={filters.insuranceLeadType}
+              onChange={(e) => setFilters((f) => ({ ...f, insuranceLeadType: e.target.value }))}
+              className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+            >
+              <option value="">Cancellations + renewals</option>
+              <option value="cancellation">Pending cancellation only</option>
+              <option value="renewal">Renewal due only</option>
+            </select>
+          )}
         </div>
 
         {isBroker && (
@@ -721,6 +735,7 @@ export default function LeadGeneratorToolPage() {
                     status={r.insuranceStatus}
                     date={r.insuranceCancellationDate}
                     company={r.insuranceCompany}
+                    renewalDate={r.insuranceRenewalDate}
                   />
                 </td>
                 <td className="px-3 py-3">

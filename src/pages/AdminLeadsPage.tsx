@@ -23,6 +23,7 @@ interface Filters {
   state: string
   name: string
   insuranceExpiresWithinDays: string
+  insuranceLeadType: string
   minFleet: string
   maxFleet: string
   authorityStatus: string
@@ -32,7 +33,7 @@ interface Filters {
 }
 
 const EMPTY_FILTERS: Filters = {
-  state: '', name: '', insuranceExpiresWithinDays: '', minFleet: '', maxFleet: '',
+  state: '', name: '', insuranceExpiresWithinDays: '', insuranceLeadType: '', minFleet: '', maxFleet: '',
   authorityStatus: '', safetyRating: '', addedBefore: '', addedAfter: '',
 }
 
@@ -216,9 +217,19 @@ export default function AdminLeadsPage() {
                 </select>
               </Field>
 
-              <Field label="Insurance expires within (days)">
+              <Field label="Insurance cancels or renews within (days)">
                 <input type="number" value={filters.insuranceExpiresWithinDays} onChange={e=>setFilters(f=>({...f,insuranceExpiresWithinDays:e.target.value}))} placeholder="30" className="input"/>
               </Field>
+
+              {filters.insuranceExpiresWithinDays && (
+                <Field label="Insurance lead type">
+                  <select value={filters.insuranceLeadType} onChange={e=>setFilters(f=>({...f,insuranceLeadType:e.target.value}))} className="input">
+                    <option value="">Cancellations + renewals</option>
+                    <option value="cancellation">Pending cancellation only</option>
+                    <option value="renewal">Renewal due only</option>
+                  </select>
+                </Field>
+              )}
 
               <div className="grid grid-cols-2 gap-2">
                 <Field label="Min fleet"><input type="number" value={filters.minFleet} onChange={e=>setFilters(f=>({...f,minFleet:e.target.value}))} className="input"/></Field>
@@ -272,7 +283,7 @@ export default function AdminLeadsPage() {
                 {error && <div className="p-3 text-sm text-red-600 bg-red-50">{error}</div>}
                 {insuranceHorizon && (
                   <div className="px-4 py-2.5 text-xs bg-amber-50 border-b border-amber-200 text-amber-900">
-                    🔥 Straight from FMCSA: every row below loses (or has already lost) liability coverage by <strong>{insuranceHorizon}</strong>. <span className="text-red-700 font-medium">Lapsed</span> means nothing is on file today. Click a row for the full record.
+                    🔥 Straight from FMCSA: every row below has its liability policy <span className="text-amber-700 font-medium">cancelling</span> or <span className="text-blue-700 font-medium">up for renewal</span> by <strong>{insuranceHorizon}</strong>. Renewal dates are estimated from the anniversary of the policy's FMCSA filing. Click a row for the full record.
                   </div>
                 )}
 
@@ -322,6 +333,7 @@ export default function AdminLeadsPage() {
                             status={c.insuranceStatus}
                             date={c.insuranceCancellationDate}
                             company={c.insuranceCompany}
+                            renewalDate={c.insuranceRenewalDate}
                           /></td>
                           <td className="px-3 py-2">
                             <button onClick={(e)=>{ e.stopPropagation(); saveAsLead(c.dotNumber) }} className="text-xs text-blue-600 hover:underline">+ Save</button>
@@ -432,7 +444,7 @@ export default function AdminLeadsPage() {
                           : <span className="text-gray-400">—</span>}</td>
                         <td className="px-3 py-2">
                           {l.insuranceStatus ? (
-                            <InsuranceText status={l.insuranceStatus} date={l.insuranceCancellationDate} company={l.insuranceCompany} />
+                            <InsuranceText status={l.insuranceStatus} date={l.insuranceCancellationDate} company={l.insuranceCompany} renewalDate={l.insuranceRenewalDate} />
                           ) : l.insuranceCancellationSnapshot ? (
                             <span className="text-gray-500" title="Recorded when this lead was saved">
                               {String(l.insuranceCancellationSnapshot).slice(0, 10)} (at save)
