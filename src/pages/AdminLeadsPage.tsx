@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import api from '../services/api'
 import { InsuranceText } from '../components/InsuranceStatus'
+import NewCarriersPanel from '../components/NewCarriersPanel'
 
 // Carrier Pulse detail route for the full MC profile (safety, authority,
 // insurance, fleet, chameleon, etc.). Admin Leads lives under /admin, so the
@@ -36,7 +37,7 @@ const EMPTY_FILTERS: Filters = {
 }
 
 export default function AdminLeadsPage() {
-  const [tab, setTab] = useState<'search' | 'pipeline'>('search')
+  const [tab, setTab] = useState<'search' | 'new' | 'pipeline'>('search')
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
   // LINQ search pages by cursor: one entry per page visited, last = current page.
   const [cursors, setCursors] = useState<(string | null)[]>([null])
@@ -192,9 +193,12 @@ export default function AdminLeadsPage() {
           <h1 className="text-2xl font-bold text-gray-900">Leads</h1>
           <div className="flex gap-2">
             <button onClick={() => setTab('search')} className={`px-4 py-2 rounded-lg text-sm font-medium ${tab==='search'?'bg-blue-600 text-white':'bg-white text-gray-700 border'}`}>Search Carriers</button>
+            <button onClick={() => setTab('new')} className={`px-4 py-2 rounded-lg text-sm font-medium ${tab==='new'?'bg-blue-600 text-white':'bg-white text-gray-700 border'}`}>New Carriers</button>
             <button onClick={() => setTab('pipeline')} className={`px-4 py-2 rounded-lg text-sm font-medium ${tab==='pipeline'?'bg-blue-600 text-white':'bg-white text-gray-700 border'}`}>My Pipeline</button>
           </div>
         </div>
+
+        {tab === 'new' && <NewCarriersPanel onSave={saveAsLead} />}
 
         {tab === 'search' && (
           <div className="grid grid-cols-12 gap-6">

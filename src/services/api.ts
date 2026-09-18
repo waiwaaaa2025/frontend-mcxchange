@@ -3729,6 +3729,47 @@ class ApiService {
     return `${API_BASE_URL}/admin/leads/carriers/export.csv?${qs}`;
   }
 
+  async newCarriersSearch(params: Record<string, string | number | boolean | undefined>) {
+    const qs = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== '' && v !== null) qs.set(k, String(v));
+    });
+    return this.request<{
+      success: boolean;
+      data: {
+        total: number;
+        offset: number;
+        limit: number;
+        hasMore: boolean;
+        dataThrough: string | null;
+        days: number;
+        results: Array<{
+          dotNumber: string;
+          mcNumber: string | null;
+          legalName: string;
+          dbaName: string | null;
+          city: string | null;
+          state: string | null;
+          registeredDate: string | null;
+          powerUnits: number | null;
+          drivers: number | null;
+          forHire: boolean;
+          officer: string | null;
+          phone: string | null;
+          email: string | null;
+        }>;
+      };
+    }>(`/admin/leads/new-carriers?${qs}`);
+  }
+
+  newCarriersExportUrl(params: Record<string, string | number | boolean | undefined>): string {
+    const qs = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== '' && v !== null) qs.set(k, String(v));
+    });
+    return `${API_BASE_URL}/admin/leads/new-carriers/export.csv?${qs}`;
+  }
+
   async leadsList(all = false, status?: string) {
     const qs = new URLSearchParams();
     if (all) qs.set('all', 'true');
