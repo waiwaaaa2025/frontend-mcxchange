@@ -67,12 +67,23 @@ const BADGE_TONE: Record<Tone, string> = {
 export function InsuranceText({
   status,
   date,
+  company,
 }: {
   status?: InsuranceStatusCode | null
   date?: string | null
+  // Insurer on the policy being cancelled; shown under the status when known.
+  company?: string | null
 }) {
   const { text, tone } = insuranceLabel(status, date)
-  return <span className={TEXT_TONE[tone]}>{text}</span>
+  if (!company || tone === 'covered' || tone === 'unknown') {
+    return <span className={TEXT_TONE[tone]}>{text}</span>
+  }
+  return (
+    <span className="block">
+      <span className={TEXT_TONE[tone]}>{text}</span>
+      <span className="block text-xs text-gray-500">{company}</span>
+    </span>
+  )
 }
 
 /** Pill form, for the Company Leads cards. */

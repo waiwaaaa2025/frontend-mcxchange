@@ -66,6 +66,7 @@ interface Lead {
   insuranceExpiryDate: string | null
   daysUntilExpiry: number | null
   pendingReason: string | null
+  insuranceCompany?: string | null
 }
 
 export default function InsuranceLeadsPage({ previewMode = false }: { previewMode?: boolean } = {}) {
@@ -318,6 +319,11 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
                       {lead.powerUnits != null && <span>{lead.powerUnits} units</span>}
                       {lead.safetyRating && <span>{lead.safetyRating}</span>}
                     </div>
+                    {lead.insuranceCompany && (
+                      <div className="text-sm text-gray-700 mt-1">
+                        Insurer: <span className="font-medium">{lead.insuranceCompany}</span>
+                      </div>
+                    )}
                     {(lead.phone || lead.email) && (
                       <div className="text-sm text-gray-600 mt-1 flex flex-wrap gap-x-4 gap-y-0.5">
                         {lead.phone && (

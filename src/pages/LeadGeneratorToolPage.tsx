@@ -35,6 +35,7 @@ interface CarrierRow {
   // Straight from FMCSA — 'COVERAGE_LAPSED' | 'CANCELLATION_SCHEDULED' | 'COVERED'
   insuranceCancellationDate: string | null
   insuranceStatus: string | null
+  insuranceCompany?: string | null
   // FMCSA census contact, sent with the row for every tier.
   phone: string | null
   email: string | null
@@ -716,7 +717,11 @@ export default function LeadGeneratorToolPage() {
                 <td className="px-3 py-3">{r.authorityStatus || '—'}</td>
                 <td className="px-3 py-3">{r.safetyRating || '—'}</td>
                 <td className="px-3 py-3">
-                  <InsuranceText status={r.insuranceStatus} date={r.insuranceCancellationDate} />
+                  <InsuranceText
+                    status={r.insuranceStatus}
+                    date={r.insuranceCancellationDate}
+                    company={r.insuranceCompany}
+                  />
                 </td>
                 <td className="px-3 py-3">
                   {isBroker ? (

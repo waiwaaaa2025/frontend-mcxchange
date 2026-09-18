@@ -1200,6 +1200,7 @@ class ApiService {
         insuranceExpiryDate: string | null;
         daysUntilExpiry: number | null;
         pendingReason: string | null;
+        insuranceCompany?: string | null;
       }>;
     }>>(`/buyer/insurance-leads?${sp.toString()}`);
   }
@@ -3815,6 +3816,7 @@ class ApiService {
           safetyRating: string | null;
           insuranceCancellationDate: string | null;
           insuranceStatus: string | null;
+          insuranceCompany?: string | null;
           phone: string | null;
           email: string | null;
         }>;

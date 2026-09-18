@@ -317,6 +317,7 @@ export default function AdminLeadsPage() {
                           <td className="px-3 py-2"><InsuranceText
                             status={c.insuranceStatus}
                             date={c.insuranceCancellationDate}
+                            company={c.insuranceCompany}
                           /></td>
                           <td className="px-3 py-2">
                             <button onClick={(e)=>{ e.stopPropagation(); saveAsLead(c.dotNumber) }} className="text-xs text-blue-600 hover:underline">+ Save</button>
@@ -427,7 +428,7 @@ export default function AdminLeadsPage() {
                           : <span className="text-gray-400">—</span>}</td>
                         <td className="px-3 py-2">
                           {l.insuranceStatus ? (
-                            <InsuranceText status={l.insuranceStatus} date={l.insuranceCancellationDate} />
+                            <InsuranceText status={l.insuranceStatus} date={l.insuranceCancellationDate} company={l.insuranceCompany} />
                           ) : l.insuranceCancellationSnapshot ? (
                             <span className="text-gray-500" title="Recorded when this lead was saved">
                               {String(l.insuranceCancellationSnapshot).slice(0, 10)} (at save)
