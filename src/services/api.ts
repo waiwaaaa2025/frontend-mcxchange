@@ -916,6 +916,22 @@ class ApiService {
     return this.request<{ success: boolean; data: any }>(`/carrier-data/report/${dotNumber}`);
   }
 
+  // Carrier intelligence for a listing. Addressed by listing id, not DOT: the
+  // backend resolves the DOT itself so a masked listing never ships its real
+  // number to the browser.
+  async getListingCarrierIntel(listingId: string) {
+    return this.request<{
+      success: boolean;
+      data: {
+        carrierReport: any | null;
+        sms: FMCSASMSData | null;
+        cargoTypes: string[];
+        authority: FMCSAAuthorityHistory | null;
+        insurance: FMCSAInsuranceHistory[] | null;
+      };
+    }>(`/listings/${listingId}/carrier-intel`);
+  }
+
   // FMCSA endpoints
   async fmcsaLookupByMC(mcNumber: string) {
     return this.request<{

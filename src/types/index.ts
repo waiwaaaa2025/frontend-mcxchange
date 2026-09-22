@@ -251,9 +251,6 @@ export interface MCListingExtended extends MCListing {
   fmcsaData?: string
   cargoTypes?: string
 
-  // Real DOT number for carrier data fetching (provided when dotNumber is masked)
-  _realDotNumber?: string
-
   // Unlock/ownership status (set by backend based on authenticated user)
   isUnlocked: boolean
   isSaved: boolean

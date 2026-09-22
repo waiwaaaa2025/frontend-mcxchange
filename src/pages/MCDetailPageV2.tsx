@@ -87,7 +87,6 @@ import {
   V2InsuranceGap, V2ViolationTrend, V2RelatedCarrier, V2CarrierPercentile,
   V2NetworkSignal, V2BenchmarkData, V2DocumentItem, V2ChameleonAnalysis,
 } from '../components/v2/mockData'
-import { useCarrierData } from '../hooks/useCarrierData'
 import {
   AUTHORITY_TYPE_PILL_LABELS,
   normalizeAuthorityType,
@@ -442,7 +441,7 @@ function HeroHeader({ unlocked, authorityType }: { unlocked: boolean; authorityT
                   {AUTHORITY_TYPE_PILL_LABELS[normalizedAuthorityType] || normalizedAuthorityType}
                 </span>
               </div>
-              <h1 className={`text-2xl sm:text-4xl font-black text-white tracking-tight ${!unlocked ? 'blur-[6px] select-none pointer-events-none' : ''}`}>{mockCarrier.legalName}</h1>
+              <h1 className={`text-2xl sm:text-4xl font-black text-white tracking-tight ${!unlocked ? 'blur-[6px] select-none pointer-events-none' : ''}`}>{mockCarrier.legalName || 'Carrier Name Hidden'}</h1>
               {mockCarrier.dbaName && (
                 <p className={`text-white/40 text-sm mt-1 font-medium ${!unlocked ? 'blur-[6px] select-none pointer-events-none' : ''}`}>DBA: {mockCarrier.dbaName}</p>
               )}
@@ -924,7 +923,7 @@ function AuthorityTab() {
           Registration Details
         </h3>
         <InfoGrid items={[
-          { label: 'Legal Name', value: mockCarrier.legalName },
+          { label: 'Legal Name', value: mockCarrier.legalName || 'Hidden until unlocked' },
           { label: 'DBA Name', value: mockCarrier.dbaName || 'N/A' },
           { label: 'EIN', value: mockCarrier.ein, blur: true },
           { label: 'Entity Type', value: mockCarrier.entityType },
@@ -3486,39 +3485,49 @@ export default function MCDetailPageV2() {
     if (!visibleTabIds.split(',').includes(activeTab)) setActiveTab('overview')
   }, [visibleTabIds, activeTab])
 
-  // Use real DOT number for API calls (backend provides _realDotNumber when dotNumber is masked)
-  const carrierDotNumber = listing?._realDotNumber || listing?.dotNumber
-
-  // Carrier intelligence data from MorPro API
-  const { carrierReport, loading: carrierLoading, error: carrierError } = useCarrierData(
-    USE_MOCK ? undefined : carrierDotNumber
-  )
-
-  // FMCSA data (source of truth for BASIC scores, cargo, authority, insurance)
+  // Carrier intelligence + FMCSA data (BASIC scores, cargo, authority, insurance).
+  // Fetched by listing id: the DOT stays server-side, so a listing the viewer
+  // hasn't unlocked never ships its real number to the browser.
+  const [carrierReport, setCarrierReport] = useState<any | null>(null)
+  const [carrierLoading, setCarrierLoading] = useState(false)
+  const [carrierError, setCarrierError] = useState<string | null>(null)
   const [smsData, setSmsData] = useState<FMCSASMSData | null>(null)
   const [fmcsaCargoTypes, setFmcsaCargoTypes] = useState<string[]>([])
   const [fmcsaAuthority, setFmcsaAuthority] = useState<FMCSAAuthorityHistory | null>(null)
   const [fmcsaInsurance, setFmcsaInsurance] = useState<FMCSAInsuranceHistory[] | null>(null)
-  const fmcsaFetchedRef = useRef<string | null>(null)
+  const intelFetchedRef = useRef<string | null>(null)
   useEffect(() => {
-    const dot = carrierDotNumber?.replace(/\D/g, '')
-    if (!dot || USE_MOCK) return
-    if (fmcsaFetchedRef.current === dot) return
-    fmcsaFetchedRef.current = dot
-    // Fetch SMS + cargo + authority + insurance in parallel
-    api.fmcsaGetSMSData(dot)
-      .then(res => { if (res.success && res.data) setSmsData(res.data) })
-      .catch(() => {})
-    api.fmcsaGetCargoCarried(dot)
-      .then(res => { if (res.success && res.data) setFmcsaCargoTypes(res.data) })
-      .catch(() => {})
-    api.fmcsaGetAuthorityHistory(dot)
-      .then(res => { if (res.success && res.data) setFmcsaAuthority(res.data) })
-      .catch(() => {})
-    api.fmcsaGetInsuranceHistory(dot)
-      .then(res => { if (res.success && res.data) setFmcsaInsurance(res.data) })
-      .catch(() => {})
-  }, [carrierDotNumber])
+    const listingId = listing?.id
+    if (!listingId || USE_MOCK) return
+    if (intelFetchedRef.current === listingId) return
+    intelFetchedRef.current = listingId
+
+    let cancelled = false
+    setCarrierLoading(true)
+    setCarrierError(null)
+    api.getListingCarrierIntel(listingId)
+      .then(res => {
+        if (cancelled) return
+        if (!res.success || !res.data) {
+          setCarrierError('Carrier data not available')
+          return
+        }
+        setCarrierReport(res.data.carrierReport ?? null)
+        setSmsData(res.data.sms ?? null)
+        setFmcsaCargoTypes(res.data.cargoTypes ?? [])
+        setFmcsaAuthority(res.data.authority ?? null)
+        setFmcsaInsurance(res.data.insurance ?? null)
+      })
+      .catch((err: any) => {
+        if (cancelled) return
+        // A retry is allowed after a failure — don't strand the panel empty.
+        intelFetchedRef.current = null
+        setCarrierError(err?.message || 'Failed to load carrier data')
+      })
+      .finally(() => { if (!cancelled) setCarrierLoading(false) })
+
+    return () => { cancelled = true }
+  }, [listing?.id])
 
   // Map API data to V2 interfaces (memoized)
   const carrierDataCtx = useMemo<CarrierDataContextType>(() => {
