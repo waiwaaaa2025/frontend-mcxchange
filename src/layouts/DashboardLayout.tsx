@@ -47,6 +47,7 @@ import {
   Sparkles,
   Building2,
   Umbrella,
+  Radar,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { DomileaLogoFull, DomileaIcon } from '../components/ui/DomileaLogo'
@@ -350,6 +351,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps = {}) => {
             items: [
               { icon: Users, label: 'Users', path: '/admin/users' },
               { icon: Activity, label: 'Activity Log', path: '/admin/activity-log' },
+              { icon: Radar, label: 'Access Activity', path: '/admin/access-activity' },
               { icon: Package, label: 'Listings', path: '/admin/listings' },
               { icon: UserSearch, label: 'Lead Generator Saves', path: '/admin/lead-generator' },
               { icon: FileText, label: 'Reports', path: '/admin/reports' },

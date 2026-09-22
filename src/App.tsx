@@ -91,6 +91,7 @@ const AdminActiveClosingsPage = lazy(() => import('./pages/AdminActiveClosingsPa
 const AdminUsersPage = lazy(() => import('./pages/AdminUsersPage'))
 const AdminDisputesPage = lazy(() => import('./pages/AdminDisputesPage'))
 const AdminActivityLogPage = lazy(() => import('./pages/AdminActivityLogPage'))
+const AdminScrapeActivityPage = lazy(() => import('./pages/AdminScrapeActivityPage'))
 const AdminLeadsPage = lazy(() => import('./pages/AdminLeadsPage'))
 const TeamPage = lazy(() => import('./pages/agents/TeamPage'))
 const ScoutAgentPage = lazy(() => import('./pages/agents/ScoutAgentPage'))
@@ -317,6 +318,7 @@ function App() {
               <Route path="users" element={<AdminUsersPage />} />
               <Route path="users/:userId" element={<AdminUsersPage />} />
               <Route path="activity-log" element={<AdminActivityLogPage />} />
+              <Route path="access-activity" element={<AdminScrapeActivityPage />} />
               <Route path="disputes" element={<AdminDisputesPage />} />
               <Route path="settings" element={<AdminSettingsPage />} />
               <Route path="transactions" element={<AdminTransactionsPage />} />

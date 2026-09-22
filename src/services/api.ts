@@ -612,6 +612,33 @@ class ApiService {
     return this.request<any>(`/admin/activity-log${query ? `?${query}` : ''}`);
   }
 
+  // Catalogue reads grouped by client IP — who is scraping the marketplace.
+  async getScrapeActivity(params?: { hours?: number; limit?: number }) {
+    const searchParams = new URLSearchParams();
+    if (params?.hours) searchParams.set('hours', params.hours.toString());
+    if (params?.limit) searchParams.set('limit', params.limit.toString());
+    const query = searchParams.toString();
+    return this.request<{
+      success: boolean;
+      data: {
+        windowHours: number;
+        since: string;
+        clients: Array<{
+          ipAddress: string | null;
+          requests: number;
+          detailViews: number;
+          searches: number;
+          listingsTouched: number;
+          users: number;
+          anonymousRequests: number;
+          userAgents: string | null;
+          firstSeen: string;
+          lastSeen: string;
+        }>;
+      };
+    }>(`/admin/scrape-activity${query ? `?${query}` : ''}`);
+  }
+
   async getAdminPendingListings(params?: { page?: number; limit?: number }) {
     const searchParams = new URLSearchParams();
     if (params?.page) searchParams.set('page', params.page.toString());
