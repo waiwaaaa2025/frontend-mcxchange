@@ -126,7 +126,9 @@ export default function SellerCreateListingPage() {
           mcNumber: carrier.mcNumber || pulseMC || '',
           cargoTypes: report.cargo ? Object.entries(report.cargo).filter(([, v]) => v === true).map(([k]) => k) : [],
         })
-        setTitle(`${carrier.legalName || 'Carrier'} - DOT #${cleanDot}`)
+        // Never seed the title with the legal name or DOT — the title is shown to
+        // everyone, and those are exactly what the listing keeps hidden until unlock.
+        setTitle(`${carrier.location?.state ? `${carrier.location.state} ` : ''}Motor Carrier Authority`)
 
         // Pre-select the authority type from FMCSA's active authorities so a
         // dual-authority carrier isn't mislabeled as carrier-only.
@@ -265,7 +267,7 @@ export default function SellerCreateListingPage() {
         dotNumber: carrier.dotNumber || '',
         legalName: carrier.legalName,
         dbaName: carrier.dbaName || undefined,
-        title: title || `${carrier.legalName} - MC #${pulseMC || carrier.mcNumber}`,
+        title: title || `${carrier.hqState ? `${carrier.hqState} ` : ''}Motor Carrier Authority`,
         description: description || undefined,
         askingPrice: parseFloat(price) || 0,
         city,
