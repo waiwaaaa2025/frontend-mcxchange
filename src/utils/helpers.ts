@@ -8,17 +8,10 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * Hide half of the MC number with bullet points
- * @param mcNumber - The full MC number
- * @returns Partially hidden MC number (e.g., "123456" becomes "123•••")
+ * Mask an MC number completely (matches the backend's mask). Showing half of
+ * it left few enough candidates to find the carrier by city/state.
  */
-export const getPartialMCNumber = (mcNumber: string | undefined | null): string => {
-  if (!mcNumber) return '••••••'
-  const halfLength = Math.ceil(mcNumber.length / 2)
-  const visiblePart = mcNumber.substring(0, halfLength)
-  const hiddenPart = '•'.repeat(mcNumber.length - halfLength)
-  return `${visiblePart}${hiddenPart}`
-}
+export const getPartialMCNumber = (_mcNumber?: string | null): string => '•••••••'
 
 /**
  * Format a price with currency symbol and commas

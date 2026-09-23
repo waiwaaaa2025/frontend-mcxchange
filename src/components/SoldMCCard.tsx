@@ -34,10 +34,8 @@ interface SoldMCCardProps {
 }
 
 const SoldMCCard = ({ listing }: SoldMCCardProps) => {
-  // Heavily mask MC number — show only first 2 digits
-  const maskedMC = listing.mcNumber
-    ? listing.mcNumber.substring(0, 2) + '••••••'
-    : '••••••••'
+  // Sold MC numbers are never shown in part — the backend sends them fully masked.
+  const maskedMC = '•••••••'
 
   const locationDisplay = listing.city
     ? `${listing.city}, ${listing.state}`

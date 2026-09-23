@@ -3800,7 +3800,7 @@ const AdminAllListingsPage = () => {
                   <div className="text-xs text-gray-700 space-y-1">
                     {telegramMessage && <div className="italic">{telegramMessage}</div>}
                     <div className="font-semibold">🚛 {telegramListing.title || telegramListing.legalName}</div>
-                    <div>📋 MC# ***{telegramListing.mcNumber.slice(-3)}</div>
+                    <div>📋 MC# •••••••</div>
                     <div>💰 Listing Price: ${(telegramListing.listingPrice || telegramListing.askingPrice).toLocaleString()}</div>
                     {telegramInspections !== null && (
                       <div>🔍 {telegramInspections} Inspections</div>
