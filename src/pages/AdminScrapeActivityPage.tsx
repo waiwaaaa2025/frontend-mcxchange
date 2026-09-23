@@ -11,11 +11,13 @@ import {
   AlertTriangle,
   Globe,
   Clock,
+  ShieldBan,
+  ShieldCheck,
 } from 'lucide-react'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import Select from '../components/ui/Select'
-import api from '../services/api'
+import api, { type BlockedIpRow, type IpBlockState } from '../services/api'
 
 interface ScrapeClient {
   ipAddress: string | null
@@ -28,6 +30,7 @@ interface ScrapeClient {
   userAgents: string | null
   firstSeen: string
   lastSeen: string
+  block: IpBlockState | null
 }
 
 const windowOptions = [
@@ -89,12 +92,18 @@ export default function AdminScrapeActivityPage() {
   const [hours, setHours] = useState('24')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [blockedIps, setBlockedIps] = useState<BlockedIpRow[]>([])
+  const [busyIp, setBusyIp] = useState<string | null>(null)
 
   const fetchActivity = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
-      const res = await api.getScrapeActivity({ hours: parseInt(hours, 10), limit: 200 })
+      const [res, blocked] = await Promise.all([
+        api.getScrapeActivity({ hours: parseInt(hours, 10), limit: 200 }),
+        api.getBlockedIps().catch(() => null),
+      ])
+      if (blocked?.success) setBlockedIps(blocked.data || [])
       if (res.success && res.data) {
         setClients(res.data.clients || [])
       } else {
@@ -110,6 +119,28 @@ export default function AdminScrapeActivityPage() {
   useEffect(() => {
     fetchActivity()
   }, [fetchActivity])
+
+  const toggleBlock = async (ip: string, currentlyBlocked: boolean) => {
+    const verb = currentlyBlocked ? 'Unblock' : 'Block'
+    if (!window.confirm(`${verb} ${ip}? ${currentlyBlocked
+      ? 'It will be able to read listings without signing in again, and auto-block will leave it alone for 30 days.'
+      : 'It will not be able to read listings without signing in until you unblock it.'}`)) return
+    setBusyIp(ip)
+    try {
+      if (currentlyBlocked) await api.unblockIp(ip)
+      else await api.blockIp(ip, 'Blocked from Access Activity')
+      await fetchActivity()
+    } catch (err: any) {
+      setError(err?.message || `Could not ${verb.toLowerCase()} ${ip}`)
+    } finally {
+      setBusyIp(null)
+    }
+  }
+
+  const activeBlocks = useMemo(
+    () => blockedIps.filter((b) => b.status === 'BLOCKED' && (!b.expiresAt || new Date(b.expiresAt) > new Date())),
+    [blockedIps]
+  )
 
   const assessed = useMemo(
     () => clients.map((c) => ({ client: c, verdict: assess(c) })),
@@ -131,12 +162,13 @@ export default function AdminScrapeActivityPage() {
     const headers = [
       'IP', 'Verdict', 'Requests', 'Detail views', 'Searches',
       'Listings touched', 'Signed-in users', 'Anonymous requests',
-      'User agents', 'First seen', 'Last seen',
+      'User agents', 'First seen', 'Last seen', 'Blocked',
     ]
     const rows = assessed.map(({ client: c, verdict }) => [
       c.ipAddress ?? 'unknown', verdict.label, c.requests, c.detailViews, c.searches,
       c.listingsTouched, c.users, c.anonymousRequests,
       (c.userAgents ?? '').replace(/"/g, "'"), c.firstSeen, c.lastSeen,
+      c.block?.active ? `${c.block.source.toLowerCase()} until ${c.block.expiresAt ?? 'unblocked'}` : '',
     ])
     const csv = [headers, ...rows].map((r) => r.map((cell) => `"${cell}"`).join(',')).join('\n')
     const url = window.URL.createObjectURL(new Blob([csv], { type: 'text/csv' }))
@@ -155,7 +187,9 @@ export default function AdminScrapeActivityPage() {
           <h1 className="text-2xl font-bold text-gray-900">Access Activity</h1>
           <p className="text-gray-500 mt-1">
             Who is reading the marketplace catalogue, grouped by IP. MC numbers stay masked
-            for everyone here — this shows who is trying to collect them.
+            for everyone here — this shows who is trying to collect them. IPs scored as likely
+            bots are blocked automatically for 7 days (checked every 10 minutes); a blocked IP
+            can still be used by anyone who signs in.
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -237,6 +271,54 @@ export default function AdminScrapeActivityPage() {
         </Card>
       )}
 
+      {/* Active blocks — includes IPs outside the selected window */}
+      {activeBlocks.length > 0 && (
+        <Card>
+          <div className="flex items-center gap-2 mb-3">
+            <ShieldBan className="w-5 h-5 text-red-600" />
+            <h2 className="font-semibold text-gray-900">Blocked IPs ({activeBlocks.length})</h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-gray-500 border-b border-gray-200">
+                  <th className="py-2 pr-4 font-medium">IP</th>
+                  <th className="py-2 pr-4 font-medium">How</th>
+                  <th className="py-2 pr-4 font-medium">Why</th>
+                  <th className="py-2 pr-4 font-medium text-right">Refused since</th>
+                  <th className="py-2 pr-4 font-medium">Until</th>
+                  <th className="py-2 font-medium" />
+                </tr>
+              </thead>
+              <tbody>
+                {activeBlocks.map((b) => (
+                  <tr key={b.ipAddress} className="border-b border-gray-100 last:border-0 align-top">
+                    <td className="py-2 pr-4 font-mono text-gray-900">{b.ipAddress}</td>
+                    <td className="py-2 pr-4 text-gray-600">{b.source === 'AUTO' ? 'Auto' : 'Manual'}</td>
+                    <td className="py-2 pr-4 text-xs text-gray-500 max-w-xs">{b.reason}</td>
+                    <td className="py-2 pr-4 text-right text-gray-700">{b.hits.toLocaleString()}</td>
+                    <td className="py-2 pr-4 text-xs text-gray-500 whitespace-nowrap">
+                      {b.expiresAt ? formatWhen(b.expiresAt) : 'Until unblocked'}
+                    </td>
+                    <td className="py-2 text-right">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={busyIp === b.ipAddress}
+                        onClick={() => toggleBlock(b.ipAddress, true)}
+                      >
+                        <ShieldCheck className="w-4 h-4 mr-1" />
+                        Unblock
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      )}
+
       {/* Clients */}
       <Card>
         {loading ? (
@@ -265,6 +347,7 @@ export default function AdminScrapeActivityPage() {
                   <th className="py-3 pr-4 font-medium text-right">Searches</th>
                   <th className="py-3 pr-4 font-medium text-right">Accounts</th>
                   <th className="py-3 pr-4 font-medium">Seen</th>
+                  <th className="py-3 font-medium" />
                 </tr>
               </thead>
               <tbody>
@@ -282,6 +365,12 @@ export default function AdminScrapeActivityPage() {
                       >
                         {verdict.label}
                       </span>
+                      {c.block?.active && (
+                        <span className="ml-1 inline-flex items-center px-2 py-1 rounded-lg border text-xs font-medium bg-red-600 text-white border-red-700">
+                          <ShieldBan className="w-3 h-3 mr-1" />
+                          Blocked{c.block.source === 'AUTO' ? ' (auto)' : ''}
+                        </span>
+                      )}
                       {verdict.reasons.length > 0 && (
                         <ul className="mt-1 space-y-0.5">
                           {verdict.reasons.map((r) => (
@@ -309,6 +398,22 @@ export default function AdminScrapeActivityPage() {
                       <Clock className="w-3 h-3 inline mr-1" />
                       {formatWhen(c.firstSeen)}
                       <span className="block ml-4">→ {formatWhen(c.lastSeen)}</span>
+                    </td>
+                    <td className="py-3 text-right">
+                      {c.ipAddress && (
+                        <Button
+                          size="sm"
+                          variant={c.block?.active ? 'outline' : 'ghost'}
+                          disabled={busyIp === c.ipAddress}
+                          onClick={() => toggleBlock(c.ipAddress as string, !!c.block?.active)}
+                        >
+                          {c.block?.active ? (
+                            <><ShieldCheck className="w-4 h-4 mr-1" />Unblock</>
+                          ) : (
+                            <><ShieldBan className="w-4 h-4 mr-1" />Block</>
+                          )}
+                        </Button>
+                      )}
                     </td>
                   </tr>
                 ))}

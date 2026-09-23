@@ -17,6 +17,28 @@ import type {
   StripeTransaction,
 } from '../types';
 
+// Block state of an IP in the Access Activity panel.
+export interface IpBlockState {
+  active: boolean;
+  status: 'BLOCKED' | 'UNBLOCKED';
+  source: 'AUTO' | 'MANUAL';
+  reason: string | null;
+  expiresAt: string | null;
+  hits: number;
+  updatedAt: string;
+}
+
+export interface BlockedIpRow {
+  ipAddress: string;
+  status: 'BLOCKED' | 'UNBLOCKED';
+  source: 'AUTO' | 'MANUAL';
+  reason: string | null;
+  expiresAt: string | null;
+  hits: number;
+  lastHitAt: string | null;
+  updatedAt: string;
+}
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 class ApiService {
@@ -634,9 +656,27 @@ class ApiService {
           userAgents: string | null;
           firstSeen: string;
           lastSeen: string;
+          block: IpBlockState | null;
         }>;
       };
     }>(`/admin/scrape-activity${query ? `?${query}` : ''}`);
+  }
+
+  async getBlockedIps() {
+    return this.request<{ success: boolean; data: BlockedIpRow[] }>('/admin/blocked-ips');
+  }
+
+  async blockIp(ipAddress: string, reason?: string) {
+    return this.request<{ success: boolean }>('/admin/blocked-ips', {
+      method: 'POST',
+      body: JSON.stringify({ ipAddress, reason }),
+    });
+  }
+
+  async unblockIp(ipAddress: string) {
+    return this.request<{ success: boolean }>(`/admin/blocked-ips/${encodeURIComponent(ipAddress)}`, {
+      method: 'DELETE',
+    });
   }
 
   async getAdminPendingListings(params?: { page?: number; limit?: number }) {
