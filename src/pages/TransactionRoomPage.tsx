@@ -770,6 +770,7 @@ const TransactionRoomPage = () => {
             escrowConfirmedAt: txn.escrowConfirmedAt ? new Date(txn.escrowConfirmedAt) : prev.escrowConfirmedAt,
             escrowPaymentMethod: txn.escrowPaymentMethod || prev.escrowPaymentMethod,
             sellerPayout: txn.sellerPayout ? Number(txn.sellerPayout) : prev.sellerPayout,
+            sellerPaidAtCharge: txn.sellerPaidAtCharge != null ? Number(txn.sellerPaidAtCharge) : prev.sellerPaidAtCharge,
             payoutStatus: txn.payoutStatus || prev.payoutStatus,
             payoutReleasedAt: txn.payoutReleasedAt ? new Date(txn.payoutReleasedAt) : prev.payoutReleasedAt,
             payoutTransferId: txn.payoutTransferId || prev.payoutTransferId,
@@ -1467,6 +1468,7 @@ For questions, contact us at payments@domilea.com`
           depositPaidAt: txn.depositPaidAt ? new Date(txn.depositPaidAt) : prev.depositPaidAt,
           finalPaymentPaid: !!txn.finalPaymentPaidAt,
           sellerPayout: txn.sellerPayout ?? prev.sellerPayout,
+          sellerPaidAtCharge: txn.sellerPaidAtCharge ?? prev.sellerPaidAtCharge,
           payoutStatus: txn.payoutStatus ?? prev.payoutStatus,
           payoutReleasedAt: txn.payoutReleasedAt ? new Date(txn.payoutReleasedAt) : prev.payoutReleasedAt,
           payoutTransferId: txn.payoutTransferId ?? prev.payoutTransferId,
@@ -4218,11 +4220,21 @@ For questions, contact us at payments@domilea.com`
                       </p>
                       <div className="bg-amber-100 border border-amber-300 rounded-xl p-4 mb-4">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm text-amber-700">Seller Payout Amount</span>
+                          <span className="text-sm text-amber-700">
+                            {Number(transaction.sellerPaidAtCharge) > 0 ? 'Remaining Payout to Release' : 'Seller Payout Amount'}
+                          </span>
                           <span className="text-xl font-bold text-amber-900">
-                            ${Number(transaction.sellerPayout || transaction.agreedPrice).toLocaleString()}
+                            ${(Number(transaction.sellerPayout || transaction.agreedPrice) - Number(transaction.sellerPaidAtCharge || 0)).toLocaleString()}
                           </span>
                         </div>
+                        {Number(transaction.sellerPaidAtCharge) > 0 && (
+                          <div className="flex items-center justify-between text-xs text-amber-600 mt-1">
+                            <span>Already paid by Stripe at final payment</span>
+                            <span>
+                              ${Number(transaction.sellerPaidAtCharge).toLocaleString()} of ${Number(transaction.sellerPayout).toLocaleString()}
+                            </span>
+                          </div>
+                        )}
                         {transaction.sellerPayout && transaction.agreedPrice && (
                           <div className="flex items-center justify-between text-xs text-amber-600 mt-1">
                             <span>Platform Fee</span>
@@ -4282,7 +4294,7 @@ For questions, contact us at payments@domilea.com`
                               </p>
                               {selectedPayoutMethod === 'instant' && instantEligible && (
                                 <p className="text-xs text-purple-600 mt-1 font-medium">
-                                  Instant fee: ${(Number(transaction.sellerPayout || transaction.agreedPrice) * 0.01).toFixed(2)} (deducted from seller's payout)
+                                  Instant fee: ${((Number(transaction.sellerPayout || transaction.agreedPrice) - Number(transaction.sellerPaidAtCharge || 0)) * 0.01).toFixed(2)} (deducted from seller's payout)
                                 </p>
                               )}
                             </div>

@@ -445,6 +445,8 @@ export interface TransactionRoom {
 
   // Payout
   sellerPayout?: number | null
+  // Part of sellerPayout Stripe already sent at final payment (Connect split)
+  sellerPaidAtCharge?: number | null
   payoutStatus?: string | null
   payoutReleasedAt?: Date | null
   payoutTransferId?: string | null
