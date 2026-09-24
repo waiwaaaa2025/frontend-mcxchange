@@ -22,8 +22,10 @@ import { useAuth } from '../context/AuthContext'
 import TruckFormSection, { TruckFormValue } from '../components/TruckFormSection'
 import {
   AUTHORITY_TYPE_OPTIONS,
+  AUTHORITY_TYPE_LABELS,
   hasCarrierOperations,
   deriveAuthorityTypeFromHistory,
+  deriveAuthorityTypeFromReport,
 } from '../constants/authority'
 import type { AuthorityType } from '../types'
 
@@ -128,17 +130,30 @@ export default function SellerCreateListingPage() {
         })
         // Never seed the title with the legal name or DOT — the title is shown to
         // everyone, and those are exactly what the listing keeps hidden until unlock.
-        setTitle(`${carrier.location?.state ? `${carrier.location.state} ` : ''}Motor Carrier Authority`)
+        const statePrefix = carrier.location?.state ? `${carrier.location.state} ` : ''
+        const defaultTitle = `${statePrefix}Motor Carrier Authority`
+        setTitle(defaultTitle)
+        // Retitle only while the title is still our default, so a late FMCSA
+        // answer can't overwrite what the seller has typed.
+        const setTypeAndTitle = (type: AuthorityType) => {
+          setAuthorityType(type)
+          setTitle(prev => (prev === defaultTitle ? `${statePrefix}${AUTHORITY_TYPE_LABELS[type]} Authority` : prev))
+        }
 
-        // Pre-select the authority type from FMCSA's active authorities so a
-        // dual-authority carrier isn't mislabeled as carrier-only.
-        try {
-          const authResponse = await api.fmcsaGetAuthorityHistory(cleanDot)
-          if (authResponse?.data && !authorityTypeTouched) {
-            setAuthorityType(deriveAuthorityTypeFromHistory(authResponse.data))
+        // Pre-select the authority type from the report's active authorities (so a
+        // broker defaults to Broker), falling back to FMCSA's authority history.
+        const reportType = deriveAuthorityTypeFromReport(report)
+        if (reportType) {
+          if (!authorityTypeTouched) setTypeAndTitle(reportType)
+        } else {
+          try {
+            const authResponse = await api.fmcsaGetAuthorityHistory(cleanDot)
+            if (authResponse?.data && !authorityTypeTouched) {
+              setTypeAndTitle(deriveAuthorityTypeFromHistory(authResponse.data))
+            }
+          } catch {
+            // Authority history is a nicety here — the seller can still pick manually.
           }
-        } catch {
-          // Authority history is a nicety here — the seller can still pick manually.
         }
       } else {
         setSearchError('Carrier data not found for this DOT number.')

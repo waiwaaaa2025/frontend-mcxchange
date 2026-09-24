@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
@@ -20,7 +20,12 @@ import {
   XCircle,
   AlertTriangle,
 } from 'lucide-react'
-import { AUTHORITY_TYPE_OPTIONS, hasCarrierOperations } from '../constants/authority'
+import {
+  AUTHORITY_TYPE_OPTIONS,
+  hasCarrierOperations,
+  deriveAuthorityTypeFromHistory,
+  deriveAuthorityTypeFromReport,
+} from '../constants/authority'
 import type { AuthorityType } from '../types'
 import api from '../services/api'
 
@@ -51,6 +56,8 @@ export default function AdminCreateListingPage() {
   const [price, setPrice] = useState('')
   const [status, setStatus] = useState('ACTIVE')
   const [authorityType, setAuthorityType] = useState<AuthorityType>('MOTOR_CARRIER')
+  // Set once the admin picks a type, so a late FMCSA lookup can't override it.
+  const authorityTypeTouched = useRef(false)
 
   // Additional questions
   const [amazonStatus, setAmazonStatus] = useState('')
@@ -118,6 +125,22 @@ export default function AdminCreateListingPage() {
           cargoTypes: report.cargo ? Object.entries(report.cargo).filter(([, v]) => v === true).map(([k]) => k) : [],
         })
         setTitle(`${carrier.legalName || 'Carrier'} - DOT #${cleanDot}`)
+
+        // Pre-select the authority type from the report's active authorities (so a
+        // broker defaults to Broker), falling back to FMCSA's authority history.
+        const reportType = deriveAuthorityTypeFromReport(report)
+        if (reportType) {
+          setAuthorityType(reportType)
+        } else {
+          try {
+            const authResponse = await api.fmcsaGetAuthorityHistory(cleanDot)
+            if (authResponse?.data && !authorityTypeTouched.current) {
+              setAuthorityType(deriveAuthorityTypeFromHistory(authResponse.data))
+            }
+          } catch {
+            // Authority history is a nicety here — the admin can still pick manually.
+          }
+        }
       } else {
         setSearchError('Carrier data not found for this DOT number.')
       }
@@ -472,7 +495,7 @@ export default function AdminCreateListingPage() {
                     <button
                       key={option.value}
                       type="button"
-                      onClick={() => setAuthorityType(option.value)}
+                      onClick={() => { authorityTypeTouched.current = true; setAuthorityType(option.value) }}
                       className={`p-3 rounded-xl border-2 text-center transition-all ${
                         selected ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 bg-gray-50 hover:border-gray-300'
                       }`}

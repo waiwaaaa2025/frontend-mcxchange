@@ -67,6 +67,26 @@ export function isBrokerAuthority(type?: string | null): boolean {
   return normalized === 'BROKER' || normalized === 'MOTOR_CARRIER_AND_BROKER'
 }
 
+/**
+ * Derive the authority type from a carrier report's `authority.statuses`.
+ * Returns null when the report has no active authority on file (legacy reports
+ * often carry all-null statuses) so callers can fall back to FMCSA history.
+ */
+export function deriveAuthorityTypeFromReport(report: any): AuthorityType | null {
+  const statuses = report?.authority?.statuses
+  if (!statuses) return null
+  const isActive = (s: any) => {
+    const v = String(s?.status || '').toUpperCase().trim()
+    return v === 'A' || v.startsWith('ACTIVE')
+  }
+  const carrierActive = isActive(statuses.common) || isActive(statuses.contract)
+  const brokerActive = isActive(statuses.broker)
+  if (carrierActive && brokerActive) return 'MOTOR_CARRIER_AND_BROKER'
+  if (brokerActive) return 'BROKER'
+  if (carrierActive) return 'MOTOR_CARRIER'
+  return null
+}
+
 /** Derive the authority type from an FMCSA authority-history response. */
 export function deriveAuthorityTypeFromHistory(history: any): AuthorityType {
   if (!history) return 'MOTOR_CARRIER'
