@@ -1,6 +1,6 @@
 import api from '../services/api'
 
-export type EquipmentType = 'TRUCK' | 'TRAILER'
+export type EquipmentType = 'TRUCK' | 'TRAILER' | 'PART'
 export type EquipmentCondition = '' | 'EXCELLENT' | 'GOOD' | 'FAIR' | 'POOR'
 
 /** One truck or trailer as edited in the create-listing forms. */
@@ -38,7 +38,71 @@ export interface EquipmentItem {
   engine?: string | null
   transmission?: string | null
   photos?: Array<{ id: string; url: string }>
+  // Standalone equipment & parts
+  listingId?: string | null
+  status?: string
+  city?: string | null
+  state?: string | null
+  name?: string | null
+  partCategory?: string | null
+  partNumber?: string | null
+  quantity?: number | null
+  fitment?: string | null
 }
+
+/** Marketplace card as the browse / my-items / admin endpoints return it. */
+export interface MarketCard {
+  id: string
+  equipmentType: EquipmentType
+  make: string
+  model: string
+  name: string | null
+  year: number | null
+  mileage: number | null
+  price: number | null
+  condition: string | null
+  trailerType: string | null
+  lengthFt: number | null
+  partCategory: string | null
+  partNumber: string | null
+  quantity: number | null
+  city: string | null
+  state: string | null
+  status: string
+  withAuthority: boolean
+  listingId: string | null
+  photo: string | null
+  createdAt: string
+  reviewNote?: string | null
+  // admin list only
+  description?: string | null
+  vin?: string | null
+  fitment?: string | null
+  seller?: { id: string; name: string; email: string } | null
+}
+
+export const PART_CATEGORIES = [
+  'Engine',
+  'Transmission',
+  'Drivetrain',
+  'Brakes',
+  'Suspension',
+  'Tires & Wheels',
+  'Electrical',
+  'Cab & Interior',
+  'Body & Exterior',
+  'Exhaust & Aftertreatment',
+  'Cooling',
+  'Trailer Parts',
+  'Reefer Units',
+  'Other',
+]
+
+export const US_STATES = [
+  'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS',
+  'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC',
+  'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY',
+]
 
 export const TRAILER_TYPES = [
   'Dry Van',
@@ -131,11 +195,26 @@ export async function uploadEquipmentPhotos(
   return failed
 }
 
-export const equipmentTitle = (e: Pick<EquipmentItem, 'year' | 'make' | 'model'>) =>
-  [e.year, e.make, e.model].filter(Boolean).join(' ')
+// Parts are titled by their name; trucks and trailers by year/make/model.
+export const equipmentTitle = (
+  e: Pick<EquipmentItem, 'year' | 'make' | 'model'> & { name?: string | null; equipmentType?: string | null }
+) => (e.equipmentType === 'PART' && e.name ? e.name : [e.year, e.make, e.model].filter(Boolean).join(' '))
 
-export const equipmentTypeLabel = (e: Pick<EquipmentItem, 'equipmentType' | 'trailerType'>) =>
-  e.equipmentType === 'TRAILER' ? (e.trailerType ? `${e.trailerType} Trailer` : 'Trailer') : 'Truck'
+export const equipmentTypeLabel = (
+  e: Pick<EquipmentItem, 'equipmentType' | 'trailerType'> & { partCategory?: string | null }
+) =>
+  e.equipmentType === 'PART'
+    ? e.partCategory ? `${e.partCategory} Part` : 'Part'
+    : e.equipmentType === 'TRAILER'
+      ? e.trailerType ? `${e.trailerType} Trailer` : 'Trailer'
+      : 'Truck'
+
+export const STATUS_STYLES: Record<string, { label: string; cls: string }> = {
+  PENDING_REVIEW: { label: 'Pending review', cls: 'bg-amber-100 text-amber-800' },
+  ACTIVE: { label: 'Live', cls: 'bg-emerald-100 text-emerald-700' },
+  SOLD: { label: 'Sold', cls: 'bg-gray-200 text-gray-700' },
+  REJECTED: { label: 'Not approved', cls: 'bg-red-100 text-red-700' },
+}
 
 export const fmtPrice = (n: number | null | undefined) =>
   n == null ? null : `$${Number(n).toLocaleString(undefined, { maximumFractionDigits: 0 })}`

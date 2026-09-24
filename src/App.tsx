@@ -25,6 +25,9 @@ const MarketplacePage = lazy(() => import('./pages/MarketplacePage'))
 const MCDetailPage = lazy(() => import('./pages/MCDetailPage'))
 const MCDetailPageV2 = lazy(() => import('./pages/MCDetailPageV2'))
 const EquipmentDetailPage = lazy(() => import('./pages/EquipmentDetailPage'))
+const EquipmentMarketPage = lazy(() => import('./pages/EquipmentMarketPage'))
+const SellEquipmentPage = lazy(() => import('./pages/SellEquipmentPage'))
+const ManageEquipmentPage = lazy(() => import('./pages/ManageEquipmentPage'))
 const ConsultationSuccessPage = lazy(() => import('./pages/ConsultationSuccessPage'))
 const PricingPage = lazy(() => import('./pages/PricingPage'))
 const BuyersGuidePage = lazy(() => import('./pages/BuyersGuidePage'))
@@ -186,6 +189,8 @@ function App() {
               <Route path="marketplace" element={<MarketplacePage />} />
               <Route path="mc/:id" element={<MCDetailPageV2 />} />
               <Route path="mc-v2/:id" element={<MCDetailPageV2 />} />
+              <Route path="equipment" element={<EquipmentMarketPage key="equipment" mode="equipment" />} />
+              <Route path="parts" element={<EquipmentMarketPage key="parts" mode="parts" />} />
               <Route path="equipment/:id" element={<EquipmentDetailPage />} />
               <Route path="consultation/success" element={<ConsultationSuccessPage />} />
               <Route path="contact" element={<ContactPage />} />
@@ -240,6 +245,8 @@ function App() {
             >
               <Route path="dashboard" element={<SellerDashboard />} />
               <Route path="create-listing" element={<SellerCreateListingPage />} />
+              <Route path="equipment" element={<ManageEquipmentPage mode="seller" />} />
+              <Route path="equipment/new" element={<SellEquipmentPage />} />
               <Route path="listings" element={<SellerListingsPage />} />
               <Route path="offers" element={<SellerOffersPage />} />
               <Route path="earnings" element={<SellerEarningsPage />} />
@@ -326,6 +333,8 @@ function App() {
               <Route path="transactions" element={<AdminTransactionsPage />} />
               <Route path="active-closings" element={<AdminActiveClosingsPage />} />
               <Route path="create-listing" element={<AdminCreateListingPage />} />
+              <Route path="equipment" element={<ManageEquipmentPage mode="admin" />} />
+              <Route path="equipment/new" element={<SellEquipmentPage />} />
               <Route path="listings" element={<AdminAllListingsPage />} />
               <Route path="listing/:id" element={<AdminListingDetailPage />} />
               <Route path="offers" element={<AdminOffersPage />} />

@@ -13,8 +13,12 @@ import {
   Trash2,
   Pencil,
   Lock,
+  Wrench,
+  MessageSquare,
+  CheckCircle,
 } from 'lucide-react'
 import api from '../services/api'
+import { useAuth } from '../context/AuthContext'
 import { AUTHORITY_TYPE_LABELS, normalizeAuthorityType } from '../constants/authority'
 import { EquipmentItem, equipmentTitle, equipmentTypeLabel, fmtPrice } from '../utils/equipment'
 
@@ -30,6 +34,18 @@ const conditionColor: Record<string, string> = {
 const titleCase = (s: string) => s.charAt(0) + s.slice(1).toLowerCase()
 
 function specRows(e: EquipmentItem): Array<[string, string]> {
+  if (e.equipmentType === 'PART') {
+    const rows: Array<[string, string | null | undefined]> = [
+      ['Category', e.partCategory],
+      ['Brand', e.make],
+      ['Part number', e.partNumber],
+      ['Quantity', e.quantity != null ? String(e.quantity) : null],
+      ['Condition', e.condition ? titleCase(e.condition) : null],
+      ['Location', [e.city, e.state].filter(Boolean).join(', ') || null],
+      ['Fits', e.fitment],
+    ]
+    return rows.filter((r): r is [string, string] => !!r[1])
+  }
   const trailer = e.equipmentType === 'TRAILER'
   const rows: Array<[string, string | null | undefined]> = [
     ['Type', equipmentTypeLabel(e)],
@@ -42,6 +58,7 @@ function specRows(e: EquipmentItem): Array<[string, string]> {
     ['Engine', trailer ? null : e.engine],
     ['Transmission', trailer ? null : e.transmission],
     ['Condition', e.condition ? titleCase(e.condition) : null],
+    ['Location', [e.city, e.state].filter(Boolean).join(', ') || null],
   ]
   return rows.filter((r): r is [string, string] => !!r[1])
 }
@@ -101,17 +118,18 @@ const EquipmentDetailPage = () => {
   const { equipment: e, listing, otherEquipment, canEdit, vinOnFile } = data
   const photos = [...(e.photos || [])]
   const trailer = e.equipmentType === 'TRAILER'
-  const sold = listing.status === 'SOLD'
-  const TypeIcon = trailer ? Container : TruckIcon
+  const sold = (listing ? listing.status : e.status) === 'SOLD'
+  const TypeIcon = e.equipmentType === 'PART' ? Wrench : trailer ? Container : TruckIcon
   const photo = photos[active]
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 sm:py-8">
       <Link
-        to={`/mc/${listing.id}`}
+        to={listing ? `/mc/${listing.id}` : e.equipmentType === 'PART' ? '/parts' : '/equipment'}
         className="inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 mb-5"
       >
-        <ArrowLeft className="w-4 h-4" /> Back to authority listing
+        <ArrowLeft className="w-4 h-4" />{' '}
+        {listing ? 'Back to authority listing' : e.equipmentType === 'PART' ? 'Back to parts' : 'Back to equipment'}
       </Link>
 
       <div className="grid lg:grid-cols-5 gap-6 lg:gap-8">
@@ -207,36 +225,39 @@ const EquipmentDetailPage = () => {
             )}
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2 flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-emerald-500" /> Sold with this authority
-            </p>
-            <p className="font-bold text-gray-900">{listing.title}</p>
-            <p className="text-sm text-gray-500 mt-0.5">
-              {AUTHORITY_TYPE_LABELS[normalizeAuthorityType(listing.authorityType)]}
-              {listing.state ? ` · ${[listing.city, listing.state].filter(Boolean).join(', ')}` : ''}
-              {listing.mcNumber ? ` · MC ${listing.mcNumber}` : ''}
-            </p>
-            {fmtPrice(listing.price) && (
-              <p className="text-sm text-gray-700 mt-2">
-                Authority asking price: <span className="font-semibold">{fmtPrice(listing.price)}</span>
+          {listing ? (
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2 flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-emerald-500" /> Sold with this authority
               </p>
-            )}
-            <Link
-              to={`/mc/${listing.id}`}
-              className="mt-4 w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm transition-colors"
-            >
-              {sold ? 'View authority listing' : 'View authority & make an offer'}
-            </Link>
-            <p className="text-xs text-gray-500 mt-3">
-              Equipment is purchased together with the authority. Include it in your offer on the authority listing,
-              or{' '}
-              <Link to="/contact" className="text-indigo-600 hover:text-indigo-800">
-                contact us
-              </Link>{' '}
-              with questions.
-            </p>
-          </div>
+              <p className="font-bold text-gray-900">{listing.title}</p>
+              <p className="text-sm text-gray-500 mt-0.5">
+                {AUTHORITY_TYPE_LABELS[normalizeAuthorityType(listing.authorityType)]}
+                {listing.state ? ` · ${[listing.city, listing.state].filter(Boolean).join(', ')}` : ''}
+                {listing.mcNumber ? ` · MC ${listing.mcNumber}` : ''}
+              </p>
+              {fmtPrice(listing.price) && (
+                <p className="text-sm text-gray-700 mt-2">
+                  Authority asking price: <span className="font-semibold">{fmtPrice(listing.price)}</span>
+                </p>
+              )}
+              <Link
+                to={`/mc/${listing.id}`}
+                className="mt-4 w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm transition-colors"
+              >
+                {sold ? 'View authority listing' : 'View authority & make an offer'}
+              </Link>
+              <p className="text-xs text-gray-500 mt-3">
+                Equipment is purchased together with the authority. Include it in your offer on the authority listing,
+                or ask us about it below.
+              </p>
+              <div className="mt-3">
+                <ContactCard item={e} sold={sold} compact />
+              </div>
+            </div>
+          ) : (
+            <ContactCard item={e} sold={sold} />
+          )}
 
           {canEdit && <OwnerTools equipment={e} onChanged={load} />}
         </div>
@@ -313,6 +334,108 @@ const EquipmentDetailPage = () => {
           </button>
           <img src={photo.url} alt="" className="max-h-[90vh] max-w-full object-contain rounded-lg" />
         </div>
+      )}
+    </div>
+  )
+}
+
+/**
+ * Buyer inquiry about this item. Like authority inquiries, it goes to the
+ * Domilea team's inbox (Admin → Inquiries), which connects buyer and seller.
+ */
+const ContactCard = ({ item, sold, compact = false }: { item: EquipmentItem; sold: boolean; compact?: boolean }) => {
+  const { isAuthenticated } = useAuth()
+  const [open, setOpen] = useState(false)
+  const [message, setMessage] = useState('')
+  const [phone, setPhone] = useState('')
+  const [sending, setSending] = useState(false)
+  const [sent, setSent] = useState(false)
+  const [error, setError] = useState('')
+  const label = equipmentTitle(item)
+
+  const send = async () => {
+    if (!message.trim()) return setError('Write a short message')
+    setSending(true)
+    setError('')
+    try {
+      const url = `${window.location.origin}/equipment/${item.id}`
+      await api.sendInquiryToAdmin(
+        item.listingId || undefined,
+        `[${equipmentTypeLabel(item)} inquiry] ${label}${item.price != null ? ` — ${fmtPrice(item.price)}` : ''}\n${url}\n\n${message.trim()}`,
+        phone.trim() || undefined
+      )
+      setSent(true)
+    } catch (err: any) {
+      setError(err?.message || 'Could not send your message')
+    } finally {
+      setSending(false)
+    }
+  }
+
+  if (sold && !compact) {
+    return (
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 text-sm text-gray-600">
+        This item has been sold.
+      </div>
+    )
+  }
+  if (sold) return null
+
+  return (
+    <div className={compact ? '' : 'bg-white rounded-2xl border border-gray-200 shadow-sm p-6'}>
+      {sent ? (
+        <p className="flex items-start gap-2 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
+          <CheckCircle className="w-4 h-4 mt-0.5 shrink-0" /> Message sent. Our team will connect you with the seller shortly.
+        </p>
+      ) : !open ? (
+        <button
+          onClick={() =>
+            isAuthenticated
+              ? setOpen(true)
+              : (window.location.href = `/login?redirect=${encodeURIComponent(`/equipment/${item.id}`)}`)
+          }
+          className={`w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm transition-colors ${
+            compact ? 'border border-gray-200 bg-white text-gray-800 hover:bg-gray-50' : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+          }`}
+        >
+          <MessageSquare className="w-4 h-4" /> {compact ? 'Ask about this item' : 'Contact about this listing'}
+        </button>
+      ) : (
+        <div className="space-y-3">
+          <p className="text-sm font-semibold text-gray-900">Ask about {label}</p>
+          <textarea
+            autoFocus
+            rows={4}
+            value={message}
+            onChange={(ev) => setMessage(ev.target.value)}
+            placeholder="Is it still available? Can I see maintenance records? Is shipping possible?"
+            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none resize-none"
+          />
+          <input
+            value={phone}
+            onChange={(ev) => setPhone(ev.target.value)}
+            placeholder="Phone (optional)"
+            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:border-indigo-500 outline-none"
+          />
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          <div className="flex gap-2">
+            <button
+              disabled={sending}
+              onClick={send}
+              className="flex-1 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold disabled:opacity-60"
+            >
+              {sending ? 'Sending…' : 'Send message'}
+            </button>
+            <button onClick={() => setOpen(false)} className="px-4 py-2.5 rounded-xl border border-gray-200 text-sm">
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+      {!compact && !sent && (
+        <p className="text-xs text-gray-500 mt-3">
+          Messages go to the Domilea team, who connect you with the seller.
+        </p>
       )}
     </div>
   )

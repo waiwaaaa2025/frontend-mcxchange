@@ -48,6 +48,7 @@ import {
   Building2,
   Umbrella,
   Radar,
+  Container,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { DomileaLogoFull, DomileaIcon } from '../components/ui/DomileaLogo'
@@ -91,6 +92,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps = {}) => {
   const [activeClosingsCount, setActiveClosingsCount] = useState(0)
   const [paidConsultationsCount, setPaidConsultationsCount] = useState(0)
   const [pendingAdminOffersCount, setPendingAdminOffersCount] = useState(0)
+  const [pendingEquipmentCount, setPendingEquipmentCount] = useState(0)
   const [evaDrawerOpen, setEvaDrawerOpen] = useState(false)
 
   const handleLogout = () => {
@@ -176,6 +178,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps = {}) => {
           setActiveClosingsCount(res.data.activeClosings || 0)
           setPaidConsultationsCount(res.data.paidConsultations || 0)
           setPendingAdminOffersCount(res.data.pendingAdminOffers || 0)
+          setPendingEquipmentCount(res.data.pendingEquipment || 0)
         }
       } catch {
         // ignore
@@ -219,6 +222,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps = {}) => {
           { icon: LayoutDashboard, label: 'Dashboard', path: '/seller/dashboard' },
           { icon: Package, label: 'My Listings', path: '/seller/listings' },
           { icon: Plus, label: 'Create Listing', path: '/seller/carrier-pulse' },
+          { icon: Container, label: 'Equipment & Parts', path: '/seller/equipment' },
           { icon: MessageSquare, label: 'Offers', path: '/seller/offers' },
           { icon: Handshake, label: 'Transactions', path: '/seller/transactions', ...(newTransactionCount > 0 ? { badge: String(newTransactionCount), badgeColor: 'bg-red-500' } : {}) },
           { icon: Banknote, label: 'Payout Setup', path: '/seller/payout-setup' },
@@ -323,6 +327,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps = {}) => {
             icon: Shield,
             items: [
               { icon: AlertTriangle, label: 'Pending Review', path: '/admin/pending' },
+              { icon: Container, label: 'Equipment & Parts', path: '/admin/equipment', ...(pendingEquipmentCount > 0 ? { badge: String(pendingEquipmentCount), badgeColor: 'bg-red-500' } : {}) },
               { icon: Shield, label: 'Reported Items', path: '/admin/reported' },
               { icon: ShieldAlert, label: 'Account Disputes', path: '/admin/disputes' },
               { icon: Crown, label: 'Premium Requests', path: '/admin/premium-requests' },

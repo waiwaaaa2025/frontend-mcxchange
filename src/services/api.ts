@@ -1143,7 +1143,7 @@ class ApiService {
   }
 
   async getNavBadgeCounts() {
-    return this.request<{ success: boolean; data: { unreadMessages: number; newTransactions: number; activeClosings: number; paidConsultations: number; pendingAdminOffers: number } }>('/notifications/nav-counts');
+    return this.request<{ success: boolean; data: { unreadMessages: number; newTransactions: number; activeClosings: number; paidConsultations: number; pendingAdminOffers: number; pendingEquipment?: number } }>('/notifications/nav-counts');
   }
 
   async addBonusCredits(userId: string, amount: number, reason: string) {
@@ -1542,6 +1542,7 @@ class ApiService {
         equipment: import('../utils/equipment').EquipmentItem & { listingId: string };
         vinOnFile: boolean;
         canEdit: boolean;
+        // null for standalone equipment/parts
         listing: {
           id: string;
           title: string;
@@ -1551,7 +1552,7 @@ class ApiService {
           authorityType: string;
           price: number | null;
           mcNumber?: string;
-        };
+        } | null;
         otherEquipment: Array<{
           id: string;
           equipmentType: 'TRUCK' | 'TRAILER';
@@ -1564,6 +1565,62 @@ class ApiService {
         }>;
       };
     }>(`/equipment/${truckId}`);
+  }
+
+  // Equipment & parts marketplace
+  async browseEquipment(params: {
+    type?: string;
+    search?: string;
+    state?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    page?: number;
+    limit?: number;
+  }) {
+    const q = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== null && v !== '') q.set(k, String(v));
+    });
+    return this.request<{
+      success: boolean;
+      data: import('../utils/equipment').MarketCard[];
+      pagination: { page: number; limit: number; total: number; totalPages: number };
+    }>(`/equipment${q.toString() ? `?${q}` : ''}`);
+  }
+
+  async createMarketItem(data: Record<string, unknown>) {
+    return this.request<{ success: boolean; data: { id: string; status: string } }>('/equipment', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getMyMarketItems() {
+    return this.request<{ success: boolean; data: import('../utils/equipment').MarketCard[] }>('/equipment/mine');
+  }
+
+  async setMarketItemStatus(id: string, status: string) {
+    return this.request<{ success: boolean; data: any }>(`/equipment/${id}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
+    });
+  }
+
+  async adminListMarketItems(status = 'PENDING_REVIEW') {
+    return this.request<{ success: boolean; data: import('../utils/equipment').MarketCard[] }>(
+      `/admin/equipment?status=${encodeURIComponent(status)}`
+    );
+  }
+
+  async adminApproveMarketItem(id: string) {
+    return this.request<{ success: boolean }>(`/admin/equipment/${id}/approve`, { method: 'POST' });
+  }
+
+  async adminRejectMarketItem(id: string, reason: string) {
+    return this.request<{ success: boolean }>(`/admin/equipment/${id}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    });
   }
 
   async updateTruck(truckId: string, data: Record<string, unknown>) {
