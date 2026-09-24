@@ -30,10 +30,9 @@ const inputCls =
 
 /** Sellers list from their dashboard; admins from theirs; everyone else signs in first. */
 const sellPath = (role: string | undefined, mode: Mode) => {
-  const path = `${role === 'admin' ? '/admin' : '/seller'}/equipment/new${mode === 'parts' ? '?type=PART' : ''}`
-  return role === 'admin' || role === 'seller' ? path : `/login?redirect=${encodeURIComponent(path)}`
+  const path = `${role === 'admin' ? '/admin/equipment/new' : '/my-equipment/new'}${mode === 'parts' ? '?type=PART' : ''}`
+  return role ? path : `/login?redirect=${encodeURIComponent(path)}`
 }
-
 const EquipmentMarketPage = ({ mode }: { mode: Mode }) => {
   const { user } = useAuth()
   const [params, setParams] = useSearchParams()
@@ -101,7 +100,7 @@ const EquipmentMarketPage = ({ mode }: { mode: Mode }) => {
   }, [type, search, state, minPrice, maxPrice, page])
 
   const EmptyIcon = mode === 'parts' ? Wrench : TruckIcon
-  const canSell = !user || user.role === 'seller' || user.role === 'admin'
+  const canSell = true // anyone can list equipment and parts
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">

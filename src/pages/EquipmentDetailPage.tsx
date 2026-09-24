@@ -116,6 +116,7 @@ const EquipmentDetailPage = () => {
   }
 
   const { equipment: e, listing, otherEquipment, canEdit, vinOnFile } = data
+  const purchaseState = new URLSearchParams(window.location.search).get('purchase')
   const photos = [...(e.photos || [])]
   const trailer = e.equipmentType === 'TRAILER'
   const sold = (listing ? listing.status : e.status) === 'SOLD'
@@ -131,6 +132,19 @@ const EquipmentDetailPage = () => {
         <ArrowLeft className="w-4 h-4" />{' '}
         {listing ? 'Back to authority listing' : e.equipmentType === 'PART' ? 'Back to parts' : 'Back to equipment'}
       </Link>
+
+      {purchaseState === 'success' && (
+        <div className="mb-5 flex items-start gap-2 text-sm text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
+          <CheckCircle className="w-4 h-4 mt-0.5 shrink-0" />
+          Payment received — thank you! The seller has been notified, and your receipt is on its way by email. Use
+          “Ask the seller” below to arrange {e.equipmentType === 'PART' ? 'shipping' : 'pickup or delivery'}.
+        </div>
+      )}
+      {purchaseState === 'cancelled' && (
+        <div className="mb-5 text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
+          Checkout was cancelled — you have not been charged.
+        </div>
+      )}
 
       <div className="grid lg:grid-cols-5 gap-6 lg:gap-8">
         {/* Gallery */}
@@ -255,8 +269,19 @@ const EquipmentDetailPage = () => {
                 <ContactCard item={e} sold={sold} compact />
               </div>
             </div>
+          ) : sold ? (
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 text-sm text-gray-600">
+              This item has been sold.
+            </div>
           ) : (
-            <ContactCard item={e} sold={sold} />
+            <>
+              {!canEdit && <BuyBox item={e} purchase={data.purchase} />}
+              {data.canMessageSeller ? (
+                <AskSellerCard item={e} />
+              ) : (
+                !canEdit && <SignInToAsk itemId={e.id} />
+              )}
+            </>
           )}
 
           {canEdit && <OwnerTools equipment={e} onChanged={load} />}
@@ -338,6 +363,159 @@ const EquipmentDetailPage = () => {
     </div>
   )
 }
+
+/** Price, quantity (parts) and Stripe checkout for a standalone item. */
+const BuyBox = ({ item, purchase }: { item: EquipmentItem; purchase?: EquipmentResponse['purchase'] }) => {
+  const { isAuthenticated } = useAuth()
+  const [qty, setQty] = useState(1)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+  const isPart = item.equipmentType === 'PART'
+  const max = Math.max(purchase?.available || 1, 1)
+
+  const buy = async () => {
+    if (!isAuthenticated) {
+      window.location.href = `/login?redirect=${encodeURIComponent(`/equipment/${item.id}`)}`
+      return
+    }
+    setBusy(true)
+    setError('')
+    try {
+      const res = await api.startEquipmentCheckout(item.id, qty)
+      window.location.href = res.data.url
+    } catch (err: any) {
+      setError(err?.message || 'Could not start checkout')
+      setBusy(false)
+    }
+  }
+
+  if (item.price == null) return null
+  return (
+    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+      {purchase?.purchasable ? (
+        <>
+          {isPart && max > 1 && (
+            <div className="flex items-center justify-between mb-3">
+              <label className="text-sm font-medium text-gray-700">Quantity</label>
+              <div className="flex items-center gap-2">
+                <select
+                  value={qty}
+                  onChange={(ev) => setQty(Number(ev.target.value))}
+                  className="px-3 py-2 rounded-lg border border-gray-200 text-sm bg-white"
+                >
+                  {Array.from({ length: Math.min(max, 50) }, (_, i) => i + 1).map((n) => (
+                    <option key={n} value={n}>
+                      {n}
+                    </option>
+                  ))}
+                </select>
+                <span className="text-xs text-gray-500">of {max}</span>
+              </div>
+            </div>
+          )}
+          {isPart && qty > 1 && (
+            <p className="text-sm text-gray-600 mb-3">
+              Total: <span className="font-semibold text-gray-900">{fmtPrice((item.price || 0) * qty)}</span>
+            </p>
+          )}
+          <button
+            onClick={buy}
+            disabled={busy}
+            className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm disabled:opacity-60"
+          >
+            <Lock className="w-4 h-4" /> {busy ? 'Opening secure checkout…' : 'Buy now'}
+          </button>
+          <p className="text-xs text-gray-500 mt-3">
+            Secure card checkout by Stripe. Payment goes straight to the seller&apos;s verified payout account. All sales are final.
+          </p>
+        </>
+      ) : purchase?.reason === 'ON_HOLD' ? (
+        <p className="text-sm text-gray-600">Someone is checking out this item right now. Check back in about 30 minutes.</p>
+      ) : (
+        <p className="text-sm text-gray-600">
+          Online checkout opens once the seller finishes payout setup. Ask the seller a question in the meantime.
+        </p>
+      )}
+      {error && <p className="text-sm text-red-600 mt-3">{error}</p>}
+    </div>
+  )
+}
+
+/** Direct question to the seller (standalone items). MC talk is refused server-side. */
+const AskSellerCard = ({ item }: { item: EquipmentItem }) => {
+  const [open, setOpen] = useState(false)
+  const [message, setMessage] = useState('')
+  const [sending, setSending] = useState(false)
+  const [sent, setSent] = useState(false)
+  const [error, setError] = useState('')
+
+  const send = async () => {
+    if (!message.trim()) return setError('Write a short message')
+    setSending(true)
+    setError('')
+    try {
+      await api.askEquipmentQuestion(item.id, message.trim())
+      setSent(true)
+      setMessage('')
+    } catch (err: any) {
+      setError(err?.message || 'Could not send your question')
+    } finally {
+      setSending(false)
+    }
+  }
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+      {sent ? (
+        <p className="flex items-start gap-2 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
+          <CheckCircle className="w-4 h-4 mt-0.5 shrink-0" /> Sent to the seller. Their reply will show in your Messages.
+        </p>
+      ) : !open ? (
+        <button
+          onClick={() => setOpen(true)}
+          className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-gray-200 bg-white text-gray-800 hover:bg-gray-50 font-semibold text-sm"
+        >
+          <MessageSquare className="w-4 h-4" /> Ask the seller
+        </button>
+      ) : (
+        <div className="space-y-3">
+          <p className="text-sm font-semibold text-gray-900">Ask the seller about {equipmentTitle(item)}</p>
+          <textarea
+            autoFocus
+            rows={4}
+            value={message}
+            onChange={(ev) => setMessage(ev.target.value)}
+            placeholder="Is it still available? Any maintenance records? Can you ship to Dallas?"
+            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none resize-none"
+          />
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          <div className="flex gap-2">
+            <button
+              disabled={sending}
+              onClick={send}
+              className="flex-1 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold disabled:opacity-60"
+            >
+              {sending ? 'Sending…' : 'Send to seller'}
+            </button>
+            <button onClick={() => setOpen(false)} className="px-4 py-2.5 rounded-xl border border-gray-200 text-sm">
+              Cancel
+            </button>
+          </div>
+          <p className="text-xs text-gray-500">Questions about MC authorities can&apos;t be sent to sellers.</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+const SignInToAsk = ({ itemId }: { itemId: string }) => (
+  <Link
+    to={`/login?redirect=${encodeURIComponent(`/equipment/${itemId}`)}`}
+    className="block text-center bg-white rounded-2xl border border-gray-200 shadow-sm p-4 text-sm font-semibold text-indigo-600 hover:text-indigo-800"
+  >
+    Sign in to ask the seller a question
+  </Link>
+)
 
 /**
  * Buyer inquiry about this item. Like authority inquiries, it goes to the

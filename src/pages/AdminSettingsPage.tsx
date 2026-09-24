@@ -65,6 +65,7 @@ const AdminSettingsPage = () => {
 
   // Platform settings state
   const [listingPaymentRequired, setListingPaymentRequired] = useState(true)
+  const [equipmentFeePct, setEquipmentFeePct] = useState('5')
   const [platformSettingsLoading, setPlatformSettingsLoading] = useState(false)
   const [platformSettingsSaving, setPlatformSettingsSaving] = useState(false)
   const [platformSettingsError, setPlatformSettingsError] = useState<string | null>(null)
@@ -100,11 +101,37 @@ const AdminSettingsPage = () => {
         // listing_payment_required defaults to true if not set
         const paymentRequired = response.data.listing_payment_required
         setListingPaymentRequired(paymentRequired !== false)
+        const fee = response.data.equipment_platform_fee_percentage
+        if (fee !== undefined && fee !== null && fee !== '') setEquipmentFeePct(String(fee))
       }
     } catch (err: any) {
       setPlatformSettingsError(err.message || 'Failed to load platform settings')
     } finally {
       setPlatformSettingsLoading(false)
+    }
+  }
+
+  const saveEquipmentFee = async () => {
+    const n = Number(equipmentFeePct)
+    if (!isFinite(n) || n < 0 || n >= 100) {
+      setPlatformSettingsError('Platform fee must be between 0 and 99.99%')
+      return
+    }
+    setPlatformSettingsSaving(true)
+    setPlatformSettingsError(null)
+    setPlatformSettingsSuccess(null)
+    try {
+      const response = await api.updatePlatformSettings([
+        { key: 'equipment_platform_fee_percentage', value: String(n), type: 'number' },
+      ])
+      if (response.success) {
+        setPlatformSettingsSuccess(`Equipment & parts platform fee set to ${n}%`)
+        setTimeout(() => setPlatformSettingsSuccess(null), 3000)
+      }
+    } catch (err: any) {
+      setPlatformSettingsError(err.message || 'Failed to update setting')
+    } finally {
+      setPlatformSettingsSaving(false)
     }
   }
 
@@ -551,6 +578,35 @@ const AdminSettingsPage = () => {
                       listingPaymentRequired ? 'left-7' : 'left-1'
                     }`} />
                   </button>
+                </div>
+
+                {/* Equipment & parts platform fee */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-gray-50 rounded-lg border-2 border-primary-200">
+                  <div>
+                    <span className="font-medium">Equipment &amp; Parts Platform Fee</span>
+                    <p className="text-sm text-gray-500">Percentage kept from each truck, trailer or part sale; the rest is paid to the seller</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="relative">
+                      <input
+                        type="number"
+                        min="0"
+                        max="99"
+                        step="0.5"
+                        value={equipmentFeePct}
+                        onChange={(e) => setEquipmentFeePct(e.target.value)}
+                        className="w-24 pl-3 pr-7 py-2 rounded-lg border border-gray-200 text-sm"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">%</span>
+                    </div>
+                    <button
+                      onClick={saveEquipmentFee}
+                      disabled={platformSettingsSaving || platformSettingsLoading}
+                      className="px-4 py-2 rounded-lg bg-primary-500 text-white text-sm font-semibold disabled:opacity-50"
+                    >
+                      Save
+                    </button>
+                  </div>
                 </div>
 
                 {/* Static feature toggles */}

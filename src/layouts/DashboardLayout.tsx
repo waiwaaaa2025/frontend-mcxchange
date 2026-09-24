@@ -222,7 +222,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps = {}) => {
           { icon: LayoutDashboard, label: 'Dashboard', path: '/seller/dashboard' },
           { icon: Package, label: 'My Listings', path: '/seller/listings' },
           { icon: Plus, label: 'Create Listing', path: '/seller/carrier-pulse' },
-          { icon: Container, label: 'Equipment & Parts', path: '/seller/equipment' },
+          { icon: Container, label: 'Equipment & Parts', path: '/my-equipment' },
           { icon: MessageSquare, label: 'Offers', path: '/seller/offers' },
           { icon: Handshake, label: 'Transactions', path: '/seller/transactions', ...(newTransactionCount > 0 ? { badge: String(newTransactionCount), badgeColor: 'bg-red-500' } : {}) },
           { icon: Banknote, label: 'Payout Setup', path: '/seller/payout-setup' },
@@ -250,6 +250,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps = {}) => {
           { icon: ShoppingCart, label: 'My Offers', path: '/buyer/offers' },
           { icon: Handshake, label: 'Transactions', path: '/buyer/transactions', ...(newTransactionCount > 0 ? { badge: String(newTransactionCount), badgeColor: 'bg-red-500' } : {}) },
           { icon: Package, label: 'Purchases', path: '/buyer/purchases' },
+          { icon: Container, label: 'Sell Equipment & Parts', path: '/my-equipment' },
           { icon: MessageSquare, label: 'Messages', path: '/buyer/messages', ...(unreadMessageCount > 0 ? { badge: String(unreadMessageCount), badgeColor: 'bg-red-500' } : {}) },
           { icon: CreditCard, label: 'Subscription', path: '/buyer/subscription' },
           ...(hasPremiumAccess && !buyerSubscriptionLoading

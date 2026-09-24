@@ -1553,6 +1553,9 @@ class ApiService {
           price: number | null;
           mcNumber?: string;
         } | null;
+        // standalone items only
+        purchase?: { purchasable: boolean; available: number; reason: 'SELLER_PAYOUTS_PENDING' | 'ON_HOLD' | null };
+        canMessageSeller?: boolean;
         otherEquipment: Array<{
           id: string;
           equipmentType: 'TRUCK' | 'TRAILER';
@@ -1604,6 +1607,43 @@ class ApiService {
       method: 'PUT',
       body: JSON.stringify({ status }),
     });
+  }
+
+  async startEquipmentCheckout(id: string, quantity = 1) {
+    return this.request<{ success: boolean; data: { url: string; orderId: string } }>(`/equipment/${id}/checkout`, {
+      method: 'POST',
+      body: JSON.stringify({ quantity }),
+    });
+  }
+
+  async askEquipmentQuestion(id: string, content: string) {
+    return this.request<{ success: boolean }>(`/equipment/${id}/question`, {
+      method: 'POST',
+      body: JSON.stringify({ content }),
+    });
+  }
+
+  async getEquipmentOrders() {
+    return this.request<{
+      success: boolean;
+      data: { sales: import('../utils/equipment').EquipmentOrder[]; purchases: import('../utils/equipment').EquipmentOrder[] };
+    }>('/equipment/orders');
+  }
+
+  // Stripe Connect payouts for any role (equipment & parts sellers)
+  async getPayoutStatus() {
+    return this.request<{
+      success: boolean;
+      data: { hasAccount: boolean; isOnboarded: boolean; chargesEnabled: boolean; payoutsEnabled: boolean; detailsSubmitted: boolean };
+    }>('/payouts/status');
+  }
+
+  async setupPayouts() {
+    return this.request<{ success: boolean; data: { onboardingUrl: string } }>('/payouts/setup', { method: 'POST' });
+  }
+
+  async getPayoutDashboard() {
+    return this.request<{ success: boolean; data: { url: string } }>('/payouts/dashboard');
   }
 
   async adminListMarketItems(status = 'PENDING_REVIEW') {

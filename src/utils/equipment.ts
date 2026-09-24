@@ -81,6 +81,26 @@ export interface MarketCard {
   seller?: { id: string; name: string; email: string } | null
 }
 
+/** A paid equipment/parts order, from the seller's (sale) or buyer's (purchase) side. */
+export interface EquipmentOrder {
+  id: string
+  itemId: string
+  itemName: string
+  equipmentType: EquipmentType | null
+  photo: string | null
+  quantity: number
+  amount: number
+  paidAt: string
+  // sales only
+  platformFee?: number
+  sellerPayout?: number
+  buyer?: { id: string; name: string; email: string } | null
+  buyerPhone?: string | null
+  shippingAddress?: string | null
+  // purchases only
+  seller?: { id: string; name: string } | null
+}
+
 export const PART_CATEGORIES = [
   'Engine',
   'Transmission',

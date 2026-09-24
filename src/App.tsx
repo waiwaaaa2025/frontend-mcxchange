@@ -245,8 +245,8 @@ function App() {
             >
               <Route path="dashboard" element={<SellerDashboard />} />
               <Route path="create-listing" element={<SellerCreateListingPage />} />
-              <Route path="equipment" element={<ManageEquipmentPage mode="seller" />} />
-              <Route path="equipment/new" element={<SellEquipmentPage />} />
+              <Route path="equipment" element={<Navigate to="/my-equipment" replace />} />
+              <Route path="equipment/new" element={<Navigate to="/my-equipment/new" replace />} />
               <Route path="listings" element={<SellerListingsPage />} />
               <Route path="offers" element={<SellerOffersPage />} />
               <Route path="earnings" element={<SellerEarningsPage />} />
@@ -390,6 +390,23 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
+            {/* Equipment & parts selling + payouts — open to every signed-in role */}
+            {[
+              { path: 'my-equipment', element: <ManageEquipmentPage mode="mine" /> },
+              { path: 'my-equipment/new', element: <SellEquipmentPage /> },
+              { path: 'payouts', element: <SellerPayoutSetupPage anyRole /> },
+            ].map(({ path, element }) => (
+              <Route
+                key={path}
+                path={path}
+                element={
+                  <ProtectedRoute>
+                    <DashboardLayout>{element}</DashboardLayout>
+                  </ProtectedRoute>
+                }
+              />
+            ))}
 
             {/* Profile and Settings (with Dashboard Layout) */}
             <Route

@@ -60,7 +60,7 @@ const SellEquipmentPage = () => {
 
   const set = (patch: Partial<typeof empty>) => setForm((f) => ({ ...f, ...patch }))
   const isPart = type === 'PART'
-  const base = user?.role === 'admin' ? '/admin' : '/seller'
+  const listPath = user?.role === 'admin' ? '/admin/equipment' : '/my-equipment'
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -132,7 +132,7 @@ const SellEquipmentPage = () => {
           >
             View listing
           </Link>
-          <Link to={`${base}/equipment`} className="px-5 py-3 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50">
+          <Link to={listPath} className="px-5 py-3 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50">
             My equipment & parts
           </Link>
           <button

@@ -27,7 +27,9 @@ interface ConnectStatus {
   error?: string
 }
 
-const SellerPayoutSetupPage = () => {
+// `anyRole` uses the role-free /payouts endpoints (anyone selling equipment or
+// parts); the default uses the seller-only /seller/connect endpoints.
+const SellerPayoutSetupPage = ({ anyRole = false }: { anyRole?: boolean }) => {
   const [searchParams] = useSearchParams()
   const [status, setStatus] = useState<ConnectStatus | null>(null)
   const [loading, setLoading] = useState(true)
@@ -37,7 +39,7 @@ const SellerPayoutSetupPage = () => {
   const fetchStatus = useCallback(async () => {
     try {
       setLoading(true)
-      const response = await api.getSellerConnectStatus()
+      const response = await (anyRole ? api.getPayoutStatus() : api.getSellerConnectStatus())
       if (response.success) {
         setStatus(response.data)
       }
@@ -66,7 +68,7 @@ const SellerPayoutSetupPage = () => {
   const handleSetupAccount = async () => {
     try {
       setCreating(true)
-      const response = await api.createSellerConnectAccount()
+      const response = await (anyRole ? api.setupPayouts() : api.createSellerConnectAccount())
       if (response.success && response.data?.onboardingUrl) {
         window.location.href = response.data.onboardingUrl
       } else {
@@ -82,7 +84,7 @@ const SellerPayoutSetupPage = () => {
   const handleOpenDashboard = async () => {
     try {
       setOpeningDashboard(true)
-      const response = await api.getSellerConnectDashboard()
+      const response = await (anyRole ? api.getPayoutDashboard() : api.getSellerConnectDashboard())
       if (response.success && response.data?.url) {
         window.open(response.data.url, '_blank')
       } else {
