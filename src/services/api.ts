@@ -1534,6 +1534,45 @@ class ApiService {
     return json as { success: boolean; data: Array<{ id: string; url: string }> };
   }
 
+  // One piece of equipment (truck or trailer) with the authority it's sold with
+  async getEquipment(truckId: string) {
+    return this.request<{
+      success: boolean;
+      data: {
+        equipment: import('../utils/equipment').EquipmentItem & { listingId: string };
+        vinOnFile: boolean;
+        canEdit: boolean;
+        listing: {
+          id: string;
+          title: string;
+          status: string;
+          city: string | null;
+          state: string | null;
+          authorityType: string;
+          price: number | null;
+          mcNumber?: string;
+        };
+        otherEquipment: Array<{
+          id: string;
+          equipmentType: 'TRUCK' | 'TRAILER';
+          make: string;
+          model: string;
+          year: number | null;
+          price: number | null;
+          trailerType: string | null;
+          photo: string | null;
+        }>;
+      };
+    }>(`/equipment/${truckId}`);
+  }
+
+  async updateTruck(truckId: string, data: Record<string, unknown>) {
+    return this.request<{ success: boolean; data: any }>(`/trucks/${truckId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
   async deleteTruck(truckId: string) {
     return this.request<{ success: boolean }>(`/trucks/${truckId}`, { method: 'DELETE' });
   }

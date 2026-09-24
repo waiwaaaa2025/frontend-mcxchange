@@ -24,6 +24,7 @@ const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'))
 const MarketplacePage = lazy(() => import('./pages/MarketplacePage'))
 const MCDetailPage = lazy(() => import('./pages/MCDetailPage'))
 const MCDetailPageV2 = lazy(() => import('./pages/MCDetailPageV2'))
+const EquipmentDetailPage = lazy(() => import('./pages/EquipmentDetailPage'))
 const ConsultationSuccessPage = lazy(() => import('./pages/ConsultationSuccessPage'))
 const PricingPage = lazy(() => import('./pages/PricingPage'))
 const BuyersGuidePage = lazy(() => import('./pages/BuyersGuidePage'))
@@ -185,6 +186,7 @@ function App() {
               <Route path="marketplace" element={<MarketplacePage />} />
               <Route path="mc/:id" element={<MCDetailPageV2 />} />
               <Route path="mc-v2/:id" element={<MCDetailPageV2 />} />
+              <Route path="equipment/:id" element={<EquipmentDetailPage />} />
               <Route path="consultation/success" element={<ConsultationSuccessPage />} />
               <Route path="contact" element={<ContactPage />} />
               {/* Product Routes */}

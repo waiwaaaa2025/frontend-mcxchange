@@ -20,6 +20,8 @@ import {
 import api from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import TruckFormSection, { TruckFormValue } from '../components/TruckFormSection'
+import { buildEquipmentPayload, uploadEquipmentPhotos } from '../utils/equipment'
+import EquipmentCreatedLinks from '../components/EquipmentCreatedLinks'
 import {
   AUTHORITY_TYPE_OPTIONS,
   AUTHORITY_TYPE_LABELS,
@@ -92,6 +94,7 @@ export default function SellerCreateListingPage() {
   const [createdListing, setCreatedListing] = useState<any>(null)
   const [submittedForReview, setSubmittedForReview] = useState(false)
   const [draftNotice, setDraftNotice] = useState('')
+  const [photoNotice, setPhotoNotice] = useState('')
 
   // Auto-fetch carrier data from MorPro when coming from CarrierPulse
   useEffect(() => {
@@ -262,17 +265,7 @@ export default function SellerCreateListingPage() {
         else if (r.includes('unsatisfactory')) safetyRating = 'UNSATISFACTORY'
       }
 
-      const truckPayload = trucks
-        .filter((t) => t.make.trim() && t.model.trim())
-        .map((t) => ({
-          make: t.make.trim(),
-          model: t.model.trim(),
-          year: t.year ? parseInt(t.year, 10) : null,
-          mileage: t.mileage ? parseInt(t.mileage, 10) : null,
-          vin: t.vin.trim() || null,
-          condition: t.condition || null,
-          description: t.description.trim() || null,
-        }))
+      const { items: equipmentItems, payload: equipmentPayload } = buildEquipmentPayload(trucks)
 
       const operatesTrucks = hasCarrierOperations(authorityType)
 
@@ -312,28 +305,17 @@ export default function SellerCreateListingPage() {
         sellingWithPhone: sellingWithPhone === 'yes',
         insuranceCompany: insuranceCompany || undefined,
         monthlyInsurancePremium: parseFloat(monthlyInsurancePremium) || undefined,
-        trucks: truckPayload.length > 0 ? truckPayload : undefined,
+        trucks: equipmentPayload.length > 0 ? equipmentPayload : undefined,
       })
 
       if (response.success) {
-        // Upload photos for any trucks that have them. Truck IDs come back
-        // attached to the created listing's trucks[] field.
-        const createdTrucks = (response.data?.trucks || []) as Array<{ id: string }>
-        const trucksWithPhotos = trucks.filter((t) => t.photos.length > 0)
-        if (createdTrucks.length > 0 && trucksWithPhotos.length > 0) {
-          // createMany preserves the order we submitted in, so zip photos by index.
-          for (let i = 0; i < trucks.length && i < createdTrucks.length; i++) {
-            const photos = trucks[i].photos
-            const truckId = createdTrucks[i]?.id
-            if (photos.length > 0 && truckId) {
-              try {
-                await api.uploadTruckPhotos(truckId, photos)
-              } catch (photoErr) {
-                console.error('Truck photo upload failed', photoErr)
-              }
-            }
-          }
-        }
+        // Equipment ids come back on the created listing, in the order sent.
+        const failedPhotos = await uploadEquipmentPhotos(response.data?.trucks, equipmentItems)
+        setPhotoNotice(
+          failedPhotos > 0
+            ? `Photos for ${failedPhotos} equipment item${failedPhotos > 1 ? 's' : ''} could not be uploaded. Open the equipment page to add them again.`
+            : ''
+        )
         // A newly created listing is a DRAFT — it stays invisible until it's
         // pushed into the admin review queue. The server enforces the listing
         // fee here, so surface that instead of silently leaving a draft behind.
@@ -468,6 +450,12 @@ export default function SellerCreateListingPage() {
               ? `${carrierData?.legalName} - MC #${pulseMC || carrierData?.mcNumber} has been submitted for review. We'll notify you once it's approved.`
               : draftNotice}
           </p>
+          {photoNotice && (
+            <p className="-mt-5 mb-8 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+              {photoNotice}
+            </p>
+          )}
+          <EquipmentCreatedLinks equipment={createdListing?.trucks} />
 
           <div className="bg-gray-50 rounded-xl p-4 mb-6 text-left space-y-2">
             <div className="flex justify-between text-sm">
@@ -912,9 +900,7 @@ export default function SellerCreateListingPage() {
             </div>
 
             {/* Trucks included in this sale — brokers and forwarders don't run equipment */}
-            {hasCarrierOperations(authorityType) && (
-              <TruckFormSection value={trucks} onChange={setTrucks} />
-            )}
+            <TruckFormSection value={trucks} onChange={setTrucks} />
 
             {/* Insurance Details */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">

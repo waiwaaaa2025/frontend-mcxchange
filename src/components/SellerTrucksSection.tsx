@@ -1,25 +1,10 @@
 import { useState } from 'react'
-import { Truck as TruckIcon, X } from 'lucide-react'
-
-interface TruckPhoto {
-  id: string
-  url: string
-}
-
-interface TruckItem {
-  id: string
-  make: string
-  model: string
-  year: number | null
-  mileage: number | null
-  vin: string | null
-  condition: string | null
-  description: string | null
-  photos?: TruckPhoto[]
-}
+import { Link } from 'react-router-dom'
+import { Truck as TruckIcon, X, ArrowRight } from 'lucide-react'
+import { EquipmentItem, equipmentTitle, equipmentTypeLabel, fmtPrice } from '../utils/equipment'
 
 interface Props {
-  trucks: TruckItem[] | undefined
+  trucks: EquipmentItem[] | undefined
   isUnlocked: boolean
 }
 
@@ -52,7 +37,7 @@ const SellerTrucksSection = ({ trucks, isUnlocked }: Props) => {
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
             <TruckIcon className="w-5 h-5 text-indigo-500" />
-            {trucks.length === 1 ? 'Truck Included in Sale' : `${trucks.length} Trucks Included in Sale`}
+            {trucks.length === 1 ? 'Equipment Included in Sale' : `${trucks.length} Pieces of Equipment Included`}
           </h2>
           <span className="text-xs bg-emerald-50 text-emerald-700 px-2 py-1 rounded-full font-medium">
             Turnkey package
@@ -78,7 +63,7 @@ const SellerTrucksSection = ({ trucks, isUnlocked }: Props) => {
                       >
                         <img
                           src={photo.url}
-                          alt={`${truck.make} ${truck.model}`}
+                          alt={equipmentTitle(truck)}
                           className="w-full h-full object-cover hover:scale-105 transition-transform"
                           loading="lazy"
                         />
@@ -101,10 +86,15 @@ const SellerTrucksSection = ({ trucks, isUnlocked }: Props) => {
               {/* Details */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-3 mb-2">
-                  <h3 className="text-xl font-bold text-gray-900">
-                    {truck.year ? `${truck.year} ` : ''}
-                    {truck.make} {truck.model}
-                  </h3>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600 mb-0.5">
+                      {equipmentTypeLabel(truck)}
+                    </p>
+                    <h3 className="text-xl font-bold text-gray-900">{equipmentTitle(truck)}</h3>
+                    {fmtPrice(truck.price) && (
+                      <p className="text-lg font-bold text-emerald-600 mt-0.5">{fmtPrice(truck.price)}</p>
+                    )}
+                  </div>
                   {truck.condition && (
                     <span
                       className={`text-xs font-semibold px-2.5 py-1 rounded-full whitespace-nowrap ${conditionColor(
@@ -117,6 +107,24 @@ const SellerTrucksSection = ({ trucks, isUnlocked }: Props) => {
                 </div>
 
                 <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm text-gray-600 mb-3">
+                  {truck.lengthFt != null && (
+                    <span>
+                      <span className="text-gray-400">Length:</span>{' '}
+                      <span className="font-medium text-gray-900">{truck.lengthFt} ft</span>
+                    </span>
+                  )}
+                  {truck.engine && (
+                    <span>
+                      <span className="text-gray-400">Engine:</span>{' '}
+                      <span className="font-medium text-gray-900">{truck.engine}</span>
+                    </span>
+                  )}
+                  {truck.transmission && (
+                    <span>
+                      <span className="text-gray-400">Transmission:</span>{' '}
+                      <span className="font-medium text-gray-900">{truck.transmission}</span>
+                    </span>
+                  )}
                   {truck.mileage != null && (
                     <span>
                       <span className="text-gray-400">Mileage:</span>{' '}
@@ -142,6 +150,13 @@ const SellerTrucksSection = ({ trucks, isUnlocked }: Props) => {
                     {truck.description}
                   </p>
                 )}
+
+                <Link
+                  to={`/equipment/${truck.id}`}
+                  className="inline-flex items-center gap-1.5 mt-3 text-sm font-semibold text-indigo-600 hover:text-indigo-800"
+                >
+                  View equipment page <ArrowRight className="w-4 h-4" />
+                </Link>
               </div>
             </div>
           ))}

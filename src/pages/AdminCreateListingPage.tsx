@@ -28,6 +28,9 @@ import {
 } from '../constants/authority'
 import type { AuthorityType } from '../types'
 import api from '../services/api'
+import TruckFormSection from '../components/TruckFormSection'
+import EquipmentCreatedLinks from '../components/EquipmentCreatedLinks'
+import { EquipmentFormValue, buildEquipmentPayload, uploadEquipmentPhotos } from '../utils/equipment'
 
 export default function AdminCreateListingPage() {
   const navigate = useNavigate()
@@ -88,6 +91,8 @@ export default function AdminCreateListingPage() {
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
   const [createdListing, setCreatedListing] = useState<any>(null)
+  const [equipment, setEquipment] = useState<EquipmentFormValue[]>([])
+  const [photoNotice, setPhotoNotice] = useState('')
 
   // Auto-fetch carrier data from MorPro when coming from CarrierPulse
   useEffect(() => {
@@ -183,6 +188,16 @@ export default function AdminCreateListingPage() {
     return () => clearTimeout(timer)
   }, [sellerSearch, searchSellers])
 
+  // Equipment ids come back on the created listing, in the order sent.
+  const attachEquipmentPhotos = async (created: Array<{ id: string }> | undefined, items: EquipmentFormValue[]) => {
+    const failed = await uploadEquipmentPhotos(created, items)
+    setPhotoNotice(
+      failed > 0
+        ? `Photos for ${failed} equipment item${failed > 1 ? 's' : ''} could not be uploaded. Open the equipment page to add them again.`
+        : ''
+    )
+  }
+
   // Submit listing
   const handleSubmit = async () => {
     if (!carrierData) {
@@ -218,6 +233,8 @@ export default function AdminCreateListingPage() {
         else if (r.includes('unsatisfactory')) safetyRating = 'UNSATISFACTORY'
       }
 
+      const { items: equipmentItems, payload: equipmentPayload } = buildEquipmentPayload(equipment)
+
       const listingData = {
         mcNumber: pulseMC || carrier.mcNumber || '',
         // Brokers/forwarders may have no USDOT — the backend stores ''
@@ -252,6 +269,7 @@ export default function AdminCreateListingPage() {
         factoringCompany: factoringCompany || undefined,
         insuranceCompany: insuranceCompany || undefined,
         monthlyInsurancePremium: parseFloat(monthlyInsurancePremium) || undefined,
+        trucks: equipmentPayload.length > 0 ? equipmentPayload : undefined,
       }
 
       if (sellerMode === 'existing' && selectedSeller) {
@@ -261,6 +279,7 @@ export default function AdminCreateListingPage() {
           sellerId: selectedSeller.id,
         })
         if (response.success) {
+          await attachEquipmentPhotos(response.data?.trucks, equipmentItems)
           setCreatedListing(response.data)
           setPageState('success')
         } else {
@@ -287,6 +306,7 @@ export default function AdminCreateListingPage() {
           },
         })
         if (response.success) {
+          await attachEquipmentPhotos(response.data?.listing?.trucks, equipmentItems)
           setCreatedListing(response.data?.listing)
           setPageState('success')
         } else {
@@ -366,6 +386,12 @@ export default function AdminCreateListingPage() {
           <p className="text-gray-500 mb-8">
             {carrierData?.legalName} - MC #{pulseMC} has been listed successfully{selectedSeller ? ` under ${selectedSeller.name}` : ''}.
           </p>
+          {photoNotice && (
+            <p className="-mt-5 mb-8 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+              {photoNotice}
+            </p>
+          )}
+          <EquipmentCreatedLinks equipment={createdListing?.trucks} />
 
           <div className="bg-gray-50 rounded-xl p-4 mb-6 text-left space-y-2">
             <div className="flex justify-between text-sm">
@@ -732,6 +758,9 @@ export default function AdminCreateListingPage() {
                 </div>
               </div>
             </div>
+
+            {/* Equipment sold with the authority */}
+            <TruckFormSection value={equipment} onChange={setEquipment} />
 
             {/* Insurance Details */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
