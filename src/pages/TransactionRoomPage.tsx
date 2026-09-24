@@ -86,6 +86,11 @@ type BuyerStep =
   | 'final-payment'       // Step 6: Pay remaining balance
   | 'completed'           // Step 7: Transaction complete
 
+// Seller payout finished: released by an admin transfer, or paid by Stripe
+// automatically when the final payment was a Connect split.
+const isPayoutDone = (status?: string | null) =>
+  status === 'RELEASED' || status === 'INSTANT_RELEASED' || status === 'PAID_VIA_CONNECT'
+
 const TransactionRoomPage = () => {
   const { transactionId } = useParams()
   const navigate = useNavigate()
@@ -4165,18 +4170,18 @@ For questions, contact us at payments@domilea.com`
 
               {/* Admin Release Payout */}
               {userRole === 'admin' && transaction.status === 'completed' && (
-                <Card className={(transaction.payoutStatus === 'RELEASED' || transaction.payoutStatus === 'INSTANT_RELEASED') ? 'bg-green-50 border-2 border-green-200' : 'bg-amber-50 border-2 border-amber-200'}>
-                  <h3 className={`font-semibold mb-3 flex items-center gap-2 ${(transaction.payoutStatus === 'RELEASED' || transaction.payoutStatus === 'INSTANT_RELEASED') ? 'text-green-800' : 'text-amber-800'}`}>
+                <Card className={isPayoutDone(transaction.payoutStatus) ? 'bg-green-50 border-2 border-green-200' : 'bg-amber-50 border-2 border-amber-200'}>
+                  <h3 className={`font-semibold mb-3 flex items-center gap-2 ${isPayoutDone(transaction.payoutStatus) ? 'text-green-800' : 'text-amber-800'}`}>
                     <Banknote className="w-5 h-5" />
                     Seller Payout
                   </h3>
 
-                  {(transaction.payoutStatus === 'RELEASED' || transaction.payoutStatus === 'INSTANT_RELEASED') ? (
+                  {isPayoutDone(transaction.payoutStatus) ? (
                     <div>
                       <div className="flex items-center gap-2 mb-2">
                         <CheckCircle className="w-5 h-5 text-green-600" />
                         <span className="font-semibold text-green-800">
-                          {transaction.payoutStatus === 'INSTANT_RELEASED' ? 'Instant Payout Sent' : 'Payout Released'}
+                          {transaction.payoutStatus === 'INSTANT_RELEASED' ? 'Instant Payout Sent' : transaction.payoutStatus === 'PAID_VIA_CONNECT' ? 'Paid by Stripe at Final Payment' : 'Payout Released'}
                         </span>
                       </div>
                       <div className="bg-green-100 border border-green-300 rounded-xl p-4">
@@ -4189,7 +4194,7 @@ For questions, contact us at payments@domilea.com`
                         <div className="flex items-center justify-between text-xs text-green-600 mt-1">
                           <span>Method</span>
                           <span className="font-medium">
-                            {transaction.payoutStatus === 'INSTANT_RELEASED' ? 'Instant (Debit Card)' : 'Standard (Bank Account)'}
+                            {transaction.payoutStatus === 'INSTANT_RELEASED' ? 'Instant (Debit Card)' : transaction.payoutStatus === 'PAID_VIA_CONNECT' ? 'Automatic (Stripe Connect split)' : 'Standard (Bank Account)'}
                           </span>
                         </div>
                         {transaction.payoutTransferId && (
@@ -4300,7 +4305,7 @@ For questions, contact us at payments@domilea.com`
               )}
 
               {/* Seller Payout Status */}
-              {userRole === 'seller' && transaction.status === 'completed' && (transaction.payoutStatus === 'RELEASED' || transaction.payoutStatus === 'INSTANT_RELEASED') && (
+              {userRole === 'seller' && transaction.status === 'completed' && isPayoutDone(transaction.payoutStatus) && (
                 <Card className="bg-green-50 border-2 border-green-200">
                   <div className="flex items-start gap-3">
                     <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center flex-shrink-0">
@@ -4308,7 +4313,7 @@ For questions, contact us at payments@domilea.com`
                     </div>
                     <div>
                       <h3 className="font-semibold text-green-800 mb-1">
-                        {transaction.payoutStatus === 'INSTANT_RELEASED' ? 'Instant Payout Sent!' : 'Payout Released!'}
+                        {transaction.payoutStatus === 'INSTANT_RELEASED' ? 'Instant Payout Sent!' : transaction.payoutStatus === 'PAID_VIA_CONNECT' ? 'Payout Sent!' : 'Payout Released!'}
                       </h3>
                       <p className="text-2xl font-bold text-green-700 mb-2">
                         ${Number(transaction.sellerPayout || transaction.agreedPrice).toLocaleString()}
@@ -4342,7 +4347,7 @@ For questions, contact us at payments@domilea.com`
                       {userRole === 'buyer'
                         ? 'All documents are now available for download.'
                         : userRole === 'seller'
-                        ? (transaction.payoutStatus === 'RELEASED' || transaction.payoutStatus === 'INSTANT_RELEASED')
+                        ? isPayoutDone(transaction.payoutStatus)
                           ? transaction.payoutStatus === 'INSTANT_RELEASED'
                             ? 'Your instant payout has been sent to your debit card.'
                             : 'Your payout has been released to your connected bank account.'
