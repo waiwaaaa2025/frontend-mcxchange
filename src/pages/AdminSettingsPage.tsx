@@ -43,6 +43,23 @@ const AdminSettingsPage = () => {
   const [transactionFilter, setTransactionFilter] = useState<'all' | 'completed' | 'pending' | 'failed'>('all')
   const [searchQuery, setSearchQuery] = useState('')
 
+  // User email export state
+  const [emailExportRole, setEmailExportRole] = useState('ALL')
+  const [emailExporting, setEmailExporting] = useState(false)
+  const [emailExportError, setEmailExportError] = useState<string | null>(null)
+
+  const handleExportEmails = async () => {
+    setEmailExporting(true)
+    setEmailExportError(null)
+    try {
+      await api.downloadUserEmailsCsv(emailExportRole)
+    } catch (err) {
+      setEmailExportError(err instanceof Error ? err.message : 'Email export failed')
+    } finally {
+      setEmailExporting(false)
+    }
+  }
+
   // Pricing state
   const [pricingLoading, setPricingLoading] = useState(false)
   const [pricingSaving, setPricingSaving] = useState(false)
@@ -480,6 +497,39 @@ const AdminSettingsPage = () => {
         {/* General Settings Tab */}
         {activeTab === 'general' && (
           <div className="space-y-6">
+            <Card>
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-bold">Export User Emails</h2>
+                  <p className="text-sm text-gray-500">
+                    Download a CSV of every user's email with name, phone, role, company, and subscription.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <select
+                    value={emailExportRole}
+                    onChange={(e) => setEmailExportRole(e.target.value)}
+                    className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-primary-500"
+                  >
+                    <option value="ALL">All users</option>
+                    <option value="BUYER">Buyers</option>
+                    <option value="SELLER">Sellers</option>
+                    <option value="COMPLIANCE_MANAGER">Compliance</option>
+                    <option value="ADMIN">Admins</option>
+                  </select>
+                  <Button onClick={handleExportEmails} disabled={emailExporting}>
+                    <Download className="w-4 h-4 mr-2" />
+                    {emailExporting ? 'Exporting...' : 'Download CSV'}
+                  </Button>
+                </div>
+              </div>
+              {emailExportError && (
+                <div className="mt-3 bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm">
+                  {emailExportError}
+                </div>
+              )}
+            </Card>
+
             <Card>
               <h2 className="text-xl font-bold mb-4">Platform Settings</h2>
 

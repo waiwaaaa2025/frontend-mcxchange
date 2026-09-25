@@ -4200,6 +4200,27 @@ class ApiService {
     }>('/admin/disputes/stripe-open');
   }
 
+  // Downloads every user's email + basic account info as CSV (admin only).
+  async downloadUserEmailsCsv(role: string = 'ALL') {
+    const token = this.token || localStorage.getItem('mcx_token');
+    const res = await fetch(`${API_BASE_URL}/admin/user-emails.csv?role=${encodeURIComponent(role)}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (!res.ok) {
+      throw new Error(`Email export failed (${res.status})`);
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const suffix = role !== 'ALL' ? `-${role.toLowerCase()}` : '';
+    a.download = `domilea-user-emails${suffix}-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
   // Downloads a full dispute-evidence PDF for a user (admin only). Streams a PDF,
   // so it can't go through request() (which parses JSON).
   async downloadUserDisputeEvidence(userId: string, userName?: string) {
