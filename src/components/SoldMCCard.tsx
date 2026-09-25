@@ -8,6 +8,7 @@ import {
   AlertTriangle,
   BadgeCheck,
   Briefcase,
+  Lock,
 } from 'lucide-react'
 import Card from './ui/Card'
 import { AUTHORITY_TYPE_BADGE_LABELS, normalizeAuthorityType } from '../constants/authority'
@@ -80,8 +81,10 @@ const SoldMCCard = ({ listing }: SoldMCCardProps) => {
         {/* Price + Key Stats Row */}
         <div className="flex items-end justify-between mb-3">
           <div>
-            <div className="text-2xl font-bold text-emerald-700">
-              ${(listing.price || 0).toLocaleString()}
+            {/* Sale prices stay private; the backend withholds them too. */}
+            <div className="flex items-center gap-1.5 text-lg font-bold text-emerald-700">
+              <Lock className="w-4 h-4" />
+              Price Confidential
             </div>
           </div>
           <div className="flex items-center gap-3 text-xs text-gray-500">

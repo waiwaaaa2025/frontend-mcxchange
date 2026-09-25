@@ -14,7 +14,8 @@ import {
   Loader2,
   BadgeCheck,
   Target,
-  Briefcase
+  Briefcase,
+  Info
 } from 'lucide-react'
 import MCCard from '../components/MCCard'
 import { MarketSectionTabs } from '../components/MarketItemCard'
@@ -412,7 +413,25 @@ const MarketplacePage = () => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">Marketplace</h1>
-          <p className="text-gray-500">Browse verified motor carrier authorities</p>
+          <p className="text-gray-500">Browse trucking businesses for sale</p>
+        </div>
+
+        {/* Legal notice: whole-business sales, legal transfer required, marketing-only role */}
+        <div className="mb-6 flex gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-4">
+          <Info className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+          <div className="text-sm text-amber-900 space-y-1">
+            <p className="font-semibold">Important: listings are entire trucking businesses</p>
+            <p>
+              Each listing is the sale of a complete trucking business, not an MC number by itself. An operating
+              authority can't be sold on its own. Ownership has to change hands through a proper legal transfer of
+              the business, including any required FMCSA updates.
+            </p>
+            <p>
+              Domilea is a marketing agency only. We advertise businesses for sale and connect buyers with sellers.
+              We don't provide legal services or complete transfers, so buyers and sellers should use their own
+              attorney or qualified professional.
+            </p>
+          </div>
         </div>
 
         {/* Search and Filter Bar */}
