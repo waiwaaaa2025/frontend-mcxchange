@@ -13,11 +13,13 @@ import {
   Clock,
   ShieldBan,
   ShieldCheck,
+  KeyRound,
 } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import Select from '../components/ui/Select'
-import api, { type BlockedIpRow, type IpBlockState } from '../services/api'
+import api, { type BlockedIpRow, type IpBlockState, type UnlockEvent } from '../services/api'
 
 interface ScrapeClient {
   ipAddress: string | null
@@ -89,6 +91,7 @@ function formatWhen(iso: string): string {
 
 export default function AdminScrapeActivityPage() {
   const [clients, setClients] = useState<ScrapeClient[]>([])
+  const [unlocks, setUnlocks] = useState<UnlockEvent[]>([])
   const [hours, setHours] = useState('24')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -106,6 +109,7 @@ export default function AdminScrapeActivityPage() {
       if (blocked?.success) setBlockedIps(blocked.data || [])
       if (res.success && res.data) {
         setClients(res.data.clients || [])
+        setUnlocks(res.data.unlocks || [])
       } else {
         setError('Could not load access activity')
       }
@@ -147,6 +151,33 @@ export default function AdminScrapeActivityPage() {
     [clients]
   )
 
+  // Unlocks grouped by the IP they came from, busiest first. Several accounts
+  // unlocking from one IP is the pattern worth a look (shared credits, resale).
+  const unlocksByIp = useMemo(() => {
+    const groups = new Map<string, UnlockEvent[]>()
+    for (const u of unlocks) {
+      const key = u.ipAddress ?? 'unknown'
+      groups.set(key, [...(groups.get(key) ?? []), u])
+    }
+    return [...groups.entries()]
+      .map(([ip, events]) => {
+        const accounts = new Map<string, { user: UnlockEvent['user']; events: UnlockEvent[] }>()
+        for (const e of events) {
+          const a = accounts.get(e.user.id) ?? { user: e.user, events: [] }
+          a.events.push(e)
+          accounts.set(e.user.id, a)
+        }
+        return {
+          ip,
+          events,
+          accounts: [...accounts.values()],
+          newUnlocks: events.filter((e) => !e.reAccess).length,
+          lastAt: events[0].createdAt,
+        }
+      })
+      .sort((a, b) => b.accounts.length - a.accounts.length || b.events.length - a.events.length)
+  }, [unlocks])
+
   const stats = useMemo(() => {
     const totalRequests = clients.reduce((sum, c) => sum + c.requests, 0)
     const anonymous = clients.reduce((sum, c) => sum + c.anonymousRequests, 0)
@@ -175,6 +206,24 @@ export default function AdminScrapeActivityPage() {
     const a = document.createElement('a')
     a.href = url
     a.download = `scrape-activity-${new Date().toISOString().split('T')[0]}.csv`
+    a.click()
+    window.URL.revokeObjectURL(url)
+  }
+
+  const exportUnlocksCSV = () => {
+    const headers = ['When', 'IP', 'Name', 'Email', 'MC', 'Legal name', 'Re-access', 'User agent']
+    const rows = unlocks.map((u) => [
+      u.createdAt, u.ipAddress ?? 'unknown', u.user.name ?? '', u.user.email ?? '',
+      u.listing?.mcNumber ?? '', u.listing?.legalName ?? '', u.reAccess ? 'yes' : 'no',
+      u.userAgent ?? '',
+    ])
+    const csv = [headers, ...rows]
+      .map((r) => r.map((cell) => `"${String(cell).replace(/"/g, "'")}"`).join(','))
+      .join('\n')
+    const url = window.URL.createObjectURL(new Blob([csv], { type: 'text/csv' }))
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `mc-unlocks-${new Date().toISOString().split('T')[0]}.csv`
     a.click()
     window.URL.revokeObjectURL(url)
   }
@@ -318,6 +367,102 @@ export default function AdminScrapeActivityPage() {
           </div>
         </Card>
       )}
+
+      {/* MC unlocks by IP */}
+      <Card>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+          <div className="flex items-center gap-2">
+            <KeyRound className="w-5 h-5 text-indigo-600" />
+            <h2 className="font-semibold text-gray-900">
+              MC unlocks by IP ({unlocks.length} unlock{unlocks.length === 1 ? '' : 's'} from {unlocksByIp.length} IP{unlocksByIp.length === 1 ? '' : 's'})
+            </h2>
+          </div>
+          <Button size="sm" variant="outline" onClick={exportUnlocksCSV} disabled={unlocks.length === 0}>
+            <Download className="w-4 h-4 mr-1" />
+            Export unlocks
+          </Button>
+        </div>
+        {loading ? (
+          <div className="flex items-center justify-center py-8 text-gray-500">
+            <Loader2 className="w-5 h-5 animate-spin mr-2" />
+            Loading unlocks…
+          </div>
+        ) : unlocksByIp.length === 0 ? (
+          <p className="text-sm text-gray-500 py-4">No MC unlocks in this window.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-gray-500 border-b border-gray-200">
+                  <th className="py-2 pr-4 font-medium">IP</th>
+                  <th className="py-2 pr-4 font-medium">Account</th>
+                  <th className="py-2 pr-4 font-medium">MCs unlocked</th>
+                  <th className="py-2 font-medium">Last unlock</th>
+                </tr>
+              </thead>
+              <tbody>
+                {unlocksByIp.map((g) =>
+                  g.accounts.map((a, i) => (
+                    <tr
+                      key={`${g.ip}-${a.user.id}`}
+                      className={`align-top ${i === g.accounts.length - 1 ? 'border-b border-gray-100' : ''}`}
+                    >
+                      {i === 0 && (
+                        <td className="py-2 pr-4" rowSpan={g.accounts.length}>
+                          <p className="font-mono text-gray-900">{g.ip}</p>
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            {g.newUnlocks} new · {g.events.length - g.newUnlocks} re-access
+                          </p>
+                          {g.accounts.length > 1 && (
+                            <span className="inline-block mt-1 px-2 py-0.5 rounded-lg border text-xs font-medium bg-amber-100 text-amber-700 border-amber-200">
+                              {g.accounts.length} accounts on this IP
+                            </span>
+                          )}
+                        </td>
+                      )}
+                      <td className="py-2 pr-4">
+                        <Link to={`/admin/users/${a.user.id}`} className="font-medium text-indigo-600 hover:underline">
+                          {a.user.name || 'Unnamed user'}
+                        </Link>
+                        <p className="text-xs text-gray-500">{a.user.email ?? '—'}</p>
+                      </td>
+                      <td className="py-2 pr-4">
+                        <div className="flex flex-wrap gap-1 max-w-md">
+                          {a.events.map((e, j) =>
+                            e.listing ? (
+                              <Link
+                                key={j}
+                                to={`/admin/listing/${e.listing.id}`}
+                                title={`${e.listing.legalName ?? ''} — ${formatWhen(e.createdAt)}${e.reAccess ? ' (re-access)' : ''}`}
+                                className={`px-2 py-0.5 rounded border text-xs font-mono hover:underline ${
+                                  e.reAccess ? 'bg-gray-50 text-gray-500 border-gray-200' : 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                                }`}
+                              >
+                                MC {e.listing.mcNumber ?? '?'}
+                              </Link>
+                            ) : (
+                              <span key={j} className="px-2 py-0.5 rounded border text-xs text-gray-400 border-gray-200">
+                                deleted listing
+                              </span>
+                            )
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-2 text-xs text-gray-500 whitespace-nowrap">
+                        {formatWhen(a.events[0].createdAt)}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+        <p className="text-xs text-gray-400 mt-3">
+          Grey chips are re-opens of an MC the account had already unlocked. Hover a chip for the
+          legal name and time.
+        </p>
+      </Card>
 
       {/* Clients */}
       <Card>

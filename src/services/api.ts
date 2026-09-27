@@ -28,6 +28,16 @@ export interface IpBlockState {
   updatedAt: string;
 }
 
+// One MC unlock, with the IP it came from (Access Activity).
+export interface UnlockEvent {
+  createdAt: string
+  ipAddress: string | null
+  userAgent: string | null
+  reAccess: boolean
+  user: { id: string; name: string | null; email: string | null }
+  listing: { id: string; mcNumber: string | null; legalName: string | null } | null
+}
+
 export interface BlockedIpRow {
   ipAddress: string;
   status: 'BLOCKED' | 'UNBLOCKED';
@@ -645,6 +655,7 @@ class ApiService {
       data: {
         windowHours: number;
         since: string;
+        unlocks: UnlockEvent[];
         clients: Array<{
           ipAddress: string | null;
           requests: number;
