@@ -3937,7 +3937,7 @@ export default function MCDetailPageV2() {
       await api.createOffer({ listingId: listing.id, amount: parseFloat(offerAmount), message: offerMessage || 'I am interested in purchasing this MC authority.' })
       setOfferSuccess(true)
       setTimeout(() => { setShowOfferModal(false); setOfferAmount(''); setOfferMessage(''); setOfferSuccess(false) }, 2000)
-    } catch (err: any) { alert(err.message || 'Failed to submit offer.') }
+    } catch (err: any) { if (err.code !== 'IDENTITY_VERIFICATION_REQUIRED') alert(err.message || 'Failed to submit offer.') }
     finally { setSubmittingOffer(false) }
   }
 
@@ -3949,7 +3949,7 @@ export default function MCDetailPageV2() {
       await api.createOffer({ listingId: listing.id, amount: price, message: buyNowMessage || 'I want to buy this MC at the listed price.', isBuyNow: true })
       setBuyNowSuccess(true)
       setTimeout(() => { setShowBuyNowModal(false); setBuyNowMessage(''); setBuyNowSuccess(false) }, 2000)
-    } catch (err: any) { alert(err.message || 'Failed to submit offer.') }
+    } catch (err: any) { if (err.code !== 'IDENTITY_VERIFICATION_REQUIRED') alert(err.message || 'Failed to submit offer.') }
     finally { setSubmittingBuyNow(false) }
   }
 

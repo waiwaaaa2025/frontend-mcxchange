@@ -112,7 +112,7 @@ const BuyerOffersPage = () => {
         fetchOffers()
       }
     } catch (err: any) {
-      toast.error(err.message || 'Failed to accept counter offer')
+      if (err.code !== 'IDENTITY_VERIFICATION_REQUIRED') toast.error(err.message || 'Failed to accept counter offer')
     } finally {
       setAcceptingCounterId(null)
     }

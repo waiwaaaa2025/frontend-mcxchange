@@ -9,6 +9,7 @@ import AIChatWidget from './components/AIChatWidget'
 import ProtectedRoute from './components/ProtectedRoute'
 import AuthRequiredRoute from './components/AuthRequiredRoute'
 import VerificationRequiredRoute from './components/VerificationRequiredRoute'
+import IdentityVerificationModal from './components/IdentityVerificationModal'
 
 // Eagerly loaded - landing page (first paint)
 import HomePage from './pages/HomePage'
@@ -168,6 +169,7 @@ function App() {
       <AuthProvider>
         <ScrollToTop />
         <Toaster position="top-right" />
+        <IdentityVerificationModal />
         <AIChatWidget />
         <Suspense fallback={<PageLoader />}>
           <Routes>
@@ -379,13 +381,13 @@ function App() {
             {/* Public Dispute Page - No auth required */}
             <Route path="dispute/:disputeId" element={<DisputePage />} />
 
-            {/* Transaction Room - Shared by all roles */}
+            {/* Transaction Room - Shared by all roles; buyer and seller must be identity verified */}
             <Route
               path="transaction/:transactionId"
               element={
                 <ProtectedRoute>
                   <DashboardLayout>
-                    <VerificationRequiredRoute roles={['buyer']}><TransactionRoomPage /></VerificationRequiredRoute>
+                    <VerificationRequiredRoute roles={['buyer', 'seller']}><TransactionRoomPage /></VerificationRequiredRoute>
                   </DashboardLayout>
                 </ProtectedRoute>
               }

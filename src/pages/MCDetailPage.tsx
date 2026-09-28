@@ -318,7 +318,7 @@ const MCDetailPage = () => {
         setOfferSuccess(false)
       }, 2000)
     } catch (err: any) {
-      alert(err.message || 'Failed to submit offer. Please try again.')
+      if (err.code !== 'IDENTITY_VERIFICATION_REQUIRED') alert(err.message || 'Failed to submit offer. Please try again.')
     } finally {
       setSubmittingOffer(false)
     }
@@ -345,7 +345,7 @@ const MCDetailPage = () => {
         setBuyNowSuccess(false)
       }, 2000)
     } catch (err: any) {
-      alert(err.message || 'Failed to submit offer. Please try again.')
+      if (err.code !== 'IDENTITY_VERIFICATION_REQUIRED') alert(err.message || 'Failed to submit offer. Please try again.')
     } finally {
       setSubmittingBuyNow(false)
     }

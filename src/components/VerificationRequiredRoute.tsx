@@ -13,7 +13,8 @@ interface VerificationRequiredRouteProps {
 
 /**
  * A route wrapper that requires authentication AND a verified identity.
- * Used only where a buyer is buying a business (deposit page, transaction room).
+ * Used where a deal is being closed (buyer deposit page, and the transaction room
+ * for both buyer and seller).
  * - Not authenticated -> shows AuthPromptPage
  * - Admin, or a role not listed in `roles` -> renders children
  * - Not identity verified -> shows IdentityVerificationPrompt

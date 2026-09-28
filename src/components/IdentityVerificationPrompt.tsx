@@ -8,10 +8,12 @@ import { DomileaIcon } from './ui/DomileaLogo'
 import { useAuth } from '../context/AuthContext'
 import api from '../services/api'
 
-// Shown to a buyer who is about to buy a business (the seller accepted their
-// offer) but hasn't verified their identity yet.
-const IdentityVerificationPrompt = () => {
+// Shown to a buyer or seller who is about to commit to a deal (make/accept an
+// offer, pay, or approve the transaction) but hasn't verified their identity yet.
+// `embedded` drops the full-page chrome so it can sit inside a modal.
+const IdentityVerificationPrompt = ({ embedded = false }: { embedded?: boolean }) => {
   const { user, refreshIdentityStatus } = useAuth()
+  const isSeller = user?.role === 'seller'
   const [loading, setLoading] = useState(false)
   const [checking, setChecking] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -31,7 +33,7 @@ const IdentityVerificationPrompt = () => {
     setLoading(true)
     setError(null)
     try {
-      // Return to this same page (deposit or transaction room) after verifying.
+      // Return to this same page after verifying.
       const response = await api.createVerificationSession(window.location.pathname)
       if (response.success && response.data?.url) {
         window.location.href = response.data.url
@@ -55,8 +57,8 @@ const IdentityVerificationPrompt = () => {
   }
 
   return (
-    <div className="min-h-screen py-12 bg-gray-50">
-      <div className="max-w-2xl mx-auto px-4">
+    <div className={embedded ? '' : 'min-h-screen py-12 bg-gray-50'}>
+      <div className={embedded ? '' : 'max-w-2xl mx-auto px-4'}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -70,10 +72,12 @@ const IdentityVerificationPrompt = () => {
               </div>
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-3">
-              Verify Your Identity to Buy
+              {isSeller ? 'Verify Your Identity to Sell' : 'Verify Your Identity to Buy'}
             </h1>
             <p className="text-gray-600 text-lg">
-              Your offer was accepted. Before you pay the deposit and complete the purchase, we need to verify your identity.
+              {isSeller
+                ? 'Before you accept an offer and complete the sale, we need to verify your identity.'
+                : 'Before you make an offer and complete a purchase, we need to verify your identity.'}
             </p>
           </div>
 
@@ -128,7 +132,7 @@ const IdentityVerificationPrompt = () => {
                     Verify Your Identity
                   </h2>
                   <p className="text-gray-500 mb-8 max-w-md mx-auto">
-                    To protect sellers, every buyer verifies their identity before paying for a business. You only do this once.
+                    To protect both sides of every deal, all buyers and sellers verify their identity. You only do this once.
                   </p>
 
                   {/* What you need */}
@@ -170,15 +174,17 @@ const IdentityVerificationPrompt = () => {
           </Card>
 
           {/* Back link */}
-          <div className="text-center">
-            <Link
-              to="/buyer/offers"
-              className="text-indigo-600 hover:text-indigo-700 font-medium inline-flex items-center gap-1"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to My Offers
-            </Link>
-          </div>
+          {!embedded && (
+            <div className="text-center">
+              <Link
+                to={isSeller ? '/seller/offers' : '/buyer/offers'}
+                className="text-indigo-600 hover:text-indigo-700 font-medium inline-flex items-center gap-1"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back to My Offers
+              </Link>
+            </div>
+          )}
         </motion.div>
       </div>
     </div>
