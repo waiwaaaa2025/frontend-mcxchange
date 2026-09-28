@@ -40,6 +40,8 @@ import CarrierHealthScore from '../components/v2/CarrierHealthScore'
 import ViolationBreakdownChart from '../components/v2/ViolationBreakdownChart'
 import SharedEquipmentAlert from '../components/v2/SharedEquipmentAlert'
 import ChameleonAlert from '../components/v2/ChameleonAlert'
+import ChameleonIntelPanel from '../components/v2/ChameleonIntelPanel'
+import { useChameleonIntel } from '../hooks/useChameleonIntel'
 import DriverBreakdown from '../components/v2/DriverBreakdown'
 import FleetOwnershipBar from '../components/v2/FleetOwnershipBar'
 import DonutChart from '../components/v2/DonutChart'
@@ -164,6 +166,12 @@ const baseTabs: TabItem[] = [
   { id: 'chameleon', label: 'Chameleon Check', icon: ShieldAlert },
   { id: 'safety-improvement', label: 'Safety Improvement Report', icon: Zap },
 ]
+
+// Tabs can't reach the page's DOT state, so they ask for a switch by event:
+// same DOT → jump to the Chameleon tab; another DOT → load it on that tab.
+function openChameleonFor(dot: string) {
+  window.dispatchEvent(new CustomEvent('carrier-pulse:open-dot', { detail: dot }))
+}
 
 function fmtCurrency(n: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
@@ -1441,6 +1449,8 @@ function InsuranceTab() {
 // ============================================================
 function FleetTab() {
   const { carrier: c, trucks, trailers, sharedEquipment, previewMode: pm } = useCarrierDataContext()
+  const { intel } = useChameleonIntel(pm ? undefined : String(c.dotNumber || ''))
+  const vinLinks = intel?.linkedCarriers.filter((lc) => lc.sharedVins.length > 0) || []
   const avgYear = trucks.length > 0 ? Math.round(trucks.reduce((s, t) => s + t.year, 0) / trucks.length) : 0
 
   const makeCount: Record<string, number> = {}
@@ -1475,6 +1485,28 @@ function FleetTab() {
       </Card>
 
       <SharedEquipmentAlert data={sharedEquipment} />
+
+      {vinLinks.length > 0 && (
+        <Card padding="md">
+          <h3 className="text-lg font-semibold text-gray-900 mb-1 flex items-center gap-2"><AlertTriangle className="w-5 h-5 text-amber-500" />Same VINs Under Other DOT Numbers</h3>
+          <p className="text-xs text-gray-500 mb-3">This carrier's trucks and trailers have also been inspected under {vinLinks.length} other DOT number{vinLinks.length > 1 ? 's' : ''}.</p>
+          <div className="flex flex-wrap gap-2 mb-3">
+            {vinLinks.slice(0, 12).map((lc) => {
+              const trucksShared = lc.sharedVins.filter((v) => v.unitType === 'power_unit').length
+              return (
+                <button key={lc.dotNumber} type="button" onClick={() => openChameleonFor(lc.dotNumber)}
+                  className={`text-left px-3 py-1.5 rounded-lg border text-xs hover:bg-gray-50 ${lc.status === 'inactive' ? 'border-red-200' : 'border-gray-200'}`}>
+                  <span className="font-mono font-semibold text-indigo-600">DOT {lc.dotNumber}</span>
+                  <span className="text-gray-600"> · {lc.legalName || 'Unknown'} · {trucksShared} truck{trucksShared === 1 ? '' : 's'}, {lc.sharedVins.length - trucksShared} trailer{lc.sharedVins.length - trucksShared === 1 ? '' : 's'}{lc.status === 'inactive' ? ' · inactive' : ''}</span>
+                </button>
+              )
+            })}
+          </div>
+          <button type="button" onClick={() => openChameleonFor(String(c.dotNumber))} className="text-sm font-medium text-indigo-600 hover:text-indigo-800">
+            See every shared VIN in the Chameleon Check tab →
+          </button>
+        </Card>
+      )}
 
       <Card padding="md">
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2"><Truck className="w-5 h-5 text-indigo-500" />Truck Inventory</h3>
@@ -1738,9 +1770,25 @@ function CreditReportTab() {
 // ============================================================
 function ChameleonTab() {
   const { chameleonAnalysis, carrier, relatedCarriers, previewMode: pm } = useCarrierDataContext()
+  const { intel, loading: intelLoading, error: intelError } = useChameleonIntel(pm ? undefined : String(carrier.dotNumber || ''))
   return (
     <div className="space-y-6">
       <PreviewBlurValue variant="chart"><ChameleonAlert analysis={chameleonAnalysis} /></PreviewBlurValue>
+
+      {intelLoading && (
+        <Card padding="md">
+          <div className="flex items-center gap-3 text-sm text-gray-600">
+            <Loader2 className="w-5 h-5 text-red-500 animate-spin" />
+            Cross-checking VINs, phone, email, officers and address against every FMCSA carrier…
+          </div>
+        </Card>
+      )}
+      {intelError && !intelLoading && (
+        <Card padding="md">
+          <p className="text-sm text-gray-600">The FMCSA cross-reference couldn't be loaded ({intelError}).</p>
+        </Card>
+      )}
+      {intel && <ChameleonIntelPanel intel={intel} onCheckDot={openChameleonFor} />}
 
       <Card padding="md">
         <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
@@ -2369,6 +2417,24 @@ export default function CarrierPulsePage({ previewMode = false }: { previewMode?
   const { user, isLoading: authLoading } = useAuth()
   const [dotInput, setDotInput] = useState('')
   const [activeDot, setActiveDot] = useState<string | undefined>(urlDotNumber)
+
+  // Tabs ask for another carrier (or this one's Chameleon tab) via openChameleonFor.
+  useEffect(() => {
+    const onOpen = (e: Event) => {
+      const dot = String((e as CustomEvent<string>).detail || '').replace(/\D/g, '')
+      if (!dot) return
+      setActiveTab('chameleon')
+      if (dot !== activeDot) {
+        setActiveDot(dot)
+        setDotInput(dot)
+        const basePath = window.location.pathname.replace(/\/carrier-pulse(-preview)?(\/.*)?$/, '/carrier-pulse$1')
+        window.history.pushState(null, '', `${basePath}/${dot}`)
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+    window.addEventListener('carrier-pulse:open-dot', onOpen)
+    return () => window.removeEventListener('carrier-pulse:open-dot', onOpen)
+  }, [activeDot])
   const [activeTab, setActiveTab] = useState('overview')
   const [recentSearches, setRecentSearches] = useState<RecentSearch[]>(getRecentSearches(user?.id))
 
