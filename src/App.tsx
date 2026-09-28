@@ -83,7 +83,6 @@ const AdminPaymentTracking = lazy(() => import('./pages/AdminPaymentTracking'))
 const AdminAllListingsPage = lazy(() => import('./pages/AdminAllListingsPage'))
 const AdminListingDetailPage = lazy(() => import('./pages/AdminListingDetailPage'))
 const AdminPendingReviewPage = lazy(() => import('./pages/AdminPendingReviewPage'))
-const AdminPremiumRequestsPage = lazy(() => import('./pages/AdminPremiumRequestsPage'))
 const AdminBrokerOutreachPage = lazy(() => import('./pages/AdminBrokerOutreachPage'))
 const AdminConsultationsPage = lazy(() => import('./pages/AdminConsultationsPage'))
 const AdminTelegramPage = lazy(() => import('./pages/AdminTelegramPage'))
@@ -322,7 +321,6 @@ function App() {
               <Route path="invoices" element={<AdminInvoiceGenerator />} />
               <Route path="payments" element={<AdminPaymentTracking />} />
               <Route path="pending" element={<AdminPendingReviewPage />} />
-              <Route path="premium-requests" element={<AdminPremiumRequestsPage />} />
               <Route path="broker-outreach" element={<AdminBrokerOutreachPage />} />
               <Route path="consultations" element={<AdminConsultationsPage />} />
               <Route path="reported" element={<div className="p-8"><h1 className="text-2xl font-bold">Reported Items</h1></div>} />

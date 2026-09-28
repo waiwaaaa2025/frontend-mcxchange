@@ -6,7 +6,6 @@ import {
   CheckCircle,
   Clock,
   Users,
-  Crown,
   Mail,
   Phone,
   MessageSquare,
@@ -69,7 +68,7 @@ interface DashboardStats {
 
 const AdminDashboard = () => {
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState<'pending' | 'premium' | 'outreach' | 'reported' | 'users'>('pending')
+  const [activeTab, setActiveTab] = useState<'pending' | 'outreach' | 'reported' | 'users'>('pending')
 
   // API data state
   const [pendingListings, setPendingListings] = useState<PendingListing[]>([])
@@ -276,42 +275,6 @@ const AdminDashboard = () => {
       reportedBy: 'Jane Smith',
       reportedAt: '3 days ago',
       severity: 'critical'
-    }
-  ]
-
-  const premiumRequests = [
-    {
-      id: '1',
-      mcNumber: '789012',
-      buyerName: 'Michael Johnson',
-      buyerEmail: 'michael@example.com',
-      buyerPhone: '(555) 123-4567',
-      sellerName: 'Premium Seller Inc',
-      message: 'Interested in this premium MC. Looking for Amazon relay active authority.',
-      requestedAt: '2 hours ago',
-      status: 'pending'
-    },
-    {
-      id: '2',
-      mcNumber: '345678',
-      buyerName: 'Sarah Williams',
-      buyerEmail: 'sarah@trucking.com',
-      buyerPhone: '(555) 987-6543',
-      sellerName: 'Elite MC Authority',
-      message: 'Would like to discuss pricing and transfer process for this premium listing.',
-      requestedAt: '5 hours ago',
-      status: 'pending'
-    },
-    {
-      id: '3',
-      mcNumber: '901234',
-      buyerName: 'David Chen',
-      buyerEmail: 'david.chen@logistics.com',
-      buyerPhone: '(555) 456-7890',
-      sellerName: 'Top Tier Transport',
-      message: 'Serious buyer, ready to move forward. Please contact me ASAP.',
-      requestedAt: '1 day ago',
-      status: 'contacted'
     }
   ]
 
@@ -639,17 +602,6 @@ const AdminDashboard = () => {
             Pending Review
           </button>
           <button
-            onClick={() => setActiveTab('premium')}
-            className={`px-4 py-2 rounded-xl font-medium transition-colors flex items-center gap-1.5 ${
-              activeTab === 'premium'
-                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
-          >
-            <Crown className="w-4 h-4" />
-            Premium Requests
-          </button>
-          <button
             onClick={() => setActiveTab('outreach')}
             className={`px-4 py-2 rounded-xl font-medium transition-colors flex items-center gap-1.5 ${
               activeTab === 'outreach'
@@ -778,100 +730,6 @@ const AdminDashboard = () => {
 
                 <div className="mt-4 pt-4 border-t border-gray-100 text-center">
                   <p className="text-sm text-secondary-600 font-medium">Click to review listing →</p>
-                </div>
-              </Card>
-            ))}
-          </div>
-        )}
-
-        {/* Premium Requests Tab */}
-        {activeTab === 'premium' && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-gray-900">Premium Contact Requests</h2>
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={() => navigate('/admin/premium-requests')}>
-                  View All Requests
-                </Button>
-              </div>
-            </div>
-
-            {premiumRequests.map((request) => (
-              <Card key={request.id}>
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200">
-                        <Crown className="w-3 h-3 text-amber-600" />
-                        <span className="text-xs font-bold text-amber-700">PREMIUM</span>
-                      </div>
-                      <h3 className="text-xl font-bold text-gray-900">MC #{request.mcNumber}</h3>
-                      <span
-                        className={`px-2 py-1 rounded-lg text-xs font-medium flex items-center gap-1 ${
-                          request.status === 'pending'
-                            ? 'bg-amber-50 border border-amber-200 text-amber-700'
-                            : 'bg-emerald-50 border border-emerald-200 text-emerald-700'
-                        }`}
-                      >
-                        {request.status === 'pending' ? (
-                          <Clock className="w-3 h-3" />
-                        ) : (
-                          <CheckCircle className="w-3 h-3" />
-                        )}
-                        {request.status === 'pending' ? 'Pending' : 'Contacted'}
-                      </span>
-                    </div>
-
-                    <div className="text-sm text-gray-500 mb-3">
-                      Seller: <span className="text-gray-700">{request.sellerName}</span>
-                    </div>
-
-                    <div className="bg-gray-50 rounded-xl p-4 mb-4">
-                      <div className="text-sm font-medium text-gray-900 mb-2">Buyer Information</div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div className="flex items-center gap-2">
-                          <Users className="w-4 h-4 text-gray-400" />
-                          <span className="text-sm text-gray-700">{request.buyerName}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Mail className="w-4 h-4 text-gray-400" />
-                          <span className="text-sm text-secondary-600">{request.buyerEmail}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Phone className="w-4 h-4 text-gray-400" />
-                          <span className="text-sm text-gray-700">{request.buyerPhone}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-2 text-sm">
-                      <MessageSquare className="w-4 h-4 text-gray-400 mt-0.5" />
-                      <p className="text-gray-600">{request.message}</p>
-                    </div>
-                  </div>
-
-                  <div className="text-right ml-4">
-                    <div className="text-xs text-gray-500">
-                      Requested {request.requestedAt}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-3">
-                  <Button fullWidth variant="outline">
-                    View Listing
-                  </Button>
-                  {request.status === 'pending' ? (
-                    <Button fullWidth>Mark as Contacted</Button>
-                  ) : (
-                    <Button fullWidth variant="ghost">
-                      <CheckCircle className="w-4 h-4 mr-1" />
-                      Contacted
-                    </Button>
-                  )}
-                  <Button fullWidth variant="ghost">
-                    Dismiss
-                  </Button>
                 </div>
               </Card>
             ))}

@@ -331,7 +331,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps = {}) => {
               { icon: Container, label: 'Equipment & Parts', path: '/admin/equipment', ...(pendingEquipmentCount > 0 ? { badge: String(pendingEquipmentCount), badgeColor: 'bg-red-500' } : {}) },
               { icon: Shield, label: 'Reported Items', path: '/admin/reported' },
               { icon: ShieldAlert, label: 'Account Disputes', path: '/admin/disputes' },
-              { icon: Crown, label: 'Premium Requests', path: '/admin/premium-requests' },
               { icon: Phone, label: 'Broker Outreach', path: '/admin/broker-outreach' },
               { icon: MessageSquare, label: 'Consultations', path: '/admin/consultations', ...(paidConsultationsCount > 0 ? { badge: String(paidConsultationsCount), badgeColor: 'bg-red-500' } : {}) },
             ]
