@@ -12,9 +12,11 @@ import { useCarrierData } from '../hooks/useCarrierData'
 import { usePaymentConsent } from '../hooks/usePaymentConsent'
 import { api } from '../services/api'
 import ChameleonAlert from '../components/v2/ChameleonAlert'
+import ChameleonIntelPanel from '../components/v2/ChameleonIntelPanel'
 import PaymentConsentModal from '../components/PaymentConsentModal'
 import { detectChameleonCarrier, mapToV2CarrierData, mapToV2RelatedCarriers } from '../utils/carrierDataMapper'
 import type { V2ChameleonAnalysis } from '../components/v2/mockData'
+import type { ChameleonIntel } from '../types'
 
 // ============================================================
 // HELPERS
@@ -22,6 +24,9 @@ import type { V2ChameleonAnalysis } from '../components/v2/mockData'
 function fmtNumber(n: number) {
   return new Intl.NumberFormat('en-US').format(n)
 }
+
+const RISK_ORDER = ['none', 'low', 'moderate', 'high', 'critical'] as const
+type RiskLevel = typeof RISK_ORDER[number]
 
 // ============================================================
 // MAIN PAGE
@@ -46,6 +51,11 @@ export default function ChameleonCheckPage() {
   // Carrier data
   const { carrierReport, loading: carrierLoading, error: carrierError } = useCarrierData(activeDot)
 
+  // FMCSA cross-reference (VINs under other DOTs, shared contacts, identity changes)
+  const [intel, setIntel] = useState<ChameleonIntel | null>(null)
+  const [intelLoading, setIntelLoading] = useState(false)
+  const [intelError, setIntelError] = useState<string | null>(null)
+
   // Check access on mount — reuse CarrierPulse access (same subscription tier)
   useEffect(() => {
     if (user?.role === 'admin' || user?.role === 'seller') {
@@ -69,6 +79,19 @@ export default function ChameleonCheckPage() {
     }
     checkAccess()
   }, [user?.role])
+
+  useEffect(() => {
+    setIntel(null)
+    setIntelError(null)
+    if (!activeDot || !hasAccess || !isAuthenticated) return
+    let active = true
+    setIntelLoading(true)
+    api.getChameleonIntel(activeDot)
+      .then((res) => { if (active) setIntel(res.data) })
+      .catch((err: any) => { if (active) setIntelError(err.message || 'Cross-reference failed') })
+      .finally(() => { if (active) setIntelLoading(false) })
+    return () => { active = false }
+  }, [activeDot, hasAccess, isAuthenticated])
 
   // Handle purchase success return
   useEffect(() => {
@@ -111,6 +134,22 @@ export default function ChameleonCheckPage() {
     const basePath = window.location.pathname.replace(/\/chameleon-check.*/, '/chameleon-check')
     window.history.pushState(null, '', `${basePath}/${cleaned}`)
   }
+
+  // Jump to a linked carrier from the cross-reference tables.
+  const checkDot = (dot: string) => {
+    setDotInput(dot)
+    setActiveDot(dot)
+    const basePath = window.location.pathname.replace(/\/chameleon-check.*/, '/chameleon-check')
+    window.history.pushState(null, '', `${basePath}/${dot}`)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  // The badge shows the worse of the two analyses.
+  const overallRisk: RiskLevel | null = analysis
+    ? (intel && RISK_ORDER.indexOf(intel.riskLevel) > RISK_ORDER.indexOf(analysis.riskLevel as RiskLevel)
+      ? intel.riskLevel
+      : analysis.riskLevel as RiskLevel)
+    : null
 
   const handleSearchAnother = () => {
     setActiveDot(undefined)
@@ -325,7 +364,7 @@ export default function ChameleonCheckPage() {
       </div>
 
       {/* Loading state */}
-      {carrierLoading && !carrierReport && (
+      {(carrierLoading || (carrierError && intelLoading)) && !carrierReport && (
         <div className="flex flex-col items-center justify-center py-20">
           <Loader2 className="w-8 h-8 text-red-500 animate-spin mb-4" />
           <p className="text-sm text-gray-500">Analyzing carrier for chameleon indicators...</p>
@@ -333,8 +372,37 @@ export default function ChameleonCheckPage() {
         </div>
       )}
 
+      {/* No full report (common for brand-new carriers) — the FMCSA cross-reference
+          still has the census record, VINs and linked DOTs. */}
+      {carrierError && !carrierReport && intel && (
+        <div className="space-y-6">
+          <Card padding="md">
+            <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
+              <div className="min-w-0">
+                <h2 className="text-lg font-bold text-gray-900 break-words">{intel.current.legalName || 'Unknown Carrier'}</h2>
+                {intel.current.dbaName && <p className="text-sm text-gray-500 break-words">DBA: {intel.current.dbaName}</p>}
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-sm text-gray-600">
+                  <span>DOT #{intel.dotNumber}</span>
+                  {intel.current.physicalAddress && <span>{intel.current.physicalAddress}</span>}
+                </div>
+              </div>
+              <div className={`flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-bold uppercase tracking-wider ${
+                intel.riskLevel === 'critical' ? 'bg-red-100 text-red-700' :
+                intel.riskLevel === 'high' ? 'bg-orange-100 text-orange-700' :
+                intel.riskLevel === 'moderate' ? 'bg-yellow-100 text-yellow-700' :
+                intel.riskLevel === 'low' ? 'bg-blue-100 text-blue-700' :
+                'bg-emerald-100 text-emerald-700'
+              }`}>
+                {intel.riskLevel === 'none' ? 'Clear' : `${intel.riskLevel} Risk`}
+              </div>
+            </div>
+          </Card>
+          <ChameleonIntelPanel intel={intel} onCheckDot={checkDot} />
+        </div>
+      )}
+
       {/* Error state */}
-      {carrierError && !carrierReport && (
+      {carrierError && !carrierReport && !intel && !intelLoading && (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <AlertTriangle className="w-10 h-10 text-gray-400 mb-4" />
           <p className="text-gray-700 font-semibold mb-2">Carrier not found</p>
@@ -362,19 +430,38 @@ export default function ChameleonCheckPage() {
               </div>
               {/* Risk badge */}
               <div className={`flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-bold uppercase tracking-wider ${
-                analysis.riskLevel === 'critical' ? 'bg-red-100 text-red-700' :
-                analysis.riskLevel === 'high' ? 'bg-orange-100 text-orange-700' :
-                analysis.riskLevel === 'moderate' ? 'bg-yellow-100 text-yellow-700' :
-                analysis.riskLevel === 'low' ? 'bg-blue-100 text-blue-700' :
+                overallRisk === 'critical' ? 'bg-red-100 text-red-700' :
+                overallRisk === 'high' ? 'bg-orange-100 text-orange-700' :
+                overallRisk === 'moderate' ? 'bg-yellow-100 text-yellow-700' :
+                overallRisk === 'low' ? 'bg-blue-100 text-blue-700' :
                 'bg-emerald-100 text-emerald-700'
               }`}>
-                {analysis.riskLevel === 'none' ? 'Clear' : `${analysis.riskLevel} Risk`}
+                {overallRisk === 'none' ? 'Clear' : `${overallRisk} Risk`}
               </div>
             </div>
           </Card>
 
           {/* Main analysis */}
           <ChameleonAlert analysis={analysis} />
+
+          {/* FMCSA cross-reference */}
+          {intelLoading && (
+            <Card padding="md">
+              <div className="flex items-center gap-3 text-sm text-gray-600">
+                <Loader2 className="w-5 h-5 text-red-500 animate-spin" />
+                Cross-checking VINs, phone, email, officers and address against every FMCSA carrier…
+              </div>
+            </Card>
+          )}
+          {intelError && !intelLoading && (
+            <Card padding="md">
+              <p className="text-sm text-gray-600 flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-amber-500" />
+                The FMCSA cross-reference couldn't be loaded ({intelError}).
+              </p>
+            </Card>
+          )}
+          {intel && <ChameleonIntelPanel intel={intel} onCheckDot={checkDot} />}
 
           {/* Carrier identity */}
           <Card padding="md">

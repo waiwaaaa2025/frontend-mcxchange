@@ -755,3 +755,81 @@ export interface BuyerPreferencesData {
   lastEditedBy?: 'BUYER' | 'ADMIN' | null
   lastEditedAt?: string | null
 }
+
+// Chameleon Check evidence built from FMCSA data (GET /carrier-data/chameleon/:dot).
+export type ChameleonIntelSeverity = 'critical' | 'high' | 'medium' | 'low' | 'info'
+
+export interface ChameleonIntelFlag {
+  id: string
+  severity: ChameleonIntelSeverity
+  title: string
+  detail: string
+  points: number
+  relatedDots?: string[]
+}
+
+export interface ChameleonSharedVin {
+  vin: string
+  unitType: 'power_unit' | 'trailer'
+  make: string | null
+  ourFirstSeen: string
+  ourLastSeen: string
+  theirFirstSeen: string
+  theirLastSeen: string
+  relation: 'came_from' | 'went_to' | 'overlap'
+}
+
+export interface ChameleonLinkedCarrier {
+  dotNumber: string
+  legalName: string | null
+  status: 'active' | 'inactive' | 'unknown'
+  addDate: string | null
+  location: string | null
+  powerUnits: number | null
+  reasons: string[]
+  sharedVins: ChameleonSharedVin[]
+  matchDetail: string[]
+}
+
+export interface ChameleonIdentityPeriod {
+  kind: 'name' | 'address'
+  value: string
+  firstSeen: string
+  lastSeen: string
+  inspections: number
+}
+
+export interface ChameleonIdentityChange {
+  field: string
+  from: string | null
+  to: string | null
+  source: 'inspections' | 'fmcsa_files' | 'domilea_history'
+  when: string | null
+}
+
+export interface ChameleonIntel {
+  dotNumber: string
+  generatedAt: string
+  score: number
+  riskLevel: 'none' | 'low' | 'moderate' | 'high' | 'critical'
+  flags: ChameleonIntelFlag[]
+  current: {
+    legalName: string | null
+    dbaName: string | null
+    phone: string | null
+    cellPhone: string | null
+    fax: string | null
+    email: string | null
+    officers: string[]
+    physicalAddress: string | null
+    mailingAddress: string | null
+    addDate: string | null
+    mcs150Date: string | null
+    priorRevokeDot: string | null
+  }
+  linkedCarriers: ChameleonLinkedCarrier[]
+  identityTimeline: ChameleonIdentityPeriod[]
+  identityChanges: ChameleonIdentityChange[]
+  equipment: { vinsChecked: number; inspectionsChecked: number; truncated: boolean }
+  sourcesFailed: string[]
+}

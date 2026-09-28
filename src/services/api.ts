@@ -15,6 +15,7 @@ import type {
   FMCSAInsuranceHistory,
   FMCSASMSData,
   StripeTransaction,
+  ChameleonIntel,
 } from '../types';
 
 // Block state of an IP in the Access Activity panel.
@@ -992,6 +993,12 @@ class ApiService {
   // MorPro Carrier Data endpoint
   async getCarrierReport(dotNumber: string) {
     return this.request<{ success: boolean; data: any }>(`/carrier-data/report/${dotNumber}`);
+  }
+
+  // Chameleon Check evidence from FMCSA data: other DOTs running the same VINs,
+  // shared phone/email/officer/address, and identity changes over time.
+  async getChameleonIntel(dotNumber: string) {
+    return this.request<{ success: boolean; data: ChameleonIntel }>(`/carrier-data/chameleon/${dotNumber}`);
   }
 
   // Carrier intelligence for a listing. Addressed by listing id, not DOT: the
