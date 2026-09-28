@@ -94,6 +94,19 @@ const DashboardLayout = ({ children }: DashboardLayoutProps = {}) => {
   const [pendingAdminOffersCount, setPendingAdminOffersCount] = useState(0)
   const [pendingEquipmentCount, setPendingEquipmentCount] = useState(0)
   const [evaDrawerOpen, setEvaDrawerOpen] = useState(false)
+  const [evaPrompt, setEvaPrompt] = useState<{ text: string; nonce: number } | null>(null)
+
+  // Any page can open Eva with a question: window.dispatchEvent(new CustomEvent('eva:ask', { detail: '…' }))
+  useEffect(() => {
+    const onAsk = (e: Event) => {
+      const text = (e as CustomEvent<string>).detail
+      if (!text) return
+      setEvaDrawerOpen(true)
+      setEvaPrompt({ text, nonce: Date.now() })
+    }
+    window.addEventListener('eva:ask', onAsk)
+    return () => window.removeEventListener('eva:ask', onAsk)
+  }, [])
 
   const handleLogout = () => {
     logout()
@@ -721,7 +734,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps = {}) => {
         </header>
 
         {/* Eva drawer — global slide-over from the right */}
-        <EvaDrawer open={evaDrawerOpen} onClose={() => setEvaDrawerOpen(false)} />
+        <EvaDrawer open={evaDrawerOpen} onClose={() => setEvaDrawerOpen(false)} prompt={evaPrompt} />
 
         {/* Page content */}
         <main className="p-4 sm:p-6 lg:p-8">

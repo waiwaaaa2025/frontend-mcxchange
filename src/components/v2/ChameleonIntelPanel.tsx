@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import {
-  Truck, Link2, History, Phone, AlertTriangle, ChevronDown, ChevronUp, ShieldAlert, Info,
+  Truck, Link2, History, Phone, AlertTriangle, ChevronDown, ChevronUp, ShieldAlert, Info, Sparkles,
 } from 'lucide-react'
 import Card from '../ui/Card'
 import type {
@@ -154,6 +154,16 @@ export default function ChameleonIntelPanel({ intel, onCheckDot }: Props) {
           </h3>
           <span className="text-sm text-gray-500 whitespace-nowrap">Score <strong className="text-gray-900">{intel.score}</strong>/100</span>
         </div>
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new CustomEvent('eva:ask', {
+            detail: `Run a chameleon check on DOT ${intel.dotNumber} and explain what the red flags mean and what I should verify before buying.`,
+          }))}
+          className="mb-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800"
+        >
+          <Sparkles className="w-4 h-4" />
+          Ask Eva to explain this
+        </button>
         {intel.flags.length === 0 ? (
           <p className="text-sm text-gray-600">No shared equipment, shared contact details or identity changes found.</p>
         ) : (

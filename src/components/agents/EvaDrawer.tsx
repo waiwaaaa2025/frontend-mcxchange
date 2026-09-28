@@ -51,14 +51,16 @@ const SUGGESTIONS_BY_ROLE: Record<string, Suggestion[]> = {
   buyer: [
     { icon: Search, iconColor: 'text-cyan-400', text: 'Find TX trucking businesses under $200k' },
     { icon: MapPin, iconColor: 'text-emerald-400', text: 'Show me my saved listings' },
-    { icon: TrendingUp, iconColor: 'text-amber-400', text: 'How many credits do I have left?' },
+    { icon: ShieldCheck, iconColor: 'text-amber-400', text: 'Run a chameleon check on the MCs I\'ve unlocked' },
     { icon: Package, iconColor: 'text-pink-400', text: 'Status of my offers sent' },
   ],
 }
 
-interface Props { open: boolean; onClose: () => void }
+// `prompt` lets another page open Eva with a question already asked (the nonce
+// makes asking the same question twice still fire).
+interface Props { open: boolean; onClose: () => void; prompt?: { text: string; nonce: number } | null }
 
-export default function EvaDrawer({ open, onClose }: Props) {
+export default function EvaDrawer({ open, onClose, prompt }: Props) {
   const { user } = useAuth()
   const role = (user?.role || 'buyer').toLowerCase()
   const firstName = user?.name?.split(' ')[0] || 'there'
@@ -114,6 +116,11 @@ export default function EvaDrawer({ open, onClose }: Props) {
       setSending(false)
     }
   }
+
+  useEffect(() => {
+    if (open && prompt) void send(prompt.text)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prompt?.nonce])
 
   function newChat() {
     setConversationId(null)
