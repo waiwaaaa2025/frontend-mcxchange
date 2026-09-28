@@ -25,7 +25,7 @@ interface UseListingResult {
  * Handles data transformation from backend format to frontend types
  */
 export function useListing(listingId: string | undefined): UseListingResult {
-  const { isAuthenticated, user } = useAuth()
+  const { isAuthenticated, user, isIdentityVerified } = useAuth()
   const [listing, setListing] = useState<MCListingExtended | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -210,11 +210,14 @@ export function useListing(listingId: string | undefined): UseListingResult {
     fetchListing()
   }, [fetchListing])
 
-  // Auto-unlock free-to-unlock listings for Premium/Enterprise/VIP subscribers
+  // Auto-unlock free-to-unlock listings for Premium/Enterprise/VIP subscribers.
+  // Unverified buyers are skipped: unlocking requires identity verification, and
+  // they get the prompt when they click Unlock rather than on page view.
   const autoUnlockAttempted = useRef(false)
   useEffect(() => {
     if (
       listing?.freeToUnlock &&
+      isIdentityVerified &&
       !isUnlocked &&
       !unlocking &&
       !autoUnlockAttempted.current &&
@@ -246,7 +249,7 @@ export function useListing(listingId: string | undefined): UseListingResult {
       }).catch(() => {})
       return () => { active = false }
     }
-  }, [listing?.freeToUnlock, isUnlocked, unlocking, isAuthenticated, user?.role, listingId, fetchListing])
+  }, [listing?.freeToUnlock, isIdentityVerified, isUnlocked, unlocking, isAuthenticated, user?.role, listingId, fetchListing])
 
   return {
     listing,

@@ -77,7 +77,7 @@ const IdentityVerificationPrompt = ({ embedded = false }: { embedded?: boolean }
             <p className="text-gray-600 text-lg">
               {isSeller
                 ? 'Before you accept an offer and complete the sale, we need to verify your identity.'
-                : 'Before you make an offer and complete a purchase, we need to verify your identity.'}
+                : 'Before you unlock listings, make offers and complete a purchase, we need to verify your identity.'}
             </p>
           </div>
 

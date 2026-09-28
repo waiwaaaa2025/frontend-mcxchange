@@ -200,7 +200,7 @@ const MCDetailPage = () => {
       await unlock()
     } catch (err: any) {
       console.error('Failed to unlock listing:', err)
-      alert(err.message || 'Failed to unlock listing. Please try again.')
+      if (err.code !== 'IDENTITY_VERIFICATION_REQUIRED') alert(err.message || 'Failed to unlock listing. Please try again.')
     }
   }
 
