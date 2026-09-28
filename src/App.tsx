@@ -31,7 +31,6 @@ const SellEquipmentPage = lazy(() => import('./pages/SellEquipmentPage'))
 const ManageEquipmentPage = lazy(() => import('./pages/ManageEquipmentPage'))
 const ConsultationSuccessPage = lazy(() => import('./pages/ConsultationSuccessPage'))
 const PricingPage = lazy(() => import('./pages/PricingPage'))
-const BuyersGuidePage = lazy(() => import('./pages/BuyersGuidePage'))
 const GuideThankYouPage = lazy(() => import('./pages/GuideThankYouPage'))
 const TermsPage = lazy(() => import('./pages/TermsPage'))
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'))
@@ -178,7 +177,7 @@ function App() {
               <Route path="login" element={<LoginPage />} />
               <Route path="register" element={<RegisterPage />} />
               <Route path="pricing" element={<PricingPage />} />
-              <Route path="resources/how-to-buy-a-trucking-business" element={<BuyersGuidePage />} />
+              <Route path="resources/how-to-buy-a-trucking-business" element={<Navigate to="/marketplace" replace />} />
               <Route path="guide/thank-you" element={<GuideThankYouPage />} />
               <Route path="terms" element={<TermsPage />} />
               <Route path="privacy" element={<PrivacyPage />} />
