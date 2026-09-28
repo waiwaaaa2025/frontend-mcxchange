@@ -70,7 +70,6 @@ const productItems: MenuItem[] = [
 
 const resourcesLearn: MenuItem[] = [
   { name: 'How Domilea Works', href: '/contact', icon: BookOpen },
-  { name: 'Due Diligence Guide', href: '/resources/how-to-buy-a-trucking-business', icon: GraduationCap },
   { name: 'Carrier Health Score Guide', href: '/contact', icon: Activity },
   { name: 'SMS & Compliance Guide', href: '/contact', icon: ShieldCheck },
   { name: 'Trucking Acquisition Education', href: '/contact', icon: GraduationCap },
