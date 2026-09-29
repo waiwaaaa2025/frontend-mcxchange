@@ -51,6 +51,7 @@ import {
   Container,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import FreePulsePromoBanner from '../components/FreePulsePromoBanner'
 import { DomileaLogoFull, DomileaIcon } from '../components/ui/DomileaLogo'
 import TalkToMariaModal from '../components/TalkToMariaModal'
 import clsx from 'clsx'
@@ -735,6 +736,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps = {}) => {
 
         {/* Eva drawer — global slide-over from the right */}
         <EvaDrawer open={evaDrawerOpen} onClose={() => setEvaDrawerOpen(false)} prompt={evaPrompt} />
+
+        <FreePulsePromoBanner />
 
         {/* Page content */}
         <main className="p-4 sm:p-6 lg:p-8">
