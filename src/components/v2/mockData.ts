@@ -151,6 +151,10 @@ export interface V2BasicScore {
   threshold: number
   percentile: number | null
   description: string
+  /** Ranked by us from FMCSA's published measures, not an official FMCSA percentile. */
+  estimated?: boolean
+  /** Why it isn't scored, or the range behind an estimate. */
+  note?: string
 }
 
 export interface V2BasicAlerts {

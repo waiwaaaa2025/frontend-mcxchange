@@ -831,6 +831,8 @@ export function mapToV2BasicScores(report: any): V2BasicScore[] {
       threshold: b.threshold ?? b.thresholdPercent ?? 65,
       percentile: rawScore != null ? Number(rawScore) : null,
       description: b.description || b.basicCode || '',
+      estimated: !!b.estimated,
+      note: b.reason || undefined,
     }
   })
 }
@@ -905,6 +907,8 @@ export function mapSMSToV2BasicScores(smsData: FMCSASMSData, morProReport?: any)
         threshold: morPro.threshold ?? morPro.thresholdPercent ?? def.threshold,
         percentile: Number(morProScore),
         description: BASIC_DESCRIPTIONS[def.name] || morPro.description || '',
+        estimated: !!morPro.estimated,
+        note: morPro.reason || undefined,
       }
     }
 
@@ -927,6 +931,7 @@ export function mapSMSToV2BasicScores(smsData: FMCSASMSData, morProReport?: any)
       threshold: def.threshold,
       percentile: null,
       description: BASIC_DESCRIPTIONS[def.name] || '',
+      note: morPro?.reason || undefined,
     }
   })
 }

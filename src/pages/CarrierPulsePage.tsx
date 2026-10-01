@@ -1142,6 +1142,9 @@ function SafetyTab() {
             <motion.div key="basics" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-5">
               <div className="bg-blue-50 rounded-xl border border-blue-200 p-4">
                 <p className="text-sm text-blue-800"><strong>What are BASICs?</strong> FMCSA's SMS scores carriers in 7 categories. Each score is a percentile (0–100) — higher means worse. When a score crosses the threshold, FMCSA may intervene.</p>
+                {basicScores.some(b => b.estimated) && (
+                  <p className="text-xs text-blue-700 mt-2">FMCSA no longer publishes percentiles for property carriers. Scores marked <strong>~ estimated</strong> rank this carrier's FMCSA-published measure against every carrier in its FMCSA peer group, using FMCSA's own data-sufficiency rules.</p>
+                )}
               </div>
 
 
@@ -1172,7 +1175,11 @@ function SafetyTab() {
                           <tr key={i} className={`border-b border-gray-50 hover:bg-gray-50 ${hasAlert ? 'bg-yellow-50/50' : ''}`}>
                             <td className="py-2.5 px-4 font-medium text-gray-900">{basic.name}{hasAlert && <span className="ml-1.5 inline-flex w-2 h-2 rounded-full bg-yellow-400" />}</td>
                             <td className="py-2.5 px-4 text-xs text-gray-500 hidden sm:table-cell">{basic.description}</td>
-                            <td className="py-2.5 px-4 text-right">{isScored ? <span className={`font-bold ${exceedsThreshold ? 'text-amber-600' : basic.score! >= basic.threshold * 0.75 ? 'text-yellow-600' : 'text-emerald-600'}`}>{basic.score}%</span> : <span className="text-gray-400 text-xs">Not Scored</span>}</td>
+                            <td className="py-2.5 px-4 text-right" title={basic.note || undefined}>
+                              {isScored ? <span className={`font-bold ${exceedsThreshold ? 'text-amber-600' : basic.score! >= basic.threshold * 0.75 ? 'text-yellow-600' : 'text-emerald-600'}`}>{basic.estimated && '~'}{basic.score}%</span> : <span className="text-gray-400 text-xs">Not Scored</span>}
+                              {basic.estimated && isScored && <div className="text-[10px] text-gray-400">estimated</div>}
+                              {basic.note && <div className="text-[10px] text-gray-400 max-w-[200px] ml-auto leading-tight mt-0.5">{basic.note}</div>}
+                            </td>
                             <td className="py-2.5 px-4 text-right text-gray-400">{basic.threshold}%</td>
                             <td className="py-2.5 px-4 text-right text-gray-700">{violations}</td>
                             <td className="py-2.5 px-4 text-right">

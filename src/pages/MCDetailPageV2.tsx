@@ -1686,7 +1686,7 @@ function SafetyTab() {
                 <p className="text-sm text-blue-800">
                   <strong>What are BASICs?</strong> FMCSA's SMS (Safety Measurement System) scores carriers in 7 categories called BASICs.
                   Each score is a <strong>percentile</strong> (0–100) — higher means worse compared to peer carriers.
-                  When a score crosses the <strong>threshold</strong>, FMCSA may intervene. "Not Scored" means insufficient inspection data.
+                  When a score crosses the <strong>threshold</strong>, FMCSA may intervene. "Not Scored" means insufficient inspection data. FMCSA no longer publishes property-carrier percentiles, so scores marked ~ are estimated by ranking the carrier's FMCSA-published measure against its FMCSA peer group.
                 </p>
                 <div className="mt-2 flex flex-wrap gap-3 text-xs text-blue-700">
                   <span className="flex items-center gap-1">
@@ -1761,10 +1761,12 @@ function SafetyTab() {
                               {isScored ? (
                                 <span className={`font-bold ${
                                   exceedsThreshold ? 'text-red-600' : basic.score! >= basic.threshold * 0.85 ? 'text-orange-600' : 'text-emerald-600'
-                                }`}>{basic.score}%</span>
+                                }`}>{basic.estimated && '~'}{basic.score}%</span>
                               ) : (
                                 <span className="text-gray-400 text-xs">Not Scored</span>
                               )}
+                              {basic.estimated && isScored && <div className="text-[10px] text-gray-400">estimated</div>}
+                              {basic.note && <div className="text-[10px] text-gray-400 max-w-[200px] ml-auto leading-tight mt-0.5">{basic.note}</div>}
                             </td>
                             <td className="py-2.5 px-4 text-right text-gray-400">{basic.threshold}%</td>
                             <td className="py-2.5 px-4 text-right text-gray-700">{violations}</td>
