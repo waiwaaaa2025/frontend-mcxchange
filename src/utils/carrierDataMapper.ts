@@ -1776,9 +1776,11 @@ export function mapToV2NetworkSignals(report: any, listing?: MCListingExtended):
   if (amazonStatus && amazonStatus !== 'none') {
     signals.push({
       name: 'Amazon Relay',
-      value: amazonStatus === 'active' ? 'Active' : 'Pending',
-      status: amazonStatus === 'active' ? 'positive' : 'neutral',
-      detail: amazonStatus === 'active' ? 'Active on Amazon Relay platform' : 'Amazon Relay setup pending',
+      value: amazonStatus === 'active' ? 'Active' : amazonStatus === 'suspended' ? 'Suspended' : 'Pending',
+      status: amazonStatus === 'active' ? 'positive' : amazonStatus === 'suspended' ? 'negative' : 'neutral',
+      detail: amazonStatus === 'active'
+        ? 'Active on Amazon Relay platform'
+        : amazonStatus === 'suspended' ? 'Amazon Relay account is suspended' : 'Amazon Relay setup pending',
     })
   }
 

@@ -144,7 +144,7 @@ export default function AdminCreateListingPage() {
         authorityTypeTouched.current = true
         setAuthorityType(l.authorityType)
       }
-      setAmazonStatus(l.amazonStatus === 'ACTIVE' ? 'yes' : 'no')
+      setAmazonStatus(l.amazonStatus === 'ACTIVE' ? 'yes' : l.amazonStatus === 'SUSPENDED' ? 'suspended' : 'no')
       setAmazonRelayScore(l.amazonRelayScore || '')
       setHasFactoring(yesNo(l.hasFactoring))
       setFactoringCompany(l.factoringCompany || '')
@@ -331,7 +331,7 @@ export default function AdminCreateListingPage() {
         cargoTypes: carrier.cargoTypes || [],
         fmcsaData: JSON.stringify(carrier),
         status,
-        amazonStatus: amazonStatus === 'yes' ? 'ACTIVE' : amazonStatus === 'no' ? 'NONE' : undefined,
+        amazonStatus: amazonStatus === 'yes' ? 'ACTIVE' : amazonStatus === 'suspended' ? 'SUSPENDED' : amazonStatus === 'no' ? 'NONE' : undefined,
         amazonRelayScore: amazonRelayScore || undefined,
         highwaySetup: highwaySetup === 'yes',
         sellingWithEmail: sellingWithEmail === 'yes',
@@ -743,15 +743,17 @@ export default function AdminCreateListingPage() {
                 <div className="p-4 rounded-xl bg-gray-50 border border-gray-200">
                   <p className="text-sm font-semibold text-gray-900 mb-3">Amazon Relay Setup?</p>
                   <div className="flex gap-2 mb-2">
-                    {['yes', 'no'].map(v => (
-                      <button key={v} type="button" onClick={() => { setAmazonStatus(v); if (v === 'no') setAmazonRelayScore('') }}
+                    {['yes', 'no', 'suspended'].map(v => (
+                      <button key={v} type="button" onClick={() => { setAmazonStatus(v); if (v !== 'yes') setAmazonRelayScore('') }}
                         className={`flex-1 py-2.5 rounded-xl border-2 text-sm font-medium transition-all ${
                           amazonStatus === v
-                            ? v === 'yes' ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-gray-400 bg-gray-100 text-gray-700'
+                            ? v === 'yes' ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
+                              : v === 'suspended' ? 'border-red-500 bg-red-50 text-red-700'
+                              : 'border-gray-400 bg-gray-100 text-gray-700'
                             : 'border-gray-200 text-gray-500 hover:border-gray-300'
                         }`}
                       >
-                        {v === 'yes' ? 'Yes' : 'No'}
+                        {v === 'yes' ? 'Yes' : v === 'suspended' ? 'Suspended' : 'No'}
                       </button>
                     ))}
                   </div>
