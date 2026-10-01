@@ -84,6 +84,7 @@ const AdminDashboard = () => {
     status: string
     count: number
     mrr: number
+    external?: boolean
   }
   type SubscriptionAnalytics = {
     byPlan: SubscriptionBucket[]
@@ -91,6 +92,7 @@ const AdminDashboard = () => {
     totalSubscriptions: number
     mrrCents: number
     mrrDollars: number
+    externalMrrDollars?: number
     unmappedPriceIds: Array<{
       priceId: string
       count: number
@@ -451,6 +453,11 @@ const AdminDashboard = () => {
                   ${subAnalytics.mrrDollars.toLocaleString(undefined, { maximumFractionDigits: 0 })} MRR
                 </div>
                 <div className="text-xs text-gray-500">{subAnalytics.totalSubscriptions} total subs</div>
+                {!!subAnalytics.externalMrrDollars && (
+                  <div className="text-[11px] text-gray-400">
+                    + ${subAnalytics.externalMrrDollars.toLocaleString(undefined, { maximumFractionDigits: 0 })} external (not in MRR)
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -470,9 +477,9 @@ const AdminDashboard = () => {
 
           {subAnalytics && !subAnalyticsLoading && (() => {
             // Aggregate by plan (combining monthly/yearly/status) for the main ranking
-            const perPlan = new Map<string, { plan: string; active: number; canceled: number; other: number; mrr: number }>()
+            const perPlan = new Map<string, { plan: string; active: number; canceled: number; other: number; mrr: number; external: boolean }>()
             for (const b of subAnalytics.byPlan) {
-              const row = perPlan.get(b.plan) || { plan: b.plan, active: 0, canceled: 0, other: 0, mrr: 0 }
+              const row = perPlan.get(b.plan) || { plan: b.plan, active: 0, canceled: 0, other: 0, mrr: 0, external: !!b.external }
               if (b.status === 'active' || b.status === 'trialing') {
                 row.active += b.count
                 row.mrr += b.mrr
@@ -483,8 +490,10 @@ const AdminDashboard = () => {
               }
               perPlan.set(b.plan, row)
             }
-            const rows = Array.from(perPlan.values()).sort((a, b) => b.active - a.active)
-            const totalActive = rows.reduce((s, r) => s + r.active, 0)
+            // External products (another business on the same Stripe account) sort last
+            // and stay out of the Domilea share.
+            const rows = Array.from(perPlan.values()).sort((a, b) => Number(a.external) - Number(b.external) || b.active - a.active)
+            const totalActive = rows.reduce((s, r) => s + (r.external ? 0 : r.active), 0)
 
             if (rows.length === 0) {
               return (
@@ -510,7 +519,7 @@ const AdminDashboard = () => {
                     </thead>
                     <tbody>
                       {rows.map((row, idx) => {
-                        const pct = totalActive > 0 ? (row.active / totalActive) * 100 : 0
+                        const pct = !row.external && totalActive > 0 ? (row.active / totalActive) * 100 : 0
                         const mostPopular = idx === 0 && row.active > 0
                         return (
                           <tr key={row.plan} className="border-b border-gray-100 last:border-0">
@@ -519,6 +528,11 @@ const AdminDashboard = () => {
                                 <span className="font-medium text-gray-900 capitalize">
                                   {row.plan.replace(/_/g, ' ').toLowerCase()}
                                 </span>
+                                {row.external && (
+                                  <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500 border border-gray-200">
+                                    External · not in MRR
+                                  </span>
+                                )}
                                 {mostPopular && (
                                   <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200">
                                     Most popular
@@ -528,16 +542,18 @@ const AdminDashboard = () => {
                             </td>
                             <td className="py-3 px-4 text-gray-900 font-semibold">{row.active}</td>
                             <td className="py-3 px-4 text-gray-600">
-                              <div className="flex items-center gap-2">
-                                <div className="w-20 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                                  <div className="h-full bg-purple-500" style={{ width: `${pct}%` }} />
+                              {row.external ? <span className="text-xs text-gray-400">—</span> : (
+                                <div className="flex items-center gap-2">
+                                  <div className="w-20 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                    <div className="h-full bg-purple-500" style={{ width: `${pct}%` }} />
+                                  </div>
+                                  <span className="text-xs">{pct.toFixed(0)}%</span>
                                 </div>
-                                <span className="text-xs">{pct.toFixed(0)}%</span>
-                              </div>
+                              )}
                             </td>
                             <td className="py-3 px-4 text-gray-500">{row.canceled}</td>
                             <td className="py-3 px-4 text-gray-500">{row.other}</td>
-                            <td className="py-3 pl-4 text-right text-gray-900 font-medium">
+                            <td className={`py-3 pl-4 text-right font-medium ${row.external ? 'text-gray-400' : 'text-gray-900'}`}>
                               ${(row.mrr / 100).toLocaleString(undefined, { maximumFractionDigits: 0 })}
                             </td>
                           </tr>
