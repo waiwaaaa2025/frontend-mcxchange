@@ -1093,7 +1093,7 @@ const AdminAllListingsPage = () => {
         isPremium: newListing.isPremium,
         isVip: newListing.isVip,
         visibility: newListing.visibility || 'public',
-        hasFactoring: newListing.hasFactoring || undefined,
+        hasFactoring: newListing.hasFactoring ? newListing.hasFactoring === 'yes' : undefined,
         factoringCompany: newListing.factoringCompany || undefined,
         entryAuditCompleted: newListing.entryAuditCompleted || undefined,
         status: 'ACTIVE',
@@ -1485,6 +1485,16 @@ const AdminAllListingsPage = () => {
                             >
                               <Edit className="w-4 h-4" />
                               View & Edit
+                            </button>
+                            <button
+                              onClick={() => {
+                                navigate(`/admin/create-listing?edit=${listing.id}`)
+                                setOpenActionDropdown(null)
+                              }}
+                              className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                            >
+                              <Package className="w-4 h-4" />
+                              Edit in Listing Form
                             </button>
                             <button
                               onClick={() => {

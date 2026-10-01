@@ -19,6 +19,7 @@ import {
   Shield,
   XCircle,
   AlertTriangle,
+  Pencil,
 } from 'lucide-react'
 import {
   AUTHORITY_TYPE_OPTIONS,
@@ -40,9 +41,15 @@ export default function AdminCreateListingPage() {
   const fromPulse = searchParams.get('fromPulse') === 'true'
   const pulseMC = searchParams.get('mc') || ''
   const pulseDOT = searchParams.get('dot') || ''
+  // ?edit=<listingId> reopens this same form on an existing listing.
+  const editParam = searchParams.get('edit') || ''
 
   // Page state: 'search' | 'form' | 'success'
-  const [pageState, setPageState] = useState<'search' | 'form' | 'success'>(fromPulse ? 'form' : 'search')
+  const [pageState, setPageState] = useState<'search' | 'form' | 'success'>(fromPulse || editParam ? 'form' : 'search')
+  const [editingId, setEditingId] = useState(editParam)
+  const [listingMc, setListingMc] = useState(pulseMC)
+  const [lastSaveWasEdit, setLastSaveWasEdit] = useState(false)
+  const loadedEditId = useRef('')
 
   // MC Search
   const [mcInput, setMcInput] = useState('')
@@ -94,6 +101,70 @@ export default function AdminCreateListingPage() {
   const [equipment, setEquipment] = useState<EquipmentFormValue[]>([])
   const [photoNotice, setPhotoNotice] = useState('')
 
+  // Edit mode: load the listing back into the form exactly as it was entered.
+  useEffect(() => {
+    if (!editParam || loadedEditId.current === editParam) return
+    loadedEditId.current = editParam
+    setEditingId(editParam)
+    setPageState('form')
+    loadListingForEdit(editParam)
+  }, [editParam])
+
+  const yesNo = (v: unknown) => (v ? 'yes' : 'no')
+
+  const loadListingForEdit = async (id: string) => {
+    setFmcsaLoading(true)
+    setSearchError('')
+    try {
+      const response = await api.getAdminListing(id)
+      const l = response.data
+      if (!l) throw new Error('Listing not found')
+
+      let snapshot: any = {}
+      try { snapshot = l.fmcsaData ? JSON.parse(l.fmcsaData) : {} } catch { snapshot = {} }
+      setCarrierData({
+        ...snapshot,
+        mcNumber: l.mcNumber || snapshot.mcNumber || '',
+        dotNumber: l.dotNumber || snapshot.dotNumber || '',
+        legalName: l.legalName || snapshot.legalName || '',
+        dbaName: l.dbaName || snapshot.dbaName || '',
+        hqCity: snapshot.hqCity || l.city || '',
+        hqState: snapshot.hqState || l.state || '',
+        physicalAddress: snapshot.physicalAddress || '',
+        totalPowerUnits: l.fleetSize ?? snapshot.totalPowerUnits ?? 0,
+        totalDrivers: l.totalDrivers ?? snapshot.totalDrivers ?? 0,
+        safetyRating: snapshot.safetyRating || (l.safetyRating && l.safetyRating !== 'NONE' ? l.safetyRating : ''),
+      })
+      setListingMc(l.mcNumber || '')
+      setTitle(l.title || '')
+      setDescription(l.description || '')
+      setPrice(l.askingPrice != null ? String(parseFloat(l.askingPrice)) : '')
+      setStatus(l.status || 'ACTIVE')
+      if (l.authorityType) {
+        authorityTypeTouched.current = true
+        setAuthorityType(l.authorityType)
+      }
+      setAmazonStatus(l.amazonStatus === 'ACTIVE' ? 'yes' : 'no')
+      setAmazonRelayScore(l.amazonRelayScore || '')
+      setHasFactoring(yesNo(l.hasFactoring))
+      setFactoringCompany(l.factoringCompany || '')
+      setFactoringRate(l.factoringRate != null ? String(l.factoringRate) : '')
+      setHighwaySetup(yesNo(l.highwaySetup))
+      setRmisSetup(yesNo(l.rmisSetup))
+      setSellingWithPhone(yesNo(l.sellingWithPhone))
+      setSellingWithEmail(yesNo(l.sellingWithEmail))
+      setInsuranceCompany(l.insuranceCompany || '')
+      setMonthlyInsurancePremium(l.monthlyInsurancePremium ? String(parseFloat(l.monthlyInsurancePremium)) : '')
+      setSellerMode('existing')
+      setSelectedSeller(l.seller || null)
+      setEquipment([])
+    } catch (err: any) {
+      setSearchError(err.message || 'Failed to load listing')
+    } finally {
+      setFmcsaLoading(false)
+    }
+  }
+
   // Auto-fetch carrier data from MorPro when coming from CarrierPulse
   useEffect(() => {
     if (fromPulse && pulseDOT && !carrierData) {
@@ -126,7 +197,7 @@ export default function AdminCreateListingPage() {
           cargoOnFile: report.insurance?.activePolicies?.find((p: any) => String(p.insuranceType || '').toLowerCase().includes('cargo'))?.coverageAmount || 0,
           bondOnFile: report.insurance?.activePolicies?.find((p: any) => String(p.insuranceType || '').toLowerCase().includes('bond'))?.coverageAmount || 0,
           allowedToOperate: carrier.allowedToOperate || carrier.operatingStatus || '',
-          mcNumber: carrier.mcNumber || pulseMC || '',
+          mcNumber: carrier.mcNumber || listingMc || '',
           cargoTypes: report.cargo ? Object.entries(report.cargo).filter(([, v]) => v === true).map(([k]) => k) : [],
         })
         setTitle(`${carrier.legalName || 'Carrier'} - DOT #${cleanDot}`)
@@ -236,12 +307,12 @@ export default function AdminCreateListingPage() {
       const { items: equipmentItems, payload: equipmentPayload } = buildEquipmentPayload(equipment)
 
       const listingData = {
-        mcNumber: pulseMC || carrier.mcNumber || '',
+        mcNumber: listingMc || carrier.mcNumber || '',
         // Brokers/forwarders may have no USDOT — the backend stores ''
         dotNumber: carrier.dotNumber || '',
         legalName: carrier.legalName,
         dbaName: carrier.dbaName || undefined,
-        title: title || `${carrier.legalName} - MC #${pulseMC || carrier.mcNumber}`,
+        title: title || `${carrier.legalName} - MC #${listingMc || carrier.mcNumber}`,
         description: description || undefined,
         askingPrice: parseFloat(price) || 0,
         city,
@@ -265,14 +336,31 @@ export default function AdminCreateListingPage() {
         highwaySetup: highwaySetup === 'yes',
         sellingWithEmail: sellingWithEmail === 'yes',
         sellingWithPhone: sellingWithPhone === 'yes',
-        hasFactoring: hasFactoring || undefined,
-        factoringCompany: factoringCompany || undefined,
+        hasFactoring: hasFactoring ? hasFactoring === 'yes' : undefined,
+        factoringCompany: hasFactoring === 'yes' ? factoringCompany || undefined : undefined,
+        factoringRate: hasFactoring === 'yes' ? parseFloat(factoringRate) || undefined : undefined,
+        rmisSetup: rmisSetup === 'yes',
         insuranceCompany: insuranceCompany || undefined,
         monthlyInsurancePremium: parseFloat(monthlyInsurancePremium) || undefined,
         trucks: equipmentPayload.length > 0 ? equipmentPayload : undefined,
       }
 
-      if (sellerMode === 'existing' && selectedSeller) {
+      if (editingId) {
+        // Editing: same form, saved over the existing listing. Equipment is
+        // managed on the listing page, so it isn't re-sent (that would duplicate it).
+        const { trucks: _trucks, ...updates } = listingData
+        const response = await api.updateAdminListing(editingId, {
+          ...updates,
+          // Factoring answers cleared on the form must clear on the listing too.
+          factoringCompany: hasFactoring === 'yes' ? factoringCompany || '' : '',
+          factoringRate: hasFactoring === 'yes' ? parseFloat(factoringRate) || null : null,
+          sellerId: selectedSeller?.id,
+        } as any)
+        if (!response.success) throw new Error('Failed to save changes')
+        setCreatedListing(response.data)
+        setLastSaveWasEdit(true)
+        setPageState('success')
+      } else if (sellerMode === 'existing' && selectedSeller) {
         // Create listing attached to existing seller
         const response = await api.createAdminListing({
           ...listingData,
@@ -281,6 +369,7 @@ export default function AdminCreateListingPage() {
         if (response.success) {
           await attachEquipmentPhotos(response.data?.trucks, equipmentItems)
           setCreatedListing(response.data)
+          setLastSaveWasEdit(false)
           setPageState('success')
         } else {
           throw new Error('Failed to create listing')
@@ -308,6 +397,12 @@ export default function AdminCreateListingPage() {
         if (response.success) {
           await attachEquipmentPhotos(response.data?.listing?.trucks, equipmentItems)
           setCreatedListing(response.data?.listing)
+          // The seller exists now — any edit from here attaches to them.
+          if (response.data?.user) {
+            setSelectedSeller(response.data.user)
+            setSellerMode('existing')
+          }
+          setLastSaveWasEdit(false)
           setPageState('success')
         } else {
           throw new Error('Failed to create user and listing')
@@ -382,9 +477,9 @@ export default function AdminCreateListingPage() {
           <div className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-10 h-10 text-emerald-500" />
           </div>
-          <h1 className="text-3xl font-black text-gray-900 mb-2">Listing Created!</h1>
+          <h1 className="text-3xl font-black text-gray-900 mb-2">{lastSaveWasEdit ? 'Listing Updated!' : 'Listing Created!'}</h1>
           <p className="text-gray-500 mb-8">
-            {carrierData?.legalName} - MC #{pulseMC} has been listed successfully{selectedSeller ? ` under ${selectedSeller.name}` : ''}.
+            {carrierData?.legalName} - MC #{listingMc} has been {lastSaveWasEdit ? 'updated' : 'listed successfully'}{selectedSeller ? ` under ${selectedSeller.name}` : ''}.
           </p>
           {photoNotice && (
             <p className="-mt-5 mb-8 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
@@ -396,7 +491,7 @@ export default function AdminCreateListingPage() {
           <div className="bg-gray-50 rounded-xl p-4 mb-6 text-left space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">MC Number</span>
-              <span className="font-medium">{pulseMC}</span>
+              <span className="font-medium">{listingMc}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Asking Price</span>
@@ -412,6 +507,24 @@ export default function AdminCreateListingPage() {
             </div>
           </div>
 
+          {createdListing?.id && (
+            <button
+              onClick={() => {
+                // Straight back into the same form, everything as entered.
+                loadedEditId.current = createdListing.id
+                setEditingId(createdListing.id)
+                setEquipment([])
+                setSubmitError('')
+                setPageState('form')
+                navigate(`/admin/create-listing?edit=${createdListing.id}`, { replace: true })
+              }}
+              className="w-full mb-3 px-4 py-3 rounded-xl border-2 border-indigo-200 bg-indigo-50 text-indigo-700 font-semibold hover:bg-indigo-100 transition-colors flex items-center justify-center gap-2"
+            >
+              <Pencil className="w-4 h-4" />
+              Edit This Listing
+            </button>
+          )}
+
           <div className="flex gap-3">
             <button
               onClick={() => navigate('/admin/listings')}
@@ -422,6 +535,11 @@ export default function AdminCreateListingPage() {
             <button
               onClick={() => {
                 // Reset everything for another listing
+                loadedEditId.current = ''
+                setEditingId('')
+                setListingMc('')
+                setLastSaveWasEdit(false)
+                setEquipment([])
                 setPageState('search')
                 setCarrierData(null)
                 setTitle('')
@@ -453,18 +571,24 @@ export default function AdminCreateListingPage() {
     <div className="max-w-3xl mx-auto">
       {/* Back button */}
       <button
-        onClick={() => navigate('/admin/create-listing', { replace: true })}
+        onClick={() => editingId
+          ? navigate(`/admin/listing/${editingId}`)
+          : navigate('/admin/create-listing', { replace: true })}
         className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all mb-6 group"
       >
         <ArrowLeft className="w-4 h-4 text-gray-500 group-hover:-translate-x-0.5 transition-transform" />
-        Back to Search
+        {editingId ? 'Back to Listing' : 'Back to Search'}
       </button>
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-2xl font-black text-gray-900">Create Listing</h1>
-          <p className="text-gray-500 mt-1">Fill in the listing details below. Carrier data has been auto-filled from FMCSA.</p>
+          <h1 className="text-2xl font-black text-gray-900">{editingId ? 'Edit Listing' : 'Create Listing'}</h1>
+          <p className="text-gray-500 mt-1">
+            {editingId
+              ? 'Correct anything below and save — this updates the existing listing.'
+              : 'Fill in the listing details below. Carrier data has been auto-filled from FMCSA.'}
+          </p>
         </div>
 
         {/* Loading state */}
@@ -488,7 +612,7 @@ export default function AdminCreateListingPage() {
                   {carrierData.dbaName && <p className="text-white/50 text-sm mt-0.5">DBA: {carrierData.dbaName}</p>}
                 </div>
                 <div className="text-right">
-                  <p className="text-xs text-white/40">MC# {pulseMC || carrierData.mcNumber}</p>
+                  <p className="text-xs text-white/40">MC# {listingMc || carrierData.mcNumber}</p>
                   <p className="text-xs text-white/40">DOT# {carrierData.dotNumber}</p>
                 </div>
               </div>
@@ -760,7 +884,16 @@ export default function AdminCreateListingPage() {
             </div>
 
             {/* Equipment sold with the authority */}
-            <TruckFormSection value={equipment} onChange={setEquipment} />
+            {editingId ? (
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 text-sm text-gray-600">
+                <span className="font-semibold text-gray-900">Equipment</span> already on this listing is edited from the{' '}
+                <button onClick={() => navigate(`/admin/listing/${editingId}`)} className="text-indigo-600 font-medium hover:underline">
+                  listing page
+                </button>.
+              </div>
+            ) : (
+              <TruckFormSection value={equipment} onChange={setEquipment} />
+            )}
 
             {/* Insurance Details */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
@@ -796,8 +929,8 @@ export default function AdminCreateListingPage() {
                 Assign Seller
               </h3>
 
-              {/* Mode toggle */}
-              <div className="flex gap-2 mb-5">
+              {/* Mode toggle (edits reassign to an existing seller only) */}
+              <div className={`flex gap-2 mb-5 ${editingId ? 'hidden' : ''}`}>
                 <button
                   onClick={() => setSellerMode('existing')}
                   className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 font-medium text-sm transition-all ${
@@ -937,12 +1070,12 @@ export default function AdminCreateListingPage() {
               {submitting ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  Creating Listing...
+                  {editingId ? 'Saving Changes...' : 'Creating Listing...'}
                 </>
               ) : (
                 <>
                   <Package className="w-5 h-5" />
-                  Create Listing
+                  {editingId ? 'Save Changes' : 'Create Listing'}
                   <ArrowRight className="w-5 h-5" />
                 </>
               )}

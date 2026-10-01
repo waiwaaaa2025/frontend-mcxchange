@@ -860,7 +860,8 @@ class ApiService {
     isPremium?: boolean;
     isVip?: boolean;
     visibility?: string;
-    hasFactoring?: string;
+    hasFactoring?: boolean;
+    factoringRate?: number;
     factoringCompany?: string;
     entryAuditCompleted?: string;
     status?: string;

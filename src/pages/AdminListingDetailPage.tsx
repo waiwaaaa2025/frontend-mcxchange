@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { format } from 'date-fns'
 import {
   ArrowLeft,
+  Package,
   Save,
   Building2,
   User,
@@ -510,6 +511,13 @@ const AdminListingDetailPage = () => {
           </div>
         </div>
         <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            onClick={() => navigate(`/admin/create-listing?edit=${id}`)}
+          >
+            <Package className="w-4 h-4 mr-2" />
+            Edit in Listing Form
+          </Button>
           <Button
             variant="outline"
             onClick={() => window.open(`/mc/${id}`, '_blank')}
