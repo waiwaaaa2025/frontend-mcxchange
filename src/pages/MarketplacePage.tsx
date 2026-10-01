@@ -204,22 +204,11 @@ const MarketplacePage = () => {
         // Fetch sold listings for "Recently Sold" section
         try {
           const soldResponse = await api.getListings({ status: 'SOLD', limit: 100 })
+          // The backend answers SOLD with bare stubs (state, authority type, sale month).
           const soldData = (soldResponse.data || soldResponse.listings || []).map((listing: any) => ({
-            id: listing.id,
-            mcNumber: listing.mcNumber,
             state: listing.state,
-            city: listing.city || undefined,
-            price: parseFloat(listing.listingPrice || listing.askingPrice || listing.price) || 0,
-            yearsActive: listing.yearsActive || 0,
-            fleetSize: listing.fleetSize || 0,
-            safetyRating: listing.safetyRating?.toLowerCase() || 'not-rated',
-            amazonStatus: listing.amazonStatus?.toLowerCase() || 'none',
-            amazonRelayScore: listing.amazonRelayScore,
-            highwaySetup: listing.highwaySetup || false,
-            sellingWithEmail: listing.sellingWithEmail || false,
-            sellingWithPhone: listing.sellingWithPhone || false,
-            authorityType: listing.authorityType || 'MOTOR_CARRIER',
-            soldAt: listing.soldAt,
+            authorityType: listing.authorityType,
+            soldMonth: listing.soldMonth,
           }))
           setSoldListings(soldData)
         } catch (err) {
@@ -975,8 +964,8 @@ const MarketplacePage = () => {
               <div className="flex-1 h-px bg-gradient-to-r from-emerald-200 to-transparent" />
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {soldListings.map((listing) => (
-                <SoldMCCard key={listing.id} listing={listing} />
+              {soldListings.map((listing, i) => (
+                <SoldMCCard key={i} listing={listing} />
               ))}
             </div>
           </section>

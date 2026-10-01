@@ -385,7 +385,8 @@ const BuyerCreditsafePage = () => {
     setLoadingMCs(true)
     try {
       const response = await api.getUnlockedListings({ limit: 1000 })
-      const mcs = response.data.map((item: any) => ({
+      // Sold listings this buyer didn't purchase come back as masked stubs — nothing to run.
+      const mcs = response.data.filter((item: any) => item.dotNumber).map((item: any) => ({
         id: item.id,
         mcNumber: item.mcNumber || '',
         dotNumber: item.dotNumber || '',
