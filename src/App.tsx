@@ -114,6 +114,7 @@ const CompDriversPage = lazy(() => import('./pages/compliance/CompDriversPage'))
 const CompDriverDetailPage = lazy(() => import('./pages/compliance/CompDriverDetailPage'))
 const CompDocumentsPage = lazy(() => import('./pages/compliance/CompDocumentsPage'))
 const CompDiaChatPage = lazy(() => import('./pages/compliance/CompDiaChatPage'))
+const AdminReportedItemsPage = lazy(() => import('./pages/AdminReportedItemsPage'))
 const SafetyImprovementReportPage = lazy(() => import('./pages/SafetyImprovementReportPage'))
 const CarrierPulsePreviewPage = lazy(() => import('./pages/CarrierPulsePreviewPage'))
 const CreditReportPreviewPage = lazy(() => import('./pages/CreditReportPreviewPage'))
@@ -322,7 +323,7 @@ function App() {
               <Route path="pending" element={<AdminPendingReviewPage />} />
               <Route path="broker-outreach" element={<AdminBrokerOutreachPage />} />
               <Route path="consultations" element={<AdminConsultationsPage />} />
-              <Route path="reported" element={<div className="p-8"><h1 className="text-2xl font-bold">Reported Items</h1></div>} />
+              <Route path="reported" element={<AdminReportedItemsPage />} />
               <Route path="users" element={<AdminUsersPage />} />
               <Route path="users/:userId" element={<AdminUsersPage />} />
               <Route path="activity-log" element={<AdminActivityLogPage />} />

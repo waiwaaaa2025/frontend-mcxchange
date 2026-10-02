@@ -31,6 +31,7 @@ import { api } from '../services/api'
 
 import CreditReportView from '../components/v2/CreditReportView'
 import SellerTrucksSection from '../components/SellerTrucksSection'
+import ReportListingButton from '../components/ReportListingButton'
 import TabNav, { TabItem } from '../components/v2/TabNav'
 import CircularGauge from '../components/v2/CircularGauge'
 import SpeedometerGauge from '../components/v2/SpeedometerGauge'
@@ -3979,7 +3980,7 @@ export default function MCDetailPageV2() {
     <CarrierDataContext.Provider value={carrierDataCtx}>
     <div className="min-h-screen bg-gray-50">
       {/* Back button */}
-      <div className="max-w-7xl mx-auto px-4 pt-4">
+      <div className="max-w-7xl mx-auto px-4 pt-4 flex items-center justify-between gap-4">
         <button
           onClick={() => navigate('/marketplace')}
           className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors"
@@ -3987,6 +3988,9 @@ export default function MCDetailPageV2() {
           <ArrowLeft className="w-4 h-4" />
           Back to Marketplace
         </button>
+        {listing?.id && !isListingOwner && user?.role !== 'admin' && (
+          <ReportListingButton targetType="LISTING" targetId={listing.id} />
+        )}
       </div>
 
       {/* Hero Header */}

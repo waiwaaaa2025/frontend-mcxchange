@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import api from '../services/api'
 import { useAuth } from '../context/AuthContext'
+import ReportListingButton from '../components/ReportListingButton'
 import { AUTHORITY_TYPE_LABELS, normalizeAuthorityType } from '../constants/authority'
 import { EquipmentItem, equipmentTitle, equipmentTypeLabel, fmtPrice } from '../utils/equipment'
 
@@ -125,13 +126,16 @@ const EquipmentDetailPage = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 sm:py-8">
-      <Link
-        to={listing ? `/mc/${listing.id}` : e.equipmentType === 'PART' ? '/parts' : '/equipment'}
-        className="inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 mb-5"
-      >
-        <ArrowLeft className="w-4 h-4" />{' '}
-        {listing ? 'Back to authority listing' : e.equipmentType === 'PART' ? 'Back to parts' : 'Back to equipment'}
-      </Link>
+      <div className="flex items-center justify-between gap-4 mb-5">
+        <Link
+          to={listing ? `/mc/${listing.id}` : e.equipmentType === 'PART' ? '/parts' : '/equipment'}
+          className="inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900"
+        >
+          <ArrowLeft className="w-4 h-4" />{' '}
+          {listing ? 'Back to authority listing' : e.equipmentType === 'PART' ? 'Back to parts' : 'Back to equipment'}
+        </Link>
+        {!canEdit && <ReportListingButton targetType="EQUIPMENT" targetId={e.id} />}
+      </div>
 
       {purchaseState === 'success' && (
         <div className="mb-5 flex items-start gap-2 text-sm text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">

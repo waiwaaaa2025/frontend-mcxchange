@@ -50,6 +50,33 @@ export interface BlockedIpRow {
   updatedAt: string;
 }
 
+export interface AdminContentReport {
+  id: string;
+  targetType: 'LISTING' | 'EQUIPMENT';
+  targetId: string;
+  target: {
+    label: string;
+    ownerId: string | null;
+    status: string | null;
+    publicUrl: string;
+    adminUrl: string | null;
+    attachedToListingId?: string | null;
+  } | null;
+  reason: string;
+  reasonLabel: string;
+  severity: 'critical' | 'high';
+  details: string | null;
+  status: 'OPEN' | 'DISMISSED' | 'ACTIONED';
+  resolution: string | null;
+  adminNotes: string | null;
+  resolvedAt: string | null;
+  resolver: { id: string; name: string } | null;
+  reporter: { id: string; name: string; email: string } | null;
+  reportedUser: { id: string; name: string; email: string; status: string } | null;
+  openReportsOnTarget: number;
+  createdAt: string;
+}
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 class ApiService {
@@ -4313,6 +4340,51 @@ class ApiService {
         totalPages: number;
       };
     }>(`/lead-generator/admin/saves?${qs.toString()}`);
+  }
+
+  // ============================================
+  // Content reports (users flag listings / equipment)
+  // ============================================
+
+  async getReportReasons(): Promise<{ success: boolean; data: Array<{ value: string; label: string }> }> {
+    return this.request('/reports/reasons');
+  }
+
+  async createReport(data: {
+    targetType: 'LISTING' | 'EQUIPMENT';
+    targetId: string;
+    reason: string;
+    details?: string;
+  }): Promise<{ success: boolean; message: string }> {
+    return this.request('/reports', { method: 'POST', body: JSON.stringify(data) });
+  }
+
+  async getAdminReports(params?: { status?: string; page?: number; limit?: number }): Promise<{
+    success: boolean;
+    data: AdminContentReport[];
+    pagination: any;
+  }> {
+    const q = new URLSearchParams();
+    if (params?.status) q.set('status', params.status);
+    if (params?.page) q.set('page', String(params.page));
+    if (params?.limit) q.set('limit', String(params.limit));
+    const qs = q.toString();
+    return this.request(`/admin/reports${qs ? `?${qs}` : ''}`);
+  }
+
+  async getAdminOpenReportCount(): Promise<{ success: boolean; data: { count: number } }> {
+    return this.request('/admin/reports/open-count');
+  }
+
+  async dismissReport(reportId: string, notes?: string): Promise<{ success: boolean; message: string }> {
+    return this.request(`/admin/reports/${reportId}/dismiss`, { method: 'POST', body: JSON.stringify({ notes }) });
+  }
+
+  async actionReport(
+    reportId: string,
+    data: { takeDown?: boolean; blockSeller?: boolean; notes?: string }
+  ): Promise<{ success: boolean; message: string }> {
+    return this.request(`/admin/reports/${reportId}/action`, { method: 'POST', body: JSON.stringify(data) });
   }
 }
 
