@@ -259,27 +259,6 @@ const AdminDashboard = () => {
   ]
 
 
-  const reportedItems = [
-    {
-      id: '1',
-      type: 'listing',
-      mcNumber: '123456',
-      reason: 'Suspicious documents',
-      reportedBy: 'John Doe',
-      reportedAt: '1 day ago',
-      severity: 'high'
-    },
-    {
-      id: '2',
-      type: 'user',
-      userName: 'Fake Seller',
-      reason: 'Multiple fake listings',
-      reportedBy: 'Jane Smith',
-      reportedAt: '3 days ago',
-      severity: 'critical'
-    }
-  ]
-
   // User Management State
   const [userSearch, setUserSearch] = useState('')
   const [userFilter, setUserFilter] = useState<'all' | 'active' | 'blocked' | 'sellers' | 'buyers'>('all')
@@ -789,54 +768,13 @@ const AdminDashboard = () => {
           <div className="space-y-4">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Reported Items</h2>
 
-            {reportedItems.map((item) => (
-              <Card key={item.id}>
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-bold text-gray-900">
-                        {item.type === 'listing' ? `MC #${item.mcNumber}` : item.userName}
-                      </h3>
-                      <span
-                        className={`px-2 py-1 rounded-lg text-xs font-medium flex items-center gap-1 ${
-                          item.severity === 'critical'
-                            ? 'bg-red-50 border border-red-200 text-red-700'
-                            : 'bg-amber-50 border border-amber-200 text-amber-700'
-                        }`}
-                      >
-                        <AlertTriangle className="w-3 h-3" />
-                        {item.severity}
-                      </span>
-                    </div>
-
-                    <div className="space-y-2 text-sm">
-                      <div className="flex gap-2">
-                        <span className="text-gray-500">Reason:</span>
-                        <span className="text-gray-700">{item.reason}</span>
-                      </div>
-                      <div className="flex gap-2">
-                        <span className="text-gray-500">Reported by:</span>
-                        <span className="text-gray-700">{item.reportedBy}</span>
-                      </div>
-                      <div className="flex gap-2">
-                        <span className="text-gray-500">Time:</span>
-                        <span className="text-gray-700">{item.reportedAt}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-3">
-                  <Button fullWidth variant="outline">
-                    View Details
-                  </Button>
-                  <Button fullWidth>Take Action</Button>
-                  <Button fullWidth variant="ghost">
-                    Dismiss
-                  </Button>
-                </div>
-              </Card>
-            ))}
+            <Card>
+              <div className="text-center py-10">
+                <Shield className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-700 font-medium">No reported items</p>
+                <p className="text-sm text-gray-500 mt-1">User reports aren't wired up yet, so nothing will show here.</p>
+              </div>
+            </Card>
           </div>
         )}
 
