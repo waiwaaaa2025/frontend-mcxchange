@@ -56,6 +56,48 @@ const MIN_SCORE_OPTIONS = [
 
 type Tab = 'identity' | 'reregistered' | 'transfers'
 
+// Tab, filters, page, open row and scroll survive opening a carrier and coming
+// back (the carrier page gets a "Back to Chameleon Search" button via BACK_STATE).
+const STORE = 'chameleonSearch:'
+const BACK_STATE = { backTo: { path: '/admin/chameleon-search', label: 'Chameleon Search' } }
+const currentView = (): string => {
+  try { return JSON.parse(sessionStorage.getItem(STORE + 'tab') || '"reregistered"') } catch { return 'reregistered' }
+}
+
+function usePersisted<T>(key: string, initial: T): [T, React.Dispatch<React.SetStateAction<T>>] {
+  const [value, setValue] = useState<T>(() => {
+    try {
+      const raw = sessionStorage.getItem(STORE + key)
+      return raw ? (JSON.parse(raw) as T) : initial
+    } catch {
+      return initial
+    }
+  })
+  useEffect(() => {
+    try { sessionStorage.setItem(STORE + key, JSON.stringify(value)) } catch { /* storage unavailable */ }
+  }, [key, value])
+  return [value, setValue]
+}
+
+function rememberScroll(view: string) {
+  try { sessionStorage.setItem(`${STORE}${view}:scroll`, String(window.scrollY)) } catch { /* storage unavailable */ }
+}
+
+/** Puts the page back where it was once the remembered results have rendered. */
+function useRestoreScroll(view: string, ready: boolean) {
+  const done = useRef(false)
+  useEffect(() => {
+    if (!ready || done.current) return
+    done.current = true
+    try {
+      const key = `${STORE}${view}:scroll`
+      const y = Number(sessionStorage.getItem(key))
+      sessionStorage.removeItem(key)
+      if (y > 0) requestAnimationFrame(() => window.scrollTo(0, y))
+    } catch { /* storage unavailable */ }
+  }, [view, ready])
+}
+
 // "3 months ago", "2.4 years ago"
 function ago(date: string | null | undefined): string {
   if (!date) return ''
@@ -76,7 +118,7 @@ function between(from: string | null | undefined, to: string | null | undefined)
 }
 
 export default function AdminChameleonSearchPage() {
-  const [tab, setTab] = useState<Tab>('reregistered')
+  const [tab, setTab] = usePersisted<Tab>('tab', 'reregistered')
   const tabs: Array<{ key: Tab; label: string; icon: React.ReactNode }> = [
     { key: 'reregistered', label: 'Re-registered', icon: <Repeat className="w-4 h-4" /> },
     { key: 'transfers', label: 'Truck transfers', icon: <Truck className="w-4 h-4" /> },
@@ -195,11 +237,11 @@ function IdentityPanel({ view }: { view: 'identity' | 'reregistered' }) {
     days: '180', minScore: reReg ? '0' : '45', state: '', q: '', reason: '',
     forHireOnly: !reReg, withMcOnly: true, multiSignalOnly: false, authorizedOnly: true,
   }
-  const [filters, setFilters] = useState<IdentityFilters>(defaults)
-  const [applied, setApplied] = useState<IdentityFilters>(defaults)
-  const [offset, setOffset] = useState(0)
+  const [filters, setFilters] = usePersisted<IdentityFilters>(`${view}:filters`, defaults)
+  const [applied, setApplied] = usePersisted<IdentityFilters>(`${view}:applied`, defaults)
+  const [offset, setOffset] = usePersisted(`${view}:offset`, 0)
   const [refreshNonce, setRefreshNonce] = useState(0)
-  const [expanded, setExpanded] = useState<string | null>(null)
+  const [expanded, setExpanded] = usePersisted<string | null>(`${view}:expanded`, null)
   const [exporting, setExporting] = useState(false)
   const [exportError, setExportError] = useState<string | null>(null)
 
@@ -213,6 +255,7 @@ function IdentityPanel({ view }: { view: 'identity' | 'reregistered' }) {
     [applied, offset],
     refreshNonce,
   )
+  useRestoreScroll(view, !!data && !building)
 
   function search() {
     setOffset(0)
@@ -519,7 +562,7 @@ function CandidateDetail({ c }: { c: ChameleonScanCandidate }) {
                 <td className="px-2 py-1.5"><div className="flex flex-wrap gap-1"><ShutDownBadges link={l} /></div></td>
                 <td className="px-2 py-1.5">{l.reasons.map(r => REASON_LABEL[r]).join(', ')}</td>
                 <td className="px-2 py-1.5 whitespace-nowrap">
-                  <Link to={`/admin/carrier-pulse/${l.dotNumber}`} className="text-blue-600 hover:underline">Pulse</Link>
+                  <Link to={`/admin/carrier-pulse/${l.dotNumber}`} state={BACK_STATE} onClick={() => rememberScroll(currentView())} className="text-blue-600 hover:underline">Pulse</Link>
                 </td>
               </tr>
             ))}
@@ -549,11 +592,11 @@ const TRANSFER_DEFAULTS: TransferFilters = {
 type TransferReady = Extract<VinTransferResponse, { status: 'ready' }>
 
 function TransfersPanel() {
-  const [filters, setFilters] = useState<TransferFilters>(TRANSFER_DEFAULTS)
-  const [applied, setApplied] = useState<TransferFilters>(TRANSFER_DEFAULTS)
-  const [offset, setOffset] = useState(0)
+  const [filters, setFilters] = usePersisted<TransferFilters>('transfers:filters', TRANSFER_DEFAULTS)
+  const [applied, setApplied] = usePersisted<TransferFilters>('transfers:applied', TRANSFER_DEFAULTS)
+  const [offset, setOffset] = usePersisted('transfers:offset', 0)
   const [refreshNonce, setRefreshNonce] = useState(0)
-  const [expanded, setExpanded] = useState<string | null>(null)
+  const [expanded, setExpanded] = usePersisted<string | null>('transfers:expanded', null)
   const [exporting, setExporting] = useState(false)
   const [exportError, setExportError] = useState<string | null>(null)
 
@@ -562,6 +605,7 @@ function TransfersPanel() {
     [applied, offset],
     refreshNonce,
   )
+  useRestoreScroll('transfers', !!data && !building)
 
   function search() {
     setOffset(0)
@@ -821,9 +865,9 @@ function TransferDetail({ t }: { t: VinTransfer }) {
         </table>
       </div>
       <div className="flex gap-3 text-xs">
-        <Link to={`/admin/chameleon-check/${o.dotNumber}`} className="text-blue-600 hover:underline">Deep check old carrier</Link>
-        <Link to={`/admin/carrier-pulse/${o.dotNumber}`} className="text-blue-600 hover:underline">Old carrier in Pulse</Link>
-        <Link to={`/admin/carrier-pulse/${n.dotNumber}`} className="text-blue-600 hover:underline">New MC in Pulse</Link>
+        <Link to={`/admin/chameleon-check/${o.dotNumber}`} state={BACK_STATE} onClick={() => rememberScroll(currentView())} className="text-blue-600 hover:underline">Deep check old carrier</Link>
+        <Link to={`/admin/carrier-pulse/${o.dotNumber}`} state={BACK_STATE} onClick={() => rememberScroll(currentView())} className="text-blue-600 hover:underline">Old carrier in Pulse</Link>
+        <Link to={`/admin/carrier-pulse/${n.dotNumber}`} state={BACK_STATE} onClick={() => rememberScroll(currentView())} className="text-blue-600 hover:underline">New MC in Pulse</Link>
       </div>
     </div>
   )
@@ -900,7 +944,7 @@ function RiskBadge({ score, level }: { score: number; level: Risk }) {
 
 function DeepCheck({ dot }: { dot: string }) {
   return (
-    <Link to={`/admin/chameleon-check/${dot}`} className="text-xs text-blue-600 hover:underline inline-flex items-center gap-1">
+    <Link to={`/admin/chameleon-check/${dot}`} state={BACK_STATE} onClick={() => rememberScroll(currentView())} className="text-xs text-blue-600 hover:underline inline-flex items-center gap-1">
       Deep check <ExternalLink className="w-3 h-3" />
     </Link>
   )

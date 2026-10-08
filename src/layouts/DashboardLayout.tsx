@@ -49,6 +49,7 @@ import {
   Umbrella,
   Radar,
   Container,
+  ArrowLeft,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import FreePulsePromoBanner from '../components/FreePulsePromoBanner'
@@ -81,6 +82,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps = {}) => {
   const { user, logout, isProfileComplete } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
+  const backTo = (location.state as { backTo?: { path: string; label: string } } | null)?.backTo
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['Sales Pipeline', 'Moderation']))
@@ -742,6 +744,15 @@ const DashboardLayout = ({ children }: DashboardLayoutProps = {}) => {
 
         {/* Page content */}
         <main className="p-4 sm:p-6 lg:p-8">
+          {/* A list page can hand the page it opens a way back: <Link state={{ backTo: { path, label } }}> */}
+          {backTo && (
+            <button
+              onClick={() => navigate(backTo.path)}
+              className="mb-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              <ArrowLeft className="w-4 h-4" /> Back to {backTo.label}
+            </button>
+          )}
           {children || <Outlet />}
         </main>
       </div>
