@@ -4037,6 +4037,38 @@ class ApiService {
     return `${API_BASE_URL}/admin/leads/new-carriers/export.csv?${qs}`;
   }
 
+  async chameleonScan(params: Record<string, string | number | boolean | undefined>) {
+    const qs = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== '' && v !== null && v !== false) qs.set(k, String(v));
+    });
+    return this.request<{ success: boolean; data: ChameleonScanResponse }>(`/admin/leads/chameleon-scan?${qs}`);
+  }
+
+  chameleonScanExportUrl(params: Record<string, string | number | boolean | undefined>): string {
+    const qs = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== '' && v !== null && v !== false) qs.set(k, String(v));
+    });
+    return `${API_BASE_URL}/admin/leads/chameleon-scan/export.csv?${qs}`;
+  }
+
+  async vinTransfers(params: Record<string, string | number | boolean | undefined>) {
+    const qs = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== '' && v !== null && v !== false) qs.set(k, String(v));
+    });
+    return this.request<{ success: boolean; data: VinTransferResponse }>(`/admin/leads/vin-transfers?${qs}`);
+  }
+
+  vinTransfersExportUrl(params: Record<string, string | number | boolean | undefined>): string {
+    const qs = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== '' && v !== null && v !== false) qs.set(k, String(v));
+    });
+    return `${API_BASE_URL}/admin/leads/vin-transfers/export.csv?${qs}`;
+  }
+
   async leadsList(all = false, status?: string) {
     const qs = new URLSearchParams();
     if (all) qs.set('all', 'true');
@@ -4390,3 +4422,116 @@ class ApiService {
 
 export const api = new ApiService();
 export default api;
+
+export type ChameleonLinkReason = 'prior_revoke' | 'phone' | 'email' | 'officer' | 'name' | 'address'
+
+export interface ChameleonScanLink {
+  dotNumber: string
+  mcNumber: string | null
+  legalName: string
+  location: string | null
+  registeredDate: string | null
+  powerUnits: number | null
+  dotInactive: boolean
+  authorityInactive: boolean
+  safetyRating: string | null
+  lastActive: string | null
+  inactiveSince: string | null
+  inactiveReason: string | null
+  insuranceCancelled: string | null
+  everAuthorized: boolean | null
+  reasons: ChameleonLinkReason[]
+}
+
+export interface ChameleonScanCandidate {
+  dotNumber: string
+  mcNumber: string | null
+  legalName: string
+  dbaName: string | null
+  city: string | null
+  state: string | null
+  registeredDate: string | null
+  mcs150Date: string | null
+  powerUnits: number | null
+  drivers: number | null
+  forHire: boolean
+  officer: string | null
+  phone: string | null
+  email: string | null
+  score: number
+  riskLevel: 'low' | 'moderate' | 'high' | 'critical'
+  reasons: ChameleonLinkReason[]
+  links: ChameleonScanLink[]
+  reRegistered: { dotNumber: string; basis: string } | null
+}
+
+export type ChameleonScanResponse =
+  | { status: 'building'; startedAt: string }
+  | { status: 'failed'; error: string }
+  | {
+      status: 'ready'
+      days: number
+      since: string
+      builtAt: string
+      dataThrough: string | null
+      scanned: number
+      total: number
+      counts: Record<'critical' | 'high' | 'moderate' | 'low', number>
+      offset: number
+      limit: number
+      hasMore: boolean
+      results: ChameleonScanCandidate[]
+    }
+
+export interface TransferCarrier {
+  dotNumber: string
+  mcNumber: string | null
+  legalName: string
+  location: string | null
+  registeredDate: string | null
+  powerUnits: number | null
+  officer: string | null
+  phone: string | null
+  email: string | null
+  address: string | null
+}
+
+export interface VinTransfer {
+  id: string
+  newCarrier: TransferCarrier
+  oldCarrier: TransferCarrier & {
+    dotInactive: boolean
+    authorityInactive: boolean
+    safetyRating: string | null
+    inactiveSince: string | null
+    inactiveReason: string | null
+    insuranceCancelled: string | null
+    everAuthorized: boolean | null
+    troubles: string[]
+  }
+  unitCount: number
+  shareOfFleet: number | null
+  gapDays: number | null
+  sameIdentity: string[]
+  units: Array<{ vin: string; make: string | null; oldFirstSeen: string; oldLastSeen: string; newFirstSeen: string; newLastSeen: string }>
+  score: number
+  riskLevel: 'low' | 'moderate' | 'high' | 'critical'
+}
+
+export type VinTransferResponse =
+  | { status: 'building'; startedAt: string; progress: string }
+  | { status: 'failed'; error: string }
+  | {
+      status: 'ready'
+      days: number
+      since: string
+      builtAt: string
+      stats: { newCarriers: number; inspected: number; vinsChecked: number }
+      scanned: number
+      total: number
+      counts: Record<'critical' | 'high' | 'moderate' | 'low', number>
+      offset: number
+      limit: number
+      hasMore: boolean
+      results: VinTransfer[]
+    }

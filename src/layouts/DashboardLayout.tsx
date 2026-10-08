@@ -360,6 +360,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps = {}) => {
               { icon: Send, label: 'Telegram Channel', path: '/admin/telegram' },
               { icon: Users, label: 'Facebook Groups', path: '/admin/facebook' },
               { icon: ShieldAlert, label: 'Chameleon Check', path: '/admin/chameleon-check' },
+              { icon: ShieldAlert, label: 'Chameleon Search', path: '/admin/chameleon-search' },
               { icon: Shield, label: 'Safety Improvement Report', path: '/admin/safety-report' },
             ]
           },

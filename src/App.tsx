@@ -96,6 +96,7 @@ const AdminDisputesPage = lazy(() => import('./pages/AdminDisputesPage'))
 const AdminActivityLogPage = lazy(() => import('./pages/AdminActivityLogPage'))
 const AdminScrapeActivityPage = lazy(() => import('./pages/AdminScrapeActivityPage'))
 const AdminLeadsPage = lazy(() => import('./pages/AdminLeadsPage'))
+const AdminChameleonSearchPage = lazy(() => import('./pages/AdminChameleonSearchPage'))
 const TeamPage = lazy(() => import('./pages/agents/TeamPage'))
 const ScoutAgentPage = lazy(() => import('./pages/agents/ScoutAgentPage'))
 const EvaChatPage = lazy(() => import('./pages/agents/EvaChatPage'))
@@ -344,6 +345,7 @@ function App() {
               <Route path="insurance-leads" element={<InsuranceLeadsPage />} />
               <Route path="chameleon-check" element={<ChameleonCheckPage />} />
               <Route path="chameleon-check/:dotNumber" element={<ChameleonCheckPage />} />
+              <Route path="chameleon-search" element={<AdminChameleonSearchPage />} />
               <Route path="leads" element={<AdminLeadsPage />} />
               <Route path="lead-generator" element={<AdminLeadGeneratorSavesPage />} />
               <Route path="team" element={<TeamPage />} />
