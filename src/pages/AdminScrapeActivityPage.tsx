@@ -33,6 +33,9 @@ interface ScrapeClient {
   firstSeen: string
   lastSeen: string
   block: IpBlockState | null
+  geo?: { city?: string; region?: string; countryCode?: string; isp?: string; proxy?: boolean; hosting?: boolean } | null
+  // Computed by the server — the same verdict the auto-blocker acts on.
+  verdict?: { isLikelyBot: boolean; reasons: string[] }
 }
 
 const windowOptions = [
@@ -59,6 +62,13 @@ type Verdict = { label: string; tone: 'danger' | 'warn' | 'ok'; reasons: string[
  * catalogue, and sustained request rate.
  */
 function assess(c: ScrapeClient): Verdict {
+  if (c.verdict) {
+    const { isLikelyBot, reasons } = c.verdict
+    if (isLikelyBot) return { label: 'Likely bot', tone: 'danger', reasons }
+    if (reasons.length >= 1) return { label: 'Worth a look', tone: 'warn', reasons }
+    return { label: 'Looks human', tone: 'ok', reasons }
+  }
+
   const reasons: string[] = []
 
   const spanMinutes = Math.max(
@@ -500,6 +510,12 @@ export default function AdminScrapeActivityPage() {
                   <tr key={c.ipAddress ?? 'unknown'} className="border-b border-gray-100 last:border-0 align-top">
                     <td className="py-3 pr-4">
                       <p className="font-medium text-gray-900 font-mono">{c.ipAddress ?? 'unknown'}</p>
+                      {c.geo && (
+                        <p className="text-xs text-gray-600 mt-1">
+                          {[c.geo.city, c.geo.region, c.geo.countryCode].filter(Boolean).join(', ')}
+                          {c.geo.isp && <span className="text-gray-400"> · {c.geo.isp}</span>}
+                        </p>
+                      )}
                       <p className="text-xs text-gray-500 mt-1 max-w-xs truncate" title={c.userAgents ?? ''}>
                         {c.userAgents || 'no user agent'}
                       </p>
