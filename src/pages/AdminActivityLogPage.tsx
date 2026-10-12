@@ -31,6 +31,7 @@ import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import Select from '../components/ui/Select'
 import api from '../services/api'
+import IpLookupPanel from '../components/admin/IpLookupPanel'
 
 interface ActivityItem {
   id: string
@@ -310,6 +311,8 @@ const AdminActivityLogPage = () => {
           </div>
         </Card>
       </div>
+
+      <IpLookupPanel />
 
       {/* Filters */}
       <Card>

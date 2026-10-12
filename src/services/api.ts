@@ -672,6 +672,11 @@ class ApiService {
     return this.request<any>(`/admin/activity-log${query ? `?${query}` : ''}`);
   }
 
+  // Login IPs + location for a user (name/email), and other accounts on the same IPs.
+  async getIpLookup(q: string) {
+    return this.request<any>(`/admin/ip-lookup?q=${encodeURIComponent(q)}`);
+  }
+
   // Catalogue reads grouped by client IP — who is scraping the marketplace.
   async getScrapeActivity(params?: { hours?: number; limit?: number }) {
     const searchParams = new URLSearchParams();
