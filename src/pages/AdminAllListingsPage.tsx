@@ -455,7 +455,7 @@ const AdminAllListingsPage = () => {
         cargoCoverage: item.cargoCoverage || 0,
         cargoTypes: parseJsonField(item.cargoTypes),
         assignedAdmin: item.assignedAdmin || undefined,
-        inspections: parseInspectionCount(item.fmcsaData)
+        inspections: item.inspections ?? parseInspectionCount(item.fmcsaData)
       }))
 
       setAllListings(transformedListings)
