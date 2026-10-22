@@ -113,6 +113,7 @@ interface Listing {
   cargoTypes: string[]
   visibility?: string
   fmcsaData?: string
+  inspections?: number | null
   authorityHistory?: string
   insuranceHistory?: string
   assignedAdmin?: string
@@ -340,6 +341,24 @@ const AdminAllListingsPage = () => {
     return []
   }
 
+  // Inspection count from the stored FMCSA snapshot (flat or nested under
+  // `carrier`), read the same way MarketplacePage.transformListing does.
+  // null = no snapshot on file.
+  const parseInspectionCount = (raw: unknown): number | null => {
+    if (!raw) return null
+    let parsed: any = raw
+    if (typeof raw === 'string') {
+      try {
+        parsed = JSON.parse(raw)
+      } catch {
+        return null
+      }
+    }
+    const src = parsed?.carrier ?? parsed
+    const count = Number(src?.totalInspections ?? src?.driverInsp ?? src?.totalDriverInspections)
+    return Number.isFinite(count) ? count : null
+  }
+
   // Map API status to component status
   const mapStatus = (status: string): 'active' | 'pending' | 'reserved' | 'sold' | 'rejected' | 'draft' => {
     const statusMap: Record<string, 'active' | 'pending' | 'reserved' | 'sold' | 'rejected' | 'draft'> = {
@@ -435,7 +454,8 @@ const AdminAllListingsPage = () => {
         bipdCoverage: item.bipdCoverage || 0,
         cargoCoverage: item.cargoCoverage || 0,
         cargoTypes: parseJsonField(item.cargoTypes),
-        assignedAdmin: item.assignedAdmin || undefined
+        assignedAdmin: item.assignedAdmin || undefined,
+        inspections: parseInspectionCount(item.fmcsaData)
       }))
 
       setAllListings(transformedListings)
@@ -1355,6 +1375,9 @@ const AdminAllListingsPage = () => {
                     Company
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Inspections
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Owner/Seller
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -1422,6 +1445,15 @@ const AdminAllListingsPage = () => {
                       <p className="font-medium text-gray-900">{listing.legalName}</p>
                       {listing.dbaName && (
                         <p className="text-xs text-gray-500">DBA: {listing.dbaName}</p>
+                      )}
+                    </td>
+                    <td className="px-4 py-4">
+                      {listing.inspections == null ? (
+                        <p className="text-sm text-gray-400">—</p>
+                      ) : (
+                        <p className={`font-semibold ${listing.inspections > 0 ? 'text-gray-900' : 'text-green-600'}`}>
+                          {listing.inspections}
+                        </p>
                       )}
                     </td>
                     <td className="px-4 py-4">
