@@ -65,6 +65,9 @@ interface DashboardStats {
   approvedToday?: number
   premiumRequests?: number
   reportedItems?: number
+  listingsWithInspections?: number
+  listingsWithoutInspections?: number
+  totalInspections?: number
 }
 
 const AdminDashboard = () => {
@@ -231,6 +234,7 @@ const AdminDashboard = () => {
       label: 'Total Listings',
       value: statsLoading ? '...' : String(dashboardStats?.totalListings ?? 0),
       change: `${dashboardStats?.activeListings ?? 0} active`,
+      detail: `${dashboardStats?.listingsWithInspections ?? 0} with inspections (${(dashboardStats?.totalInspections ?? 0).toLocaleString()} total) · ${dashboardStats?.listingsWithoutInspections ?? 0} with 0`,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
       link: '/admin/listings'
@@ -296,6 +300,7 @@ const AdminDashboard = () => {
                 <div className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</div>
                 <div className="text-gray-500 text-sm mb-1">{stat.label}</div>
                 <div className="text-xs text-gray-400">{stat.change}</div>
+                {stat.detail && <div className="text-xs text-gray-400 mt-1">{stat.detail}</div>}
               </Card>
             </motion.div>
           ))}
