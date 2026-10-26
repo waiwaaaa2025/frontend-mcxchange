@@ -112,6 +112,7 @@ import {
   HealthCategory,
 } from '../utils/carrierDataMapper'
 import type { FMCSASMSData, FMCSAAuthorityHistory, FMCSAInsuranceHistory } from '../types'
+import { amazonStatusLabel } from '../types'
 
 // ============================================================
 // CARRIER DATA CONTEXT — provides mapped data to all sub-components
@@ -689,13 +690,15 @@ function OverviewTab({ authorityType, bondAmount }: { authorityType?: string; bo
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {mockCarrier.amazonRelayScore ? (
-              <>
-                <StatusBadge level="excellent" label="Active" size="sm" />
-                <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-sm font-bold rounded-lg">Score: {mockCarrier.amazonRelayScore}</span>
-              </>
-            ) : (
-              <StatusBadge level="fair" label="Not Registered" size="sm" />
+            <StatusBadge
+              level={mockCarrier.amazonStatus === 'active' ? 'excellent'
+                : mockCarrier.amazonStatus === 'suspended' || mockCarrier.amazonStatus === 'rejected' ? 'danger'
+                : 'fair'}
+              label={amazonStatusLabel(mockCarrier.amazonStatus)}
+              size="sm"
+            />
+            {mockCarrier.amazonStatus === 'active' && mockCarrier.amazonRelayScore && mockCarrier.amazonRelayScore !== 'no-score' && (
+              <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-sm font-bold rounded-lg">Score: {mockCarrier.amazonRelayScore}</span>
             )}
           </div>
         </Card>

@@ -30,6 +30,7 @@ import {
   deriveAuthorityTypeFromReport,
 } from '../constants/authority'
 import type { AuthorityType } from '../types'
+import { AMAZON_STATUS_OPTIONS } from '../types'
 
 export default function SellerCreateListingPage() {
   const navigate = useNavigate()
@@ -297,7 +298,7 @@ export default function SellerCreateListingPage() {
         bondAmount: carrier.bondOnFile || undefined,
         cargoTypes: carrier.cargoTypes || [],
         fmcsaData: JSON.stringify(carrier),
-        amazonStatus: amazonStatus === 'yes' ? 'ACTIVE' : amazonStatus === 'no' ? 'NONE' : undefined,
+        amazonStatus: amazonStatus || undefined,
         amazonRelayScore: amazonRelayScore || undefined,
         highwaySetup: highwaySetup === 'yes',
         rmisSetup: rmisSetup === 'yes',
@@ -757,21 +758,23 @@ export default function SellerCreateListingPage() {
               <div className="space-y-5">
                 {/* Amazon Relay */}
                 <div className="p-4 rounded-xl bg-gray-50 border border-gray-200">
-                  <p className="text-sm font-semibold text-gray-900 mb-3">Amazon Relay Setup?</p>
-                  <div className="flex gap-2 mb-2">
-                    {['yes', 'no'].map(v => (
-                      <button key={v} type="button" onClick={() => { setAmazonStatus(v); if (v === 'no') setAmazonRelayScore('') }}
-                        className={`flex-1 py-2.5 rounded-xl border-2 text-sm font-medium transition-all ${
+                  <p className="text-sm font-semibold text-gray-900 mb-3">Amazon Relay Status</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-2">
+                    {AMAZON_STATUS_OPTIONS.map(({ value: v, label }) => (
+                      <button key={v} type="button" onClick={() => { setAmazonStatus(v); if (v !== 'ACTIVE') setAmazonRelayScore('') }}
+                        className={`py-2.5 rounded-xl border-2 text-sm font-medium transition-all ${
                           amazonStatus === v
-                            ? v === 'yes' ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-gray-400 bg-gray-100 text-gray-700'
+                            ? v === 'ACTIVE' ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
+                              : v === 'NONE' ? 'border-gray-400 bg-gray-100 text-gray-700'
+                              : 'border-red-500 bg-red-50 text-red-700'
                             : 'border-gray-200 text-gray-500 hover:border-gray-300'
                         }`}
                       >
-                        {v === 'yes' ? 'Yes' : 'No'}
+                        {label}
                       </button>
                     ))}
                   </div>
-                  {amazonStatus === 'yes' && (
+                  {amazonStatus === 'ACTIVE' && (
                     <div className="mt-3">
                       <label className="block text-sm font-medium text-gray-700 mb-1">Amazon Relay Score</label>
                       <select value={amazonRelayScore} onChange={e => setAmazonRelayScore(e.target.value)}

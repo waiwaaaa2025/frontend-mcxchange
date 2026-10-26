@@ -220,10 +220,12 @@ const MCCard = ({ listing, onSave, isSaved }: MCCardProps) => {
               )}
             </div>
           )}
-          {listing.amazonStatus === 'pending' && (
-            <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-amber-50 border border-amber-200">
+          {(listing.amazonStatus === 'suspended' || listing.amazonStatus === 'rejected') && (
+            <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-red-50 border border-red-200">
               <span className="text-xs">📦</span>
-              <span className="text-[11px] font-semibold text-amber-700">Pending</span>
+              <span className="text-[11px] font-semibold text-red-700">
+                Amazon {listing.amazonStatus === 'suspended' ? 'Suspended' : 'Rejected'}
+              </span>
             </div>
           )}
           {listing.highwaySetup && (

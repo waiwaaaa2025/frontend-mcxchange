@@ -294,6 +294,7 @@ function normalizeAmazonStatus(status: string | undefined): AmazonStatus {
   if (normalized === 'active') return 'active'
   if (normalized === 'pending') return 'pending'
   if (normalized === 'suspended') return 'suspended'
+  if (normalized === 'rejected') return 'rejected'
   return 'none'
 }
 

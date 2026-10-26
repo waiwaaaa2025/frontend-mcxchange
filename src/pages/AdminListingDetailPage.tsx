@@ -45,6 +45,7 @@ import { formatPrice } from '../utils/helpers'
 import api from '../services/api'
 import { useFMCSAData } from '../hooks/useFMCSAData'
 
+import { AMAZON_STATUS_OPTIONS } from '../types'
 interface Listing {
   id: string
   mcNumber: string
@@ -835,10 +836,8 @@ const AdminListingDetailPage = () => {
                           onChange={(e) => handleInputChange('amazonStatus', e.target.value)}
                           className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         >
-                          <option value="NONE">None</option>
-                          <option value="PENDING">Pending</option>
-                          <option value="ACTIVE">Active</option>
-                          <option value="SUSPENDED">Suspended</option>
+                          {formData.amazonStatus === 'PENDING' && <option value="PENDING">Pending (legacy)</option>}
+                          {AMAZON_STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                         </select>
                       </div>
                       <div>

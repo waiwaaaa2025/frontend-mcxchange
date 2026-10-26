@@ -1236,10 +1236,10 @@ const CreateListingPage = () => {
                         onChange={(e) => setFormData({ ...formData, amazonStatus: e.target.value })}
                         options={[
                           { value: '', label: 'Select Status' },
-                          { value: 'active', label: '✅ Yes - Active' },
-                          { value: 'suspended', label: '⚠️ Yes - Suspended' },
-                          { value: 'pending', label: '⏳ Yes - Pending' },
-                          { value: 'no', label: '❌ No' }
+                          { value: 'active', label: 'Active' },
+                          { value: 'suspended', label: 'Suspended' },
+                          { value: 'none', label: 'Never Registered' },
+                          { value: 'rejected', label: 'Rejected' }
                         ]}
                       />
                       {formData.amazonStatus === 'active' && (

@@ -125,7 +125,27 @@ export interface User {
 
 export type TrustLevel = 'high' | 'medium' | 'low'
 
-export type AmazonStatus = 'active' | 'pending' | 'suspended' | 'none'
+// 'none' is shown as "Never Registered". 'pending' is legacy: existing rows
+// may carry it, but sellers can no longer pick it.
+export type AmazonStatus = 'active' | 'pending' | 'suspended' | 'rejected' | 'none'
+
+// The only Amazon Relay statuses a listing form offers. Values are the
+// backend enum (AmazonRelayStatus); compare case-insensitively.
+export const AMAZON_STATUS_OPTIONS = [
+  { value: 'ACTIVE', label: 'Active' },
+  { value: 'SUSPENDED', label: 'Suspended' },
+  { value: 'NONE', label: 'Never Registered' },
+  { value: 'REJECTED', label: 'Rejected' },
+] as const
+
+export function amazonStatusLabel(status: string | null | undefined): string {
+  const s = (status || 'none').toLowerCase()
+  if (s === 'active') return 'Active'
+  if (s === 'suspended') return 'Suspended'
+  if (s === 'rejected') return 'Rejected'
+  if (s === 'pending') return 'Pending'
+  return 'Never Registered'
+}
 export type AmazonRelayScore = 'A' | 'B' | 'C' | 'D' | 'F' | null
 
 // Safety Rating enum for type safety

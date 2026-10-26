@@ -613,9 +613,9 @@ const MarketplacePage = () => {
                     options={[
                       { value: 'all', label: 'All' },
                       { value: 'active', label: 'Active' },
-                      { value: 'pending', label: 'Pending' },
                       { value: 'suspended', label: 'Suspended' },
-                      { value: 'none', label: 'No Amazon' }
+                      { value: 'none', label: 'Never Registered' },
+                      { value: 'rejected', label: 'Rejected' }
                     ]}
                   />
 

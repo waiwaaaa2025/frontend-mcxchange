@@ -535,6 +535,7 @@ export function mapToV2CarrierData(report: any, listing?: MCListingExtended): V2
     operatingStatus,
     entityType: carrier.entityType || carrier.carrierOperation || 'Carrier',
     cargoTypes: listing?.operationType || [],
+    amazonStatus: (listing?.amazonStatus || 'none').toLowerCase(),
     amazonRelayScore: listing?.amazonRelayScore || '',
     highwaySetup: listing?.highwaySetup || false,
     sellingWithEmail: listing?.sellingWithEmail || false,
@@ -1776,18 +1777,7 @@ export function mapToV2NetworkSignals(report: any, listing?: MCListingExtended):
     })
   }
 
-  // Amazon Relay
-  const amazonStatus = listing?.amazonStatus
-  if (amazonStatus && amazonStatus !== 'none') {
-    signals.push({
-      name: 'Amazon Relay',
-      value: amazonStatus === 'active' ? 'Active' : amazonStatus === 'suspended' ? 'Suspended' : 'Pending',
-      status: amazonStatus === 'active' ? 'positive' : amazonStatus === 'suspended' ? 'negative' : 'neutral',
-      detail: amazonStatus === 'active'
-        ? 'Active on Amazon Relay platform'
-        : amazonStatus === 'suspended' ? 'Amazon Relay account is suspended' : 'Amazon Relay setup pending',
-    })
-  }
+  // Amazon Relay is shown once, in the listing's Platform Integrations card.
 
   // Highway setup
   if (listing?.highwaySetup) {

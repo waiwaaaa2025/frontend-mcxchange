@@ -8,6 +8,7 @@ import Select from './ui/Select'
 import { AUTHORITY_TYPE_OPTIONS } from '../constants/authority'
 import api from '../services/api'
 
+import { AMAZON_STATUS_OPTIONS } from '../types'
 const US_STATES = [
   { value: '', label: 'Select State' },
   { value: 'AL', label: 'Alabama' },
@@ -62,12 +63,6 @@ const US_STATES = [
   { value: 'WY', label: 'Wyoming' }
 ]
 
-const AMAZON_STATUS_OPTIONS = [
-  { value: 'NONE', label: 'Not on Amazon' },
-  { value: 'ACTIVE', label: 'Active on Amazon Relay' },
-  { value: 'SUSPENDED', label: 'Suspended' },
-  { value: 'PENDING', label: 'Pending Approval' }
-]
 
 const SAFETY_RATING_OPTIONS = [
   { value: 'NONE', label: 'Not Rated' },
@@ -477,7 +472,7 @@ const EditListingModal = ({ isOpen, onClose, listingId, onSuccess }: EditListing
                         label="Amazon Status"
                         value={formData.amazonStatus}
                         onChange={(e) => handleChange('amazonStatus', e.target.value)}
-                        options={AMAZON_STATUS_OPTIONS}
+                        options={[...AMAZON_STATUS_OPTIONS]}
                       />
 
                       {formData.amazonStatus === 'ACTIVE' && (

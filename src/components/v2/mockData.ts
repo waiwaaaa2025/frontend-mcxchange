@@ -99,6 +99,7 @@ export interface V2CarrierData {
   operatingStatus: 'authorized' | 'not-authorized' | 'pending'
   entityType: string
   cargoTypes: string[]
+  amazonStatus: string
   amazonRelayScore: string
   highwaySetup: boolean
   sellingWithEmail: boolean
@@ -516,6 +517,7 @@ export const mockCarrier: V2CarrierData = {
   operatingStatus: 'authorized',
   entityType: 'Carrier',
   cargoTypes: ['General Freight', 'Household Goods', 'Building Materials', 'Refrigerated Food'],
+  amazonStatus: 'active',
   amazonRelayScore: 'Excellent',
   highwaySetup: true,
   sellingWithEmail: true,
