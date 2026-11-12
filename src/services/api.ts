@@ -432,6 +432,19 @@ class ApiService {
     return this.request<any>(`/admin/users/${userId}`);
   }
 
+  // Account name vs name on government ID (Stripe Identity) vs cardholder name — re-pulled live from Stripe.
+  async getUserNameCheck(userId: string) {
+    return this.request<any>(`/admin/users/${userId}/name-check`);
+  }
+
+  async applyUserIdName(userId: string) {
+    return this.request<any>(`/admin/users/${userId}/apply-id-name`, { method: 'POST' });
+  }
+
+  async getIdentityNameReport() {
+    return this.request<any>(`/admin/identity-name-report`);
+  }
+
   async blockUser(userId: string, reason: string) {
     return this.request<any>(`/admin/users/${userId}/block`, {
       method: 'POST',

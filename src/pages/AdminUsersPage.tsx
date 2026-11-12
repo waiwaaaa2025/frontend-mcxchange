@@ -66,6 +66,7 @@ interface UserData {
   identityVerified?: boolean
   identityVerificationStatus?: string
   identityVerifiedAt?: string
+  nameCheck?: NameCheck
   subscription?: {
     plan: string
     status: string
@@ -77,6 +78,25 @@ interface UserData {
     sellerTransactions: number
   }
 }
+
+interface NameCheck {
+  accountName: string | null
+  idName: string | null
+  cardholderName: string | null
+  idMatchesAccount: boolean | null
+  cardMatchesId: boolean | null
+  cardMatchesAccount: boolean | null
+}
+
+const hasNameMismatch = (n?: NameCheck | null) =>
+  !!n && (n.idMatchesAccount === false || n.cardMatchesId === false || (!n.idName && n.cardMatchesAccount === false))
+
+const MatchPill = ({ ok, label }: { ok: boolean | null; label: string }) =>
+  ok === null ? null : (
+    <span className={`ml-1 px-1.5 py-0.5 rounded text-[10px] font-semibold ${ok ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+      {ok ? `matches ${label}` : `≠ ${label}`}
+    </span>
+  )
 
 interface Pagination {
   page: number
@@ -92,6 +112,9 @@ const AdminUsersPage = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null)
   const [userDetails, setUserDetails] = useState<any>(null)
+  const [nameCheck, setNameCheck] = useState<NameCheck | null>(null)
+  const [nameCheckLoading, setNameCheckLoading] = useState(false)
+  const [applyingIdName, setApplyingIdName] = useState(false)
   const [showDetailModal, setShowDetailModal] = useState(false)
   const [downloadingEvidence, setDownloadingEvidence] = useState(false)
   const [downloadingEvidenceFields, setDownloadingEvidenceFields] = useState(false)
@@ -504,6 +527,25 @@ const AdminUsersPage = () => {
     }
   }
 
+  const handleApplyIdName = async () => {
+    if (!selectedUser || !nameCheck?.idName) return
+    if (!confirm(`Change this account's name from "${nameCheck.accountName || ''}" to "${nameCheck.idName}" (the name on their government ID)?`)) return
+    setApplyingIdName(true)
+    try {
+      const r = await api.applyUserIdName(selectedUser.id)
+      const nc: NameCheck = r.data
+      setNameCheck(nc)
+      if (nc.accountName) {
+        setSelectedUser({ ...selectedUser, name: nc.accountName, nameCheck: nc })
+        setUsers((prev) => prev.map((u) => (u.id === selectedUser.id ? { ...u, name: nc.accountName as string, nameCheck: nc } : u)))
+      }
+    } catch (err: any) {
+      alert(err.message || 'Failed to update name')
+    } finally {
+      setApplyingIdName(false)
+    }
+  }
+
   const openUserDetail = async (user: UserData) => {
     setSelectedUser(user)
     setIsEditingProfile(false)
@@ -516,6 +558,14 @@ const AdminUsersPage = () => {
     setDepositListings([])
     setDepositForm({ transactionId: '', amount: '', paymentMethod: 'WIRE', reference: '', notes: '' })
     setDepositFeedback(null)
+    setNameCheck(user.nameCheck || null)
+    if (user.identityVerified) {
+      setNameCheckLoading(true)
+      api.getUserNameCheck(user.id)
+        .then((r) => setNameCheck(r?.data || null))
+        .catch((err) => console.error('Failed to load name check:', err))
+        .finally(() => setNameCheckLoading(false))
+    }
     try {
       const details = await api.getAdminUserDetails(user.id)
       setUserDetails(details)
@@ -928,6 +978,15 @@ const AdminUsersPage = () => {
                       </span>
                     )}
 
+                    {hasNameMismatch(user.nameCheck) && (
+                      <span
+                        className="px-2 py-0.5 rounded-lg text-xs font-medium bg-red-50 text-red-700 border border-red-200 flex items-center gap-1"
+                        title={`Account: ${user.nameCheck?.accountName || '—'} · ID: ${user.nameCheck?.idName || '—'} · Card: ${user.nameCheck?.cardholderName || '—'}`}
+                      >
+                        <AlertCircle className="w-3 h-3" />
+                        Name mismatch
+                      </span>
+                    )}
                     {/* Stripe Identity Badge */}
                     {user.identityVerified ? (
                       <span className="px-2 py-0.5 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 flex items-center gap-1">
@@ -1482,6 +1541,35 @@ const AdminUsersPage = () => {
                         <div className="flex justify-between text-sm">
                           <span className="text-gray-500">ID Verified On</span>
                           <span className="text-gray-700">{formatDate(userDetails.data.identityVerifiedAt)}</span>
+                        </div>
+                      )}
+                      {(selectedUser.identityVerified || nameCheck?.cardholderName) && (
+                        <div className={`mt-1 p-2 rounded-lg border text-sm space-y-1 ${hasNameMismatch(nameCheck) ? 'bg-red-50 border-red-200' : 'bg-white border-gray-200'}`}>
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-500">Name on ID</span>
+                            <span className="text-gray-800 font-medium text-right">
+                              {nameCheck?.idName || (nameCheckLoading ? 'Loading…' : '—')}
+                              <MatchPill ok={nameCheck?.idMatchesAccount ?? null} label="account" />
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-500">Name on card</span>
+                            <span className="text-gray-800 font-medium text-right">
+                              {nameCheck?.cardholderName || (nameCheckLoading ? 'Loading…' : '—')}
+                              {nameCheck?.idName
+                                ? <MatchPill ok={nameCheck?.cardMatchesId ?? null} label="ID" />
+                                : <MatchPill ok={nameCheck?.cardMatchesAccount ?? null} label="account" />}
+                            </span>
+                          </div>
+                          {nameCheck?.idName && nameCheck.idMatchesAccount === false && (
+                            <button
+                              onClick={handleApplyIdName}
+                              disabled={applyingIdName}
+                              className="w-full mt-1 px-2 py-1.5 rounded-lg text-xs font-semibold bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+                            >
+                              {applyingIdName ? 'Updating…' : `Update account name to "${nameCheck.idName}"`}
+                            </button>
+                          )}
                         </div>
                       )}
                     </div>
