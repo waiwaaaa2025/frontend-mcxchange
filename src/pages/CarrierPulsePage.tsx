@@ -50,6 +50,7 @@ import PreviewBlurValue, { PreviewModeContext } from '../components/v2/PreviewBl
 import InsuranceGapTimeline from '../components/v2/InsuranceGapTimeline'
 import FleetAgeHistogram from '../components/v2/FleetAgeHistogram'
 import ViolationTrendChart from '../components/v2/ViolationTrendChart'
+import InspectionViolationsTable from '../components/v2/InspectionViolations'
 import CarrierComparison from '../components/v2/CarrierComparison'
 
 import {
@@ -773,7 +774,7 @@ const US_STATE_NAMES: Record<string, string> = {
 const stateName = (code: string) => US_STATE_NAMES[(code || '').toUpperCase()] || code || 'Unknown'
 
 function InspectionRecordsPanel() {
-  const { inspectionRecords } = useCarrierDataContext()
+  const { inspectionRecords, carrier } = useCarrierDataContext()
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [resultFilter, setResultFilter] = useState<'all' | 'clean' | 'violations' | 'oos'>('all')
@@ -789,7 +790,7 @@ function InspectionRecordsPanel() {
       const q = searchQuery.toLowerCase()
       return rec.reportNumber.toLowerCase().includes(q) || rec.state.toLowerCase().includes(q) || rec.type.toLowerCase().includes(q) ||
         stateName(rec.state).toLowerCase().includes(q) || meta.label.toLowerCase().includes(q) || meta.description.toLowerCase().includes(q) ||
-        rec.violationDetails.some(v => v.category.toLowerCase().includes(q) || v.group.toLowerCase().includes(q) || v.description.toLowerCase().includes(q))
+        rec.violationDetails.some(v => v.category.toLowerCase().includes(q) || v.group.toLowerCase().includes(q) || v.description.toLowerCase().includes(q) || (v.code || '').toLowerCase().includes(q))
     }
     return true
   })
@@ -798,8 +799,6 @@ function InspectionRecordsPanel() {
   const cleanCount = inspectionRecords.filter(r => r.violations === 0).length
   const oosCount = inspectionRecords.filter(r => r.oos).length
   const cleanRate = totalInspections > 0 ? Math.round((cleanCount / totalInspections) * 100) : 0
-
-  const severityColor = (severity: number) => severity >= 8 ? 'bg-red-500' : severity >= 5 ? 'bg-yellow-500' : 'bg-blue-500'
 
   return (
     <div className="rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-sm">
@@ -929,29 +928,19 @@ function InspectionRecordsPanel() {
                         <p className="text-xs text-gray-400 mt-1">No violations recorded during this {levelMeta.description.toLowerCase()} inspection in {fullState}</p>
                       </div>
                     ) : (
-                    <div className="border-t border-gray-100 overflow-x-auto">
-                      <table className="w-full text-xs">
-                        <thead>
-                          <tr className="border-b border-gray-200 bg-white">
-                            <th className="text-left py-2.5 px-4 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Violation</th>
-                            <th className="text-left py-2.5 px-4 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Group</th>
-                            <th className="text-left py-2.5 px-4 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Description</th>
-                            <th className="text-center py-2.5 px-4 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Severity</th>
-                            <th className="text-center py-2.5 px-4 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">OOS</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {rec.violationDetails.map((v, vi) => (
-                            <tr key={vi} className="border-b border-gray-100 last:border-b-0 hover:bg-white bg-gray-50/50">
-                              <td className="py-3 px-4"><div className="flex items-center gap-2"><div className={`w-2 h-2 rounded-full ${v.oos ? 'bg-red-500' : 'bg-indigo-500'}`} /><span className="text-gray-800 font-medium">{v.category}</span></div></td>
-                              <td className="py-3 px-4 text-gray-500">{v.group}</td>
-                              <td className="py-3 px-4 text-gray-600 max-w-xs">{v.description}</td>
-                              <td className="py-3 px-4 text-center"><span className="inline-flex items-center gap-1 text-xs font-bold text-gray-800"><span className={`w-2 h-2 rounded-full ${severityColor(v.severity)}`} />{v.severity}</span></td>
-                              <td className="py-3 px-4 text-center">{v.oos ? <span className="text-[10px] px-2.5 py-1 rounded-full bg-red-100 text-red-700 border border-red-200 font-bold">OOS</span> : <span className="text-gray-300">—</span>}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                    <div className="border-t border-gray-100">
+                      {rec.violationDetails.length > 0 ? (
+                        <InspectionViolationsTable
+                          violations={rec.violationDetails}
+                          inspection={{ date: safeFmtDate(rec.date), state: stateCode || rec.state, reportNumber: rec.reportNumber, levelLabel: `${levelMeta.label} — ${levelMeta.description}` }}
+                          carrier={{ dotNumber: carrier.dotNumber, legalName: carrier.legalName }}
+                        />
+                      ) : (
+                        <div className="px-4 py-4 text-center bg-white">
+                          <p className="text-sm text-gray-500">{rec.violations} violation{rec.violations !== 1 ? 's' : ''} recorded.</p>
+                          <p className="text-xs text-gray-400 mt-1">The violation-by-violation breakdown isn't published for this inspection yet.</p>
+                        </div>
+                      )}
                     </div>
                     )}
                   </motion.div>

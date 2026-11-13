@@ -1118,6 +1118,10 @@ export function mapToV2InspectionRecords(report: any): V2InspectionRecord[] {
         description: v.description || v.violation_description || '',
         severity: v.severity_weight || v.severity || 0,
         oos: v.oos === true || v.oos === 'Y',
+        code: v.code || v.viol_code || undefined,
+        unit: v.unit || undefined,
+        citationNumber: v.citation_number || undefined,
+        inSms: v.in_sms === undefined ? undefined : !!v.in_sms,
       })),
     }
   })

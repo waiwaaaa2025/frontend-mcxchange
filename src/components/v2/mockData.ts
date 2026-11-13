@@ -207,6 +207,13 @@ export interface V2InspectionRecord {
     description: string
     severity: number
     oos: boolean
+    /** CFR violation code as cited, e.g. "393.75A3-TAOLTIS" (FMCSA open data) */
+    code?: string
+    /** Which unit was cited: Driver, Unit 1 (Power Unit), Unit 2 (Trailer)… */
+    unit?: string
+    citationNumber?: string
+    /** false when the code isn't in SMS yet — BASIC inferred, severity unknown */
+    inSms?: boolean
   }[]
 }
 

@@ -55,6 +55,7 @@ import StateHeatMap from '../components/v2/StateHeatMap'
 import InsuranceGapTimeline from '../components/v2/InsuranceGapTimeline'
 import FleetAgeHistogram from '../components/v2/FleetAgeHistogram'
 import ViolationTrendChart from '../components/v2/ViolationTrendChart'
+import InspectionViolationsTable from '../components/v2/InspectionViolations'
 import RelatedCarriers from '../components/v2/RelatedCarriers'
 import CarrierComparison from '../components/v2/CarrierComparison'
 import {
@@ -1002,7 +1003,7 @@ function parseLevel(raw: string): { num: string; meta: typeof INSPECTION_LEVELS[
 }
 
 function InspectionRecordsPanel() {
-  const { inspectionRecords: mockInspectionRecords } = useCarrierDataContext()
+  const { inspectionRecords: mockInspectionRecords, carrier: carrierInfo } = useCarrierDataContext()
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [resultFilter, setResultFilter] = useState<'all' | 'clean' | 'violations' | 'oos'>('all')
@@ -1023,7 +1024,8 @@ function InspectionRecordsPanel() {
         rec.violationDetails.some(v =>
           v.category.toLowerCase().includes(q) ||
           v.group.toLowerCase().includes(q) ||
-          v.description.toLowerCase().includes(q)
+          v.description.toLowerCase().includes(q) ||
+          (v.code || '').toLowerCase().includes(q)
         )
       )
     }
@@ -1043,12 +1045,6 @@ function InspectionRecordsPanel() {
     const { num } = parseLevel(r.level)
     levelCounts[num] = (levelCounts[num] || 0) + 1
   })
-
-  const severityColor = (severity: number) => {
-    if (severity >= 8) return 'bg-red-500'
-    if (severity >= 5) return 'bg-yellow-500'
-    return 'bg-blue-500'
-  }
 
   const resultBadge = (rec: typeof mockInspectionRecords[0]) => {
     if (rec.oos) return { label: 'Out of Service', abbr: 'OOS', bg: 'bg-red-100 text-red-700 border-red-200', dot: 'bg-red-500' }
@@ -1289,46 +1285,11 @@ function InspectionRecordsPanel() {
                             </p>
                           </div>
                           {rec.violationDetails.length > 0 ? (
-                            <table className="w-full text-xs">
-                              <thead>
-                                <tr className="border-b border-gray-200">
-                                  <th className="text-left py-2.5 px-4 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">BASIC Category</th>
-                                  <th className="text-left py-2.5 px-4 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Group</th>
-                                  <th className="text-left py-2.5 px-4 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Description</th>
-                                  <th className="text-center py-2.5 px-4 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Severity</th>
-                                  <th className="text-center py-2.5 px-4 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">OOS</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {rec.violationDetails.map((v, vi) => (
-                                  <tr key={vi} className={`border-b border-gray-100 last:border-b-0 ${v.oos ? 'bg-red-50/50' : 'hover:bg-gray-50'}`}>
-                                    <td className="py-3 px-4">
-                                      <div className="flex items-center gap-2">
-                                        <div className={`w-2 h-2 rounded-full ${v.oos ? 'bg-red-500' : 'bg-indigo-500'}`} />
-                                        <span className="text-gray-800 font-medium">{v.category}</span>
-                                      </div>
-                                    </td>
-                                    <td className="py-3 px-4 text-gray-500">{v.group}</td>
-                                    <td className="py-3 px-4 text-gray-600 max-w-xs">{v.description}</td>
-                                    <td className="py-3 px-4 text-center">
-                                      <span className="inline-flex items-center gap-1 text-xs font-bold text-gray-800">
-                                        <span className={`w-2 h-2 rounded-full ${severityColor(v.severity)}`} />
-                                        {v.severity}
-                                      </span>
-                                    </td>
-                                    <td className="py-3 px-4 text-center">
-                                      {v.oos ? (
-                                        <span className="text-[10px] px-2.5 py-1 rounded-full bg-red-100 text-red-700 border border-red-200 font-bold">
-                                          OOS
-                                        </span>
-                                      ) : (
-                                        <span className="text-gray-300">—</span>
-                                      )}
-                                    </td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
+                            <InspectionViolationsTable
+                              violations={rec.violationDetails}
+                              inspection={{ date: safeFmtDate(rec.date), state: rec.state, reportNumber: rec.reportNumber, levelLabel: `${levelMeta.label} — ${levelMeta.description}` }}
+                              carrier={{ dotNumber: carrierInfo.dotNumber, legalName: carrierInfo.legalName }}
+                            />
                           ) : (
                             <div className="px-4 py-4 text-center">
                               <p className="text-sm text-gray-500">
