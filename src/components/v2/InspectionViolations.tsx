@@ -1,8 +1,34 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { Link } from 'react-router-dom'
 import { Scale, X, ExternalLink, Copy, Check, FileText, AlertTriangle } from 'lucide-react'
 import type { V2InspectionRecord } from './mockData'
+import api, { type CfrRegulation } from '../../services/api'
+
+// Session cache so re-expanding an inspection doesn't refetch.
+const regCache = new Map<string, CfrRegulation | null>()
+
+function useRegulations(codes: string[]): Record<string, CfrRegulation | null> {
+  const key = [...new Set(codes)].sort().join(',')
+  const [, force] = useState(0)
+  useEffect(() => {
+    const missing = key ? key.split(',').filter((c) => !regCache.has(c)) : []
+    if (missing.length === 0) return
+    let alive = true
+    api.getRegulations(missing)
+      .then((res) => {
+        for (const c of missing) regCache.set(c, res?.data?.[c] ?? null)
+        if (alive) force((n) => n + 1)
+      })
+      .catch(() => { /* regulation text is a nice-to-have */ })
+    return () => { alive = false }
+  }, [key])
+  const out: Record<string, CfrRegulation | null> = {}
+  for (const c of codes) out[c] = regCache.get(c) ?? null
+  return out
+}
+
+const shortReg = (t: string, n = 320) => (t.length > n ? t.slice(0, n).replace(/\s+\S*$/, '') + '…' : t)
 
 type Violation = V2InspectionRecord['violationDetails'][number]
 
@@ -152,7 +178,7 @@ function guidanceFor(code: string | undefined, description: string): Guidance {
   }
 }
 
-function buildLetter(v: Violation | null, insp: InspectionContext, carrier: CarrierContext): string {
+function buildLetter(v: Violation | null, insp: InspectionContext, carrier: CarrierContext, reg: CfrRegulation | null): string {
   const who = carrier.legalName ? `${carrier.legalName}${carrier.dotNumber ? ` (USDOT ${carrier.dotNumber})` : ''}` : carrier.dotNumber ? `USDOT ${carrier.dotNumber}` : '[Carrier name / USDOT]'
   const subject = v
     ? `violation ${v.code || '[code]'} — "${v.description || '[description]'}"`
@@ -163,6 +189,12 @@ function buildLetter(v: Violation | null, insp: InspectionContext, carrier: Carr
     ...(v?.citationNumber ? [`Citation number: ${v.citationNumber}`] : []),
     '',
     `On behalf of ${who}, I am requesting a review of ${subject}${v?.unit ? ` cited on ${v.unit}` : ''}.`,
+    ...(reg
+      ? [
+          '',
+          `Per FMCSA regulation ${reg.citation} (${reg.title}): "${shortReg(reg.text, 500)}"`,
+        ]
+      : []),
     '',
     'Reason for the request:',
     '[One or two sentences stating plainly what is wrong. Example: "The citation issued for this violation was dismissed by the ___ County Court on __/__/____ (case #____). Per FMCSA policy on adjudicated citations, we request the violation be removed." or "The tire was not underinflated — see attached photo taken at the scene and the ATIS specification."]',
@@ -179,21 +211,46 @@ function buildLetter(v: Violation | null, insp: InspectionContext, carrier: Carr
   ].join('\n')
 }
 
+// "Per FMCSA regulation 49 CFR 393.75(a)(3) — Tires: …" with a link to eCFR.
+function RegulationNote({ reg }: { reg: CfrRegulation }) {
+  const [open, setOpen] = useState(false)
+  const long = reg.text.length > 320
+  return (
+    <div className="mt-2 rounded-lg border-l-2 border-indigo-300 bg-indigo-50/50 px-3 py-2">
+      <p className="text-[11px] text-gray-700 leading-relaxed">
+        <span className="font-semibold text-gray-900">Per FMCSA regulation </span>
+        <a href={reg.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-indigo-700 hover:underline">
+          {reg.citation}
+        </a>
+        {reg.title && <span className="text-gray-500"> — {reg.title}</span>}
+        <span>: “{open || !long ? reg.text : shortReg(reg.text)}”</span>
+        {long && (
+          <button onClick={() => setOpen(!open)} className="ml-1 text-indigo-600 hover:underline">
+            {open ? 'less' : 'more'}
+          </button>
+        )}
+      </p>
+    </div>
+  )
+}
+
 // ─── DataQs guide modal ───
 export function DataQsGuideModal({
   violation,
   inspection,
   carrier,
+  regulation = null,
   onClose,
 }: {
   violation: Violation | null
   inspection: InspectionContext
   carrier: CarrierContext
+  regulation?: CfrRegulation | null
   onClose: () => void
 }) {
   const [copied, setCopied] = useState(false)
   const g = guidanceFor(violation?.code, violation?.description || '')
-  const letter = buildLetter(violation, inspection, carrier)
+  const letter = buildLetter(violation, inspection, carrier, regulation)
 
   const copy = async () => {
     try {
@@ -231,6 +288,7 @@ export function DataQsGuideModal({
                 <span className="text-xs text-gray-500">{g.topic}</span>
               </div>
               <p className="text-sm text-gray-800 mt-1.5">{violation.description}</p>
+              {regulation && <RegulationNote reg={regulation} />}
             </div>
           )}
 
@@ -321,6 +379,7 @@ export default function InspectionViolationsTable({
   carrier: CarrierContext
 }) {
   const [guideFor, setGuideFor] = useState<Violation | null | undefined>(undefined)
+  const regs = useRegulations(violations.map((v) => v.code || '').filter(Boolean))
 
   return (
     <>
@@ -345,6 +404,7 @@ export default function InspectionViolationsTable({
                     )}
                   </div>
                   <p className="text-sm text-gray-800 mt-1.5 leading-snug">{v.description || 'No description on file'}</p>
+                  {v.code && regs[v.code] && <RegulationNote reg={regs[v.code]!} />}
                   <p className="text-[11px] text-gray-500 mt-1 flex flex-wrap gap-x-3 gap-y-0.5">
                     {v.group && <span>Group: {v.group}</span>}
                     {v.unit && <span>Cited on: {v.unit}</span>}
@@ -376,7 +436,8 @@ export default function InspectionViolationsTable({
         </button>
       </div>
       {guideFor !== undefined && (
-        <DataQsGuideModal violation={guideFor} inspection={inspection} carrier={carrier} onClose={() => setGuideFor(undefined)} />
+        <DataQsGuideModal violation={guideFor} inspection={inspection} carrier={carrier}
+          regulation={guideFor?.code ? regs[guideFor.code] : null} onClose={() => setGuideFor(undefined)} />
       )}
     </>
   )

@@ -79,6 +79,16 @@ export interface AdminContentReport {
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
+export interface CfrRegulation {
+  code: string
+  section: string
+  paragraph: string
+  citation: string
+  title: string
+  text: string
+  url: string
+}
+
 class ApiService {
   private token: string | null = null;
   private refreshPromise: Promise<any> | null = null;
@@ -1037,6 +1047,13 @@ class ApiService {
   }
 
   // MorPro Carrier Data endpoint
+  /** 49 CFR regulation text for FMCSA violation codes, keyed by code. */
+  async getRegulations(codes: string[]) {
+    return this.request<{ success: boolean; data: Record<string, CfrRegulation | null> }>(
+      `/fmcsa/regulations?codes=${encodeURIComponent(codes.join(','))}`
+    );
+  }
+
   async getCarrierReport(dotNumber: string) {
     return this.request<{ success: boolean; data: any }>(`/carrier-data/report/${dotNumber}`);
   }
