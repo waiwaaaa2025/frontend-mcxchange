@@ -301,9 +301,13 @@ export default function PricingPage() {
                 <Check className="w-4 h-4 text-indigo-500 flex-shrink-0" />
                 <span className="text-gray-700">Safety Improvement Report (A+ to D)</span>
               </li>
+              <li className="flex items-center gap-2 text-sm">
+                <Check className="w-4 h-4 text-indigo-500 flex-shrink-0" />
+                <span className="text-gray-700">DataQs violation challenge guide</span>
+              </li>
             </ul>
             <div className="flex items-baseline gap-1 mb-1">
-              <span className="text-2xl font-bold text-gray-900">$12.99</span>
+              <span className="text-2xl font-bold text-gray-900">$19.99</span>
               <span className="text-gray-500">/month</span>
             </div>
             <p className="text-xs text-emerald-600 font-medium mb-4">Included free with Professional, Premium & VIP / Deal Access Pass</p>

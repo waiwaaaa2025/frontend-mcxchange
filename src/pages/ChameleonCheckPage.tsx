@@ -212,7 +212,7 @@ export default function ChameleonCheckPage() {
 
               <div className="bg-gray-50 rounded-xl p-4 mb-6">
                 <div className="flex items-center justify-center gap-1">
-                  <span className="text-3xl font-black text-gray-900">$12.99</span>
+                  <span className="text-3xl font-black text-gray-900">$19.99</span>
                   <span className="text-gray-500 text-sm">/month</span>
                 </div>
                 <p className="text-xs text-gray-400 mt-1">Includes CarrierPulse access. Cancel anytime.</p>
@@ -236,7 +236,7 @@ export default function ChameleonCheckPage() {
 
               <Button fullWidth size="lg" onClick={handleCheckout} loading={checkoutLoading}>
                 <ShieldAlert className="w-5 h-5 mr-2" />
-                {isStarter ? 'Add Chameleon Check — $12.99/mo' : 'Get Chameleon Check — $12.99/mo'}
+                {isStarter ? 'Add Chameleon Check — $19.99/mo' : 'Get Chameleon Check — $19.99/mo'}
               </Button>
 
               {!currentPlan && (

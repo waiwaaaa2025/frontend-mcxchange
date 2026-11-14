@@ -1022,7 +1022,7 @@ const BuyerSubscriptionPage = () => {
                           Full safety reports, authority history, insurance, fleet data & more for any DOT number.
                         </p>
                         <div className="flex flex-wrap gap-2 mb-4">
-                          {['Safety & BASICs', 'Authority History', 'Insurance Coverage', 'Fleet Inventory', 'Crash Records'].map(f => (
+                          {['Safety & BASICs', 'Authority History', 'Insurance Coverage', 'Fleet Inventory', 'Crash Records', 'DataQs Challenges'].map(f => (
                             <span key={f} className="inline-flex items-center gap-1 text-xs font-medium text-indigo-700 bg-indigo-50 px-2 py-1 rounded-full">
                               <CheckCircle className="w-3 h-3" />
                               {f}
@@ -1031,7 +1031,7 @@ const BuyerSubscriptionPage = () => {
                         </div>
                         <div className="flex items-center justify-between">
                           <div>
-                            <span className="text-2xl font-black text-gray-900">$12.99</span>
+                            <span className="text-2xl font-black text-gray-900">$19.99</span>
                             <span className="text-gray-500 text-sm">/month</span>
                           </div>
                           <Button
@@ -1119,7 +1119,7 @@ const BuyerSubscriptionPage = () => {
                             Active
                           </span>
                         </div>
-                        <p className="text-sm text-gray-500 mt-0.5">$12.99/mo add-on — unlimited carrier lookups</p>
+                        <p className="text-sm text-gray-500 mt-0.5">$19.99/mo add-on — unlimited carrier lookups + DataQs challenges</p>
                       </div>
                       <Button
                         variant="secondary"

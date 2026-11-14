@@ -2,7 +2,11 @@ import {
   Loader2, AlertTriangle, ShieldCheck, ShieldAlert, Truck, Users, MapPin, FileText,
   Building2, Phone, Mail, Calendar, Gauge, DollarSign, Activity, AlertOctagon,
   Package, Award, GitBranch, Eye,
+  ChevronDown, ChevronRight,
 } from 'lucide-react'
+import { useState } from 'react'
+import InspectionViolationsTable from '../v2/InspectionViolations'
+import { mapToV2InspectionRecords } from '../../utils/carrierDataMapper'
 
 interface Props {
   loading: boolean
@@ -245,41 +249,9 @@ export default function LinqCarrierProfile({ loading, carrier, insurance, report
         )}
       </Section>
 
-      {/* Recent violations */}
-      {violations.length > 0 && (
-        <Section icon={AlertOctagon} title={`Recent inspection violations (${violations.length})`}>
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs">
-              <thead className="bg-gray-50 text-left text-gray-600">
-                <tr>
-                  <th className="px-3 py-2">Date</th>
-                  <th className="px-3 py-2">State</th>
-                  <th className="px-3 py-2">Level</th>
-                  <th className="px-3 py-2 text-right">Total</th>
-                  <th className="px-3 py-2 text-right">Driver</th>
-                  <th className="px-3 py-2 text-right">Vehicle</th>
-                  <th className="px-3 py-2 text-right">Hazmat</th>
-                  <th className="px-3 py-2 text-right">OOS</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {violations.map((v: any) => (
-                  <tr key={v.inspection_id} className={v.oos_total > 0 ? 'bg-red-50' : ''}>
-                    <td className="px-3 py-2 text-gray-700">{v.date}</td>
-                    <td className="px-3 py-2 text-gray-600">{v.report_state}</td>
-                    <td className="px-3 py-2 text-gray-600">L{v.level}</td>
-                    <td className="px-3 py-2 text-right font-medium tabular-nums">{v.total_violations}</td>
-                    <td className="px-3 py-2 text-right text-gray-600 tabular-nums">{v.driver_violations}</td>
-                    <td className="px-3 py-2 text-right text-gray-600 tabular-nums">{v.vehicle_violations}</td>
-                    <td className="px-3 py-2 text-right text-gray-600 tabular-nums">{v.hazmat_violations}</td>
-                    <td className={`px-3 py-2 text-right tabular-nums ${v.oos_total > 0 ? 'font-bold text-red-700' : 'text-gray-600'}`}>{v.oos_total}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Section>
-      )}
+      {/* Inspections with cited violations + DataQs challenge guide */}
+      <InspectionsWithViolations report={report} violations={violations}
+        carrier={{ dotNumber: String(profile.dot_number || carrier?.dot_number || ''), legalName: profile.legal_name || carrier?.legal_name }} />
 
       {/* Crashes (if any) */}
       {crashes.total > 0 && (
@@ -495,4 +467,92 @@ function expiryColor(iso: string): 'green' | 'amber' | 'red' | 'gray' {
   if (days <= 30) return 'red'
   if (days <= 60) return 'amber'
   return 'green'
+}
+
+const LEVEL_LABELS: Record<string, string> = {
+  '1': 'Level 1 — Full', '2': 'Level 2 — Walk-Around', '3': 'Level 3 — Driver Only',
+  '4': 'Level 4 — Special', '5': 'Level 5 — Vehicle Only', '6': 'Level 6 — Radioactive',
+}
+
+// Inspections with violations, each expandable to the exact CFR codes cited and
+// a DataQ button per violation. Falls back to LINQ's count-only rows when no
+// inspection-level detail is available.
+function InspectionsWithViolations({ report, violations, carrier }: {
+  report: any
+  violations: any[]
+  carrier: { dotNumber?: string; legalName?: string }
+}) {
+  const [open, setOpen] = useState<string | null>(null)
+  const records = mapToV2InspectionRecords(report).filter((r) => r.violations > 0 || r.oosViolations > 0)
+
+  if (records.length === 0) {
+    if (violations.length === 0) return null
+    return (
+      <Section icon={AlertOctagon} title={`Recent inspection violations (${violations.length})`}>
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead className="bg-gray-50 text-left text-gray-600">
+              <tr>
+                <th className="px-3 py-2">Date</th>
+                <th className="px-3 py-2">State</th>
+                <th className="px-3 py-2">Level</th>
+                <th className="px-3 py-2 text-right">Total</th>
+                <th className="px-3 py-2 text-right">OOS</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {violations.map((v: any) => (
+                <tr key={v.inspection_id} className={v.oos_total > 0 ? 'bg-red-50' : ''}>
+                  <td className="px-3 py-2 text-gray-700">{v.date}</td>
+                  <td className="px-3 py-2 text-gray-600">{v.report_state}</td>
+                  <td className="px-3 py-2 text-gray-600">L{v.level}</td>
+                  <td className="px-3 py-2 text-right font-medium tabular-nums">{v.total_violations}</td>
+                  <td className={`px-3 py-2 text-right tabular-nums ${v.oos_total > 0 ? 'font-bold text-red-700' : 'text-gray-600'}`}>{v.oos_total}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Section>
+    )
+  }
+
+  return (
+    <Section icon={AlertOctagon} title={`Inspections with violations (${records.length}) — tap one to see codes and challenge with DataQs`}>
+      <div className="divide-y border rounded-lg overflow-hidden">
+        {records.map((r) => {
+          const isOpen = open === r.id
+          const levelLabel = LEVEL_LABELS[String(r.level).replace(/\D/g, '')] || String(r.level || '—')
+          return (
+            <div key={r.id} className={r.oos ? 'bg-red-50/40' : 'bg-white'}>
+              <button type="button" onClick={() => setOpen(isOpen ? null : r.id)}
+                className="w-full flex items-center gap-3 px-3 py-2.5 text-left text-xs hover:bg-gray-50">
+                {isOpen ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
+                <span className="font-medium text-gray-800 w-24">{r.date || '—'}</span>
+                <span className="text-gray-600 w-10">{r.state}</span>
+                <span className="text-gray-600 flex-1 truncate">{levelLabel}</span>
+                <span className="font-medium tabular-nums">{r.violations} viol</span>
+                {r.oosViolations > 0 && <span className="font-bold text-red-700 tabular-nums">{r.oosViolations} OOS</span>}
+              </button>
+              {isOpen && (
+                <div className="border-t border-gray-100">
+                  {r.violationDetails.length > 0 ? (
+                    <InspectionViolationsTable
+                      violations={r.violationDetails}
+                      inspection={{ date: r.date, state: r.state, reportNumber: r.reportNumber, levelLabel }}
+                      carrier={carrier}
+                    />
+                  ) : (
+                    <p className="px-4 py-4 text-center text-xs text-gray-500">
+                      The violation-by-violation breakdown isn't published for this inspection yet.
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+    </Section>
+  )
 }

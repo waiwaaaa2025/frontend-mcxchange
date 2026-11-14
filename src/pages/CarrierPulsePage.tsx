@@ -2743,7 +2743,7 @@ export default function CarrierPulsePage({ previewMode = false }: { previewMode?
 
               <div className="bg-gray-50 rounded-xl p-4 mb-6">
                 <div className="flex items-center justify-center gap-1">
-                  <span className="text-3xl font-black text-gray-900">$12.99</span>
+                  <span className="text-3xl font-black text-gray-900">$19.99</span>
                   <span className="text-gray-500 text-sm">/month</span>
                 </div>
                 <p className="text-xs text-gray-400 mt-1">Cancel anytime</p>
@@ -2753,6 +2753,7 @@ export default function CarrierPulsePage({ previewMode = false }: { previewMode?
                 {[
                   'Unlimited carrier lookups by DOT number',
                   'Full safety & inspection reports',
+                  'DataQs challenge guide + letter for every violation',
                   'Authority history & compliance data',
                   'Insurance coverage analysis',
                   'Fleet & equipment inventory',
@@ -2766,7 +2767,7 @@ export default function CarrierPulsePage({ previewMode = false }: { previewMode?
 
               <Button fullWidth size="lg" onClick={handleCarrierPulseCheckout} loading={checkoutLoading}>
                 <Zap className="w-5 h-5 mr-2" />
-                {isStarter ? 'Add CarrierPulse — $12.99/mo' : 'Get CarrierPulse — $12.99/mo'}
+                {isStarter ? 'Add CarrierPulse — $19.99/mo' : 'Get CarrierPulse — $19.99/mo'}
               </Button>
 
               {!currentPlan && (

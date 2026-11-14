@@ -504,7 +504,7 @@ const HomePage = () => {
                   <div className="flex items-center justify-between gap-4 flex-wrap">
                     <div>
                       <p className="text-sm font-semibold text-white">Domilea</p>
-                      <p className="text-xs text-gray-400">AI carrier intelligence + deal support — <span className="text-cyan-400 font-semibold">starts at $12.99/mo</span></p>
+                      <p className="text-xs text-gray-400">AI carrier intelligence + deal support — <span className="text-cyan-400 font-semibold">starts at $19.99/mo</span></p>
                     </div>
                     <Link to="/pricing">
                       <Button size="sm" className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow-lg shadow-indigo-600/25">
