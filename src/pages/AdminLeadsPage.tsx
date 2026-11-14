@@ -9,7 +9,7 @@ import api from '../services/api'
 import { InsuranceText } from '../components/InsuranceStatus'
 import NewCarriersPanel from '../components/NewCarriersPanel'
 
-// Carrier Pulse detail route for the full MC profile (safety, authority,
+// DataQ detail route for the full MC profile (safety, authority,
 // insurance, fleet, chameleon, etc.). Admin Leads lives under /admin, so the
 // pulse page is the sibling /admin/carrier-pulse/:dotNumber.
 const pulseUrl = (dot: string | number) => `/admin/carrier-pulse/${dot}`
@@ -317,7 +317,7 @@ export default function AdminLeadsPage() {
                               target="_blank"
                               rel="noopener noreferrer"
                               onClick={(e) => e.stopPropagation()}
-                              title="Open full profile in Carrier Pulse"
+                              title="Open full profile in DataQ"
                               className="text-blue-600 hover:underline inline-flex items-center gap-1"
                             >
                               {c.dotNumber}
@@ -428,7 +428,7 @@ export default function AdminLeadsPage() {
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={(e) => e.stopPropagation()}
-                            title="Open full profile in Carrier Pulse"
+                            title="Open full profile in DataQ"
                             className="text-blue-600 hover:underline inline-flex items-center gap-1"
                           >
                             {l.dotNumber}
@@ -496,7 +496,7 @@ export default function AdminLeadsPage() {
                 rel="noopener noreferrer"
                 className="w-full border border-blue-600 text-blue-600 py-2 rounded-lg font-medium hover:bg-blue-50 flex items-center justify-center gap-2 mb-4"
               >
-                <Activity className="w-4 h-4" /> View full details in Carrier Pulse
+                <Activity className="w-4 h-4" /> View full details in DataQ
                 <ExternalLink className="w-3.5 h-3.5" />
               </Link>
             )}
@@ -579,7 +579,7 @@ export default function AdminLeadsPage() {
                 rel="noopener noreferrer"
                 className="w-full border border-blue-600 text-blue-600 py-2 rounded-lg font-medium hover:bg-blue-50 flex items-center justify-center gap-2"
               >
-                <Activity className="w-4 h-4" /> View full details in Carrier Pulse
+                <Activity className="w-4 h-4" /> View full details in DataQ
                 <ExternalLink className="w-3.5 h-3.5" />
               </Link>
               <button onClick={()=>saveAsLead(selectedDot)} className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700">+ Save to My Pipeline</button>

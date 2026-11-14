@@ -295,7 +295,7 @@ const CreateListingPage = () => {
     authorityType: 'MOTOR_CARRIER' as 'MOTOR_CARRIER' | 'BROKER' | 'MOTOR_CARRIER_AND_BROKER' | 'FREIGHT_FORWARDER'
   })
 
-  // Track if we came from CarrierPulse
+  // Track if we came from DataQ
   const fromPulse = searchParams.get('fromPulse') === 'true'
   const pulseMC = searchParams.get('mc') || ''
   const pulseDOT = searchParams.get('dot') || ''
@@ -326,7 +326,7 @@ const CreateListingPage = () => {
     setFormData(prev => ({ ...prev, authorityType: derived }))
   }, [authorityHistory, authorityTypeTouched])
 
-  // Auto-fetch FMCSA data when coming from CarrierPulse
+  // Auto-fetch FMCSA data when coming from DataQ
   useEffect(() => {
     if (fromPulse && (pulseMC || pulseDOT) && !pulseAutoFetched && !fmcsaFetched && settingsLoaded) {
       setPulseAutoFetched(true)

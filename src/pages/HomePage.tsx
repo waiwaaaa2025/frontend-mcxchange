@@ -89,7 +89,7 @@ const problems = [
 ]
 
 const tools = [
-  { icon: Activity, title: 'CarrierPulse', tagline: 'Carrier Intelligence', description: 'Health scores, SMS analysis, FMCSA intelligence on any MC or DOT — in one screen.', href: '/carrier-pulse-preview', color: 'from-cyan-500 to-indigo-500' },
+  { icon: Activity, title: 'DataQ', tagline: 'Carrier Intelligence', description: 'Health scores, SMS analysis, FMCSA intelligence on any MC or DOT — in one screen.', href: '/carrier-pulse-preview', color: 'from-cyan-500 to-indigo-500' },
   { icon: Bot, title: 'Eva AI', tagline: 'AI Compliance Manager', description: 'Watches your authority, files paperwork, runs audits — 24/7. Like a CFO for compliance.', href: '/eva-ai', color: 'from-indigo-500 to-purple-500' },
   { icon: Umbrella, title: 'Insurance Leads', tagline: 'Lead Generation', description: 'Find carriers with upcoming BMC-91X cancellations before competitors call them.', href: '/insurance-leads-preview', color: 'from-amber-500 to-orange-500' },
   { icon: ShieldCheck, title: 'Chameleon Check', tagline: 'Fraud Detection', description: 'Spot hidden ties between revoked authorities and freshly-issued ones — before the deal closes.', href: '/chameleon-check-preview', color: 'from-rose-500 to-red-500' },
@@ -378,7 +378,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* ─── Section 5: CarrierPulse Search (Stop Guessing) ─── */}
+      {/* ─── Section 5: DataQ Search (Stop Guessing) ─── */}
       <section className="relative py-16 bg-gradient-to-b from-[#1e293b] to-[#0f172a] overflow-hidden">
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 

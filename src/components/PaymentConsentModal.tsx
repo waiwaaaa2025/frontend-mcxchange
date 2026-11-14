@@ -7,7 +7,7 @@ interface PaymentConsentModalProps {
   onClose: () => void
   /** Called with the customer's typed signature once they've agreed. */
   onAgree: (signature: string) => void
-  /** What they're paying for, e.g. "the Premium plan" or "CarrierPulse". */
+  /** What they're paying for, e.g. "the Premium plan" or "DataQ". */
   productLabel?: string
   /** Disable the button + show a spinner while the checkout request is in flight. */
   submitting?: boolean

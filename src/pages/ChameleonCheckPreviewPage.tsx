@@ -112,8 +112,8 @@ export default function ChameleonCheckPreviewPage() {
   // tool, so a subscriber never sees it flash before the redirect.
   const [checkingAccess, setCheckingAccess] = useState(true)
 
-  // Same as the Carrier Pulse preview: a logged-in user who already has Chameleon
-  // Check (it rides on Carrier Pulse access) goes straight to the tool on their
+  // Same as the DataQ preview: a logged-in user who already has Chameleon
+  // Check (it rides on DataQ access) goes straight to the tool on their
   // own dashboard. Logged-out visitors and buyers without access stay here.
   useEffect(() => {
     if (authLoading) return
@@ -198,7 +198,7 @@ export default function ChameleonCheckPreviewPage() {
               {user ? 'Start Checking Carriers' : 'Get Started — Create Free Account'}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
-            <p className="text-sm text-gray-400 mt-4">Included in CarrierPulse. Cancel anytime.</p>
+            <p className="text-sm text-gray-400 mt-4">Included in DataQ. Cancel anytime.</p>
           </motion.div>
         </div>
       </div>
@@ -404,15 +404,15 @@ export default function ChameleonCheckPreviewPage() {
       {/* Included with */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-16">
         <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 text-center">
-          <h3 className="text-lg font-bold text-gray-900 mb-2">Included in CarrierPulse</h3>
-          <p className="text-gray-500 text-sm mb-6">CarrierPulse includes Chameleon Check, the Safety Improvement Report, and full carrier intelligence. Or upgrade to Professional for all tools.</p>
+          <h3 className="text-lg font-bold text-gray-900 mb-2">Included in DataQ</h3>
+          <p className="text-gray-500 text-sm mb-6">DataQ includes Chameleon Check, the Safety Improvement Report, and full carrier intelligence. Or upgrade to Professional for all tools.</p>
           <div className="flex flex-wrap justify-center gap-3">
             {[
               'Unlimited chameleon checks',
               'Safety Improvement Report',
               'Shared EIN & officer detection',
               'Revocation & restart analysis',
-              'Full CarrierPulse access',
+              'Full DataQ access',
               'Cancel anytime',
             ].map((feature) => (
               <span key={feature} className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 rounded-lg text-sm text-gray-700 border border-gray-100">

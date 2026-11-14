@@ -62,7 +62,7 @@ interface DashboardStats {
 const SellerDashboard = () => {
   const { user } = useAuth()
 
-  // Carrier Pulse onboarding modal - show on first two visits if no listings yet
+  // DataQ onboarding modal - show on first two visits if no listings yet
   const [showCarrierPulse, setShowCarrierPulse] = useState(() => {
     const dismissCount = parseInt(localStorage.getItem('mcx_carrier_pulse_dismiss_count') || '0', 10)
     return dismissCount < 2
@@ -408,7 +408,7 @@ const SellerDashboard = () => {
         <SellerAdminMessages />
       </div>
 
-      {/* Carrier Pulse Onboarding Modal — shows first 2 visits until seller has listings */}
+      {/* DataQ Onboarding Modal — shows first 2 visits until seller has listings */}
       <CarrierPulseOnboardingModal
         isOpen={showCarrierPulse && myListings.length === 0 && !loading}
         onClose={() => {

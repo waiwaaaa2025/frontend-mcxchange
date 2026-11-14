@@ -155,7 +155,7 @@ const GuideThankYouPage = () => {
             <Shield className="w-6 h-6 text-secondary-600 flex-shrink-0 mt-0.5" />
             <div>
               <h3 className="font-semibold text-gray-900 mb-1">
-                Your 60-day Carrier Pulse + Credit Check access is active
+                Your 60-day DataQ + Credit Check access is active
               </h3>
               <p className="text-sm text-gray-600">
                 Unlimited Chameleon checks, UCC filings, tax-lien lookups, Safety Improvement Reports,

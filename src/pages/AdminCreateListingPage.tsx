@@ -38,7 +38,7 @@ export default function AdminCreateListingPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
-  // Check if coming back from CarrierPulse
+  // Check if coming back from DataQ
   const fromPulse = searchParams.get('fromPulse') === 'true'
   const pulseMC = searchParams.get('mc') || ''
   const pulseDOT = searchParams.get('dot') || ''
@@ -167,7 +167,7 @@ export default function AdminCreateListingPage() {
     }
   }
 
-  // Auto-fetch carrier data from MorPro when coming from CarrierPulse
+  // Auto-fetch carrier data from MorPro when coming from DataQ
   useEffect(() => {
     if (fromPulse && pulseDOT && !carrierData) {
       fetchCarrierData(pulseDOT)
@@ -229,7 +229,7 @@ export default function AdminCreateListingPage() {
     }
   }
 
-  // DOT search → navigate to CarrierPulse
+  // DOT search → navigate to DataQ
   const handleDOTSearch = async () => {
     const cleaned = mcInput.replace(/\D/g, '')
     if (!cleaned) {
@@ -462,7 +462,7 @@ export default function AdminCreateListingPage() {
           )}
 
           <p className="mt-6 text-xs text-gray-400">
-            This will open the full CarrierPulse view. After reviewing, click "List This Authority" to create the listing.
+            This will open the full DataQ view. After reviewing, click "List This Authority" to create the listing.
           </p>
         </motion.div>
       </div>
@@ -567,7 +567,7 @@ export default function AdminCreateListingPage() {
   }
 
   // ============================================
-  // FORM VIEW (coming from CarrierPulse)
+  // FORM VIEW (coming from DataQ)
   // ============================================
   return (
     <div className="max-w-3xl mx-auto">

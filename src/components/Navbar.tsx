@@ -4,33 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import TalkToMariaModal from './TalkToMariaModal'
 import {
-  Search,
-  Activity,
-  ShieldCheck,
-  Bot,
-  Briefcase,
-  Database,
-  Cpu,
-  AlertTriangle,
-  Network,
-  Send,
-  GraduationCap,
-  BookOpen,
-  HelpCircle,
-  Users,
-  Handshake,
-  LineChart,
-  Wrench,
-  Mail,
-  ChevronDown,
-  Menu,
-  X,
-  LogOut,
-  LayoutDashboard,
-  UserSearch,
-  ArrowLeftRight,
-  Truck,
-  CreditCard,
+  Search, ShieldCheck, Network, Handshake, ChevronDown, Menu, X, LogOut, LayoutDashboard, UserSearch, ArrowLeftRight,
 } from 'lucide-react'
 import { DomileaMainLogo } from './ui/DomileaLogo'
 
@@ -45,49 +19,15 @@ interface MenuItem {
   action?: 'consult'
 }
 
-const solutionsByProduct: MenuItem[] = [
-  { name: 'Carrier Pulse', desc: 'Search 63M+ trucking data records to discover carriers and operating signals.', href: '/carrier-pulse-preview', icon: Search },
-  { name: 'Domilea Exclusives', desc: 'Selected opportunities reviewed directly by Domilea.', href: '/marketplace', icon: Briefcase },
-  { name: 'Deal Support', desc: 'Request Domilea to review, contact, and support an opportunity.', href: '/contact', icon: Handshake },
-]
-
-const solutionsByUseCase: MenuItem[] = [
-  { name: 'Buyers & Strategic Acquirers', desc: 'Find companies worth pursuing and start with confidence.', href: '/marketplace', icon: Briefcase },
-  { name: 'Investors', desc: 'Identify market trends and acquisition targets.', href: '/contact', icon: LineChart },
-  { name: 'Safety & Compliance', desc: 'SMS, compliance, and operational health in one place.', href: '/product/safety', icon: Wrench },
-  { name: 'Enterprise & API', desc: 'MorPro-powered intelligence APIs and trucking data infrastructure.', href: '/contact', icon: Network },
-  { name: 'Drivers', desc: 'Now hiring owner-operators only — our technology and strategy are built to help owner-operators succeed in every way.', href: '/drivers', icon: Truck },
-  { name: 'Driver Recruiting', desc: 'Hire qualified company drivers and owner-operators for your fleet.', href: '/product/recruiting', icon: Users },
-]
-
 const productItems: MenuItem[] = [
-  { name: 'Carrier Pulse', desc: 'Search 63M+ trucking data records to discover carriers and operating signals.', href: '/carrier-pulse-preview', icon: Search },
+  { name: 'DataQ', desc: 'Search 63M+ trucking data records to discover carriers and operating signals.', href: '/carrier-pulse-preview', icon: Search },
   { name: 'Lead Generator', desc: 'Prospect carriers in bulk — Buyer ($49/mo) and Broker ($499/mo) plans.', href: '/lead-generator', icon: UserSearch },
   { name: 'Safety & Compliance', desc: 'SMS, authority, insurance, filings, and FMCSA changes in one place.', href: '/product/safety', icon: ShieldCheck },
   { name: 'MorPro API', desc: 'MorPro-powered APIs behind Domilea’s intelligence stack.', href: '/contact', icon: Network },
   { name: 'Book Consultation', desc: 'Talk to a Domilea expert about buying, monitoring, or growing your carrier.', href: '/contact', icon: Handshake, action: 'consult' },
 ]
 
-const resourcesLearn: MenuItem[] = [
-  { name: 'How Domilea Works', href: '/contact', icon: BookOpen },
-  { name: 'Carrier Health Score Guide', href: '/contact', icon: Activity },
-  { name: 'SMS & Compliance Guide', href: '/contact', icon: ShieldCheck },
-  { name: 'Trucking Acquisition Education', href: '/contact', icon: GraduationCap },
-]
-
-const resourcesCompany: MenuItem[] = [
-  { name: 'About Domilea', href: '/contact' },
-  { name: 'Contact', href: '/contact' },
-  { name: 'Partners', href: '/contact' },
-]
-
-const resourcesSupport: MenuItem[] = [
-  { name: 'Help Center', href: '/contact', icon: HelpCircle },
-  { name: 'Request Support', href: '/contact', icon: Mail },
-  { name: 'Compliance Disclaimer', href: '/terms', icon: ShieldCheck },
-]
-
-type MenuKey = 'solutions' | 'product' | 'resources' | null
+type MenuKey = 'product' | null
 
 const Navbar = () => {
   const { user, logout, isAuthenticated, switchRole } = useAuth()
@@ -226,9 +166,8 @@ const Navbar = () => {
             <Link to="/marketplace" className="px-3 py-2 text-sm font-medium text-domilea-ink/80 hover:text-domilea-ink rounded-lg" onMouseEnter={() => setOpenMenu(null)}>Marketplace</Link>
             <Link to="/equipment" className="px-3 py-2 text-sm font-medium text-domilea-ink/80 hover:text-domilea-ink rounded-lg" onMouseEnter={() => setOpenMenu(null)}>Equipment</Link>
             <Link to="/parts" className="px-3 py-2 text-sm font-medium text-domilea-ink/80 hover:text-domilea-ink rounded-lg" onMouseEnter={() => setOpenMenu(null)}>Parts</Link>
+            <Link to="/carrier-pulse-preview" className="px-3 py-2 text-sm font-medium text-domilea-ink/80 hover:text-domilea-ink rounded-lg" onMouseEnter={() => setOpenMenu(null)}>DataQ</Link>
             <NavTrigger label="Product" isOpen={openMenu === 'product'} onEnter={() => openMenuWithDelay('product')} onLeave={scheduleClose} />
-            <NavTrigger label="Solutions" isOpen={openMenu === 'solutions'} onEnter={() => openMenuWithDelay('solutions')} onLeave={scheduleClose} />
-            <NavTrigger label="Resources" isOpen={openMenu === 'resources'} onEnter={() => openMenuWithDelay('resources')} onLeave={scheduleClose} />
             <Link to="/pricing" className="px-3 py-2 text-sm font-medium text-domilea-ink/80 hover:text-domilea-ink rounded-lg" onMouseEnter={() => setOpenMenu(null)}>Pricing</Link>
             <Link to="/contact" className="px-3 py-2 text-sm font-medium text-domilea-ink/80 hover:text-domilea-ink rounded-lg" onMouseEnter={() => setOpenMenu(null)}>Contact</Link>
           </div>
@@ -356,9 +295,7 @@ const Navbar = () => {
             onMouseLeave={scheduleClose}
           >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-              {openMenu === 'solutions' && <SolutionsMega onPick={() => setOpenMenu(null)} />}
               {openMenu === 'product' && <ProductMega onPick={() => setOpenMenu(null)} />}
-              {openMenu === 'resources' && <ResourcesMega onPick={() => setOpenMenu(null)} />}
             </div>
           </motion.div>
         )}
@@ -378,16 +315,9 @@ const Navbar = () => {
               <Link to="/marketplace" className="block px-3 py-2.5 text-sm font-medium text-domilea-ink" onClick={() => setMobileOpen(false)}>Marketplace</Link>
               <Link to="/equipment" className="block px-3 py-2.5 text-sm font-medium text-domilea-ink" onClick={() => setMobileOpen(false)}>Equipment</Link>
               <Link to="/parts" className="block px-3 py-2.5 text-sm font-medium text-domilea-ink" onClick={() => setMobileOpen(false)}>Parts</Link>
+              <Link to="/carrier-pulse-preview" className="block px-3 py-2.5 text-sm font-medium text-domilea-ink" onClick={() => setMobileOpen(false)}>DataQ</Link>
               <MobileSection label="Product" open={mobileSection === 'product'} onToggle={() => setMobileSection(s => (s === 'product' ? null : 'product'))}>
                 <MobileGroup items={productItems} onPick={() => setMobileOpen(false)} />
-              </MobileSection>
-              <MobileSection label="Solutions" open={mobileSection === 'solutions'} onToggle={() => setMobileSection(s => (s === 'solutions' ? null : 'solutions'))}>
-                <MobileGroup items={[...solutionsByProduct, ...solutionsByUseCase]} onPick={() => setMobileOpen(false)} />
-              </MobileSection>
-              <MobileSection label="Resources" open={mobileSection === 'resources'} onToggle={() => setMobileSection(s => (s === 'resources' ? null : 'resources'))}>
-                <MobileGroup title="Learn" items={resourcesLearn} onPick={() => setMobileOpen(false)} />
-                <MobileGroup title="Company" items={resourcesCompany} onPick={() => setMobileOpen(false)} />
-                <MobileGroup title="Support" items={resourcesSupport} onPick={() => setMobileOpen(false)} />
               </MobileSection>
               <Link to="/pricing" className="block px-3 py-2.5 text-sm font-medium text-domilea-ink" onClick={() => setMobileOpen(false)}>Pricing</Link>
               <Link to="/contact" className="block px-3 py-2.5 text-sm font-medium text-domilea-ink" onClick={() => setMobileOpen(false)}>Contact</Link>
@@ -422,68 +352,12 @@ function NavTrigger({ label, isOpen, onEnter, onLeave }: { label: string; isOpen
   )
 }
 
-function SolutionsMega({ onPick }: { onPick: () => void }) {
-  return (
-    <div>
-      <SectionLabel>Solutions</SectionLabel>
-      <div className="grid grid-cols-3 gap-2 mt-4">
-        {[...solutionsByProduct, ...solutionsByUseCase].map(item => (
-          <MegaCard key={item.name} item={item} onClick={onPick} />
-        ))}
-      </div>
-    </div>
-  )
-}
-
 function ProductMega({ onPick }: { onPick: () => void }) {
   return (
     <div>
       <SectionLabel>Domilea Platform</SectionLabel>
       <div className="grid grid-cols-3 gap-2 mt-4">
         {productItems.map(item => <MegaCard key={item.name} item={item} onClick={onPick} />)}
-      </div>
-    </div>
-  )
-}
-
-function ResourcesMega({ onPick }: { onPick: () => void }) {
-  return (
-    <div className="grid grid-cols-3 gap-8">
-      <div>
-        <SectionLabel>Learn</SectionLabel>
-        <ul className="mt-4 space-y-2">
-          {resourcesLearn.map(item => (
-            <li key={item.name}>
-              <Link to={item.href} onClick={onPick} className="text-sm text-domilea-ink/80 hover:text-domilea-ink flex items-center gap-2 py-1">
-                {item.icon && <item.icon className="w-4 h-4 text-domilea-muted" />}
-                {item.name}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div>
-        <SectionLabel>Company</SectionLabel>
-        <ul className="mt-4 space-y-2">
-          {resourcesCompany.map(item => (
-            <li key={item.name}>
-              <Link to={item.href} onClick={onPick} className="text-sm text-domilea-ink/80 hover:text-domilea-ink py-1 block">{item.name}</Link>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div>
-        <SectionLabel>Support</SectionLabel>
-        <ul className="mt-4 space-y-2">
-          {resourcesSupport.map(item => (
-            <li key={item.name}>
-              <Link to={item.href} onClick={onPick} className="text-sm text-domilea-ink/80 hover:text-domilea-ink flex items-center gap-2 py-1">
-                {item.icon && <item.icon className="w-4 h-4 text-domilea-muted" />}
-                {item.name}
-              </Link>
-            </li>
-          ))}
-        </ul>
       </div>
     </div>
   )

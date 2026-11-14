@@ -168,7 +168,7 @@ const ProductPage = () => {
             <h1 className="text-4xl lg:text-6xl font-bold mb-6 text-white">
               Carrier Search
               <span className="block bg-gradient-to-r from-indigo-400 via-cyan-400 to-indigo-400 bg-clip-text text-transparent">
-                Powered by CarrierPulse
+                Powered by DataQ
               </span>
             </h1>
 
@@ -267,7 +267,7 @@ const ProductPage = () => {
         )}
       </AnimatePresence>
 
-      {/* Why CarrierPulse — FMCSA Comparison + Features */}
+      {/* Why DataQ — FMCSA Comparison + Features */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -278,13 +278,13 @@ const ProductPage = () => {
           >
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 mb-4">
               <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-              <span className="text-xs font-semibold text-indigo-700 uppercase tracking-wider">Why CarrierPulse</span>
+              <span className="text-xs font-semibold text-indigo-700 uppercase tracking-wider">Why DataQ</span>
             </div>
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
               FMCSA Gives You Data. We Give You <span className="text-indigo-600">Answers.</span>
             </h2>
             <p className="text-lg text-gray-500 max-w-2xl mx-auto">
-              Stop spending hours piecing together carrier information from multiple FMCSA pages. CarrierPulse consolidates, analyzes, and scores everything in one search.
+              Stop spending hours piecing together carrier information from multiple FMCSA pages. DataQ consolidates, analyzes, and scores everything in one search.
             </p>
           </motion.div>
 
@@ -334,8 +334,8 @@ const ProductPage = () => {
             >
               <div className="rounded-2xl bg-white border border-gray-200 shadow-xl overflow-hidden sticky top-20">
                 <div className="px-6 py-5 bg-gradient-to-r from-[#0f172a] to-[#1e293b]">
-                  <h3 className="text-lg font-bold text-white">FMCSA Free Tools vs CarrierPulse</h3>
-                  <p className="text-sm text-gray-400 mt-1">What you get from FMCSA alone vs what CarrierPulse delivers</p>
+                  <h3 className="text-lg font-bold text-white">FMCSA Free Tools vs DataQ</h3>
+                  <p className="text-sm text-gray-400 mt-1">What you get from FMCSA alone vs what DataQ delivers</p>
                 </div>
 
                 <div className="divide-y divide-gray-100">
@@ -383,7 +383,7 @@ const ProductPage = () => {
                 <div className="px-5 py-5 bg-gradient-to-r from-indigo-50 to-indigo-100/50 border-t border-indigo-100">
                   <div className="flex items-center justify-between gap-4 flex-wrap">
                     <div>
-                      <p className="text-sm font-bold text-gray-900">CarrierPulse</p>
+                      <p className="text-sm font-bold text-gray-900">DataQ</p>
                       <p className="text-xs text-gray-500">Unlimited lookups + all tools — <span className="text-indigo-600 font-bold">$19.99/mo</span></p>
                     </div>
                     <Link to="/pricing">

@@ -55,7 +55,7 @@ export default function SafetyReportPreviewPage() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 rounded-full text-blue-700 text-sm font-semibold mb-6">
               <Zap className="w-4 h-4" />
-              Included in CarrierPulse
+              Included in DataQ
             </div>
             <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight mb-4">
               Safety Improvement Report
@@ -74,10 +74,10 @@ export default function SafetyReportPreviewPage() {
               className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-3.5 text-lg shadow-xl shadow-blue-500/25"
             >
               <Zap className="w-5 h-5 mr-2" />
-              {user ? 'Get CarrierPulse' : 'Get Started — Create Free Account'}
+              {user ? 'Get DataQ' : 'Get Started — Create Free Account'}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
-            <p className="text-sm text-gray-400 mt-4">Included in CarrierPulse. Cancel anytime.</p>
+            <p className="text-sm text-gray-400 mt-4">Included in DataQ. Cancel anytime.</p>
           </motion.div>
         </div>
       </div>
@@ -200,13 +200,13 @@ export default function SafetyReportPreviewPage() {
       {/* CTA */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-16">
         <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 text-center">
-          <h3 className="text-lg font-bold text-gray-900 mb-2">Included in CarrierPulse</h3>
-          <p className="text-gray-500 text-sm mb-6">CarrierPulse includes the full Safety Improvement Report, Chameleon Check, and BASIC score analysis.</p>
+          <h3 className="text-lg font-bold text-gray-900 mb-2">Included in DataQ</h3>
+          <p className="text-gray-500 text-sm mb-6">DataQ includes the full Safety Improvement Report, Chameleon Check, and BASIC score analysis.</p>
           <div className="flex flex-wrap justify-center gap-3 mb-6">
             {[
               'Safety Improvement Report',
               'Chameleon Check',
-              'Full CarrierPulse access',
+              'Full DataQ access',
               'BASIC score analysis',
               'Prioritized recommendations',
               'Cancel anytime',
@@ -218,7 +218,7 @@ export default function SafetyReportPreviewPage() {
             ))}
           </div>
           <Button onClick={handleGetStarted} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-3">
-            {user ? 'Get CarrierPulse' : 'Create Free Account'}
+            {user ? 'Get DataQ' : 'Create Free Account'}
             <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
         </div>

@@ -40,7 +40,7 @@ const CarrierPulseOnboardingModal = ({ isOpen, onClose }: CarrierPulseOnboarding
       if (response.success && response.data?.dotNumber) {
         // Save MC and DOT to the seller's account
         api.updateProfile({ mcNumber: cleaned, dotNumber: response.data.dotNumber }).catch(() => {})
-        // Navigate to full CarrierPulse page with the DOT number
+        // Navigate to full DataQ page with the DOT number
         localStorage.setItem('mcx_carrier_pulse_dismiss_count', '99')
         onClose()
         navigate(`/seller/carrier-pulse/${response.data.dotNumber}?fromOnboarding=true&mc=${cleaned}`)
@@ -89,7 +89,7 @@ const CarrierPulseOnboardingModal = ({ isOpen, onClose }: CarrierPulseOnboarding
                       <TrendingUp className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold text-gray-900">Carrier Pulse</h2>
+                      <h2 className="text-2xl font-bold text-gray-900">DataQ</h2>
                       <p className="text-sm text-gray-500">Look up your MC to see your company profile</p>
                     </div>
                   </div>

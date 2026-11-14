@@ -67,7 +67,7 @@ const SellerWelcomePage = () => {
           localStorage.setItem('mcx_carrier_pulse_dismiss_count', '99')
         }
 
-        // Navigate to full CarrierPulse page
+        // Navigate to full DataQ page
         navigate(`/seller/carrier-pulse/${carrier.dotNumber}?fromOnboarding=true&mc=${cleaned}`)
       } else {
         setError('No carrier found with that MC number. Please check and try again.')

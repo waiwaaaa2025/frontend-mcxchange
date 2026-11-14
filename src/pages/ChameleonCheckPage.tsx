@@ -56,7 +56,7 @@ export default function ChameleonCheckPage() {
   const [intelLoading, setIntelLoading] = useState(false)
   const [intelError, setIntelError] = useState<string | null>(null)
 
-  // Check access on mount — reuse CarrierPulse access (same subscription tier)
+  // Check access on mount — reuse DataQ access (same subscription tier)
   useEffect(() => {
     if (user?.role === 'admin' || user?.role === 'seller') {
       setHasAccess(true)
@@ -161,7 +161,7 @@ export default function ChameleonCheckPage() {
   const { requestConsent, modalProps } = usePaymentConsent()
 
   const handleCheckout = () => {
-    requestConsent('CarrierPulse', async (signature) => {
+    requestConsent('DataQ', async (signature) => {
       const res = await api.createCarrierPulseCheckout(signature)
       if (res.data?.url) {
         window.location.href = res.data.url
@@ -215,7 +215,7 @@ export default function ChameleonCheckPage() {
                   <span className="text-3xl font-black text-gray-900">$19.99</span>
                   <span className="text-gray-500 text-sm">/month</span>
                 </div>
-                <p className="text-xs text-gray-400 mt-1">Includes CarrierPulse access. Cancel anytime.</p>
+                <p className="text-xs text-gray-400 mt-1">Includes DataQ access. Cancel anytime.</p>
               </div>
 
               <div className="space-y-2 text-left mb-6">
@@ -225,7 +225,7 @@ export default function ChameleonCheckPage() {
                   'Revocation history & quick restart analysis',
                   'Shared equipment (VIN) cross-referencing',
                   'Detailed evidence & risk scoring',
-                  'Plus full CarrierPulse carrier intelligence',
+                  'Plus full DataQ carrier intelligence',
                 ].map((feature) => (
                   <div key={feature} className="flex items-center gap-2 text-sm">
                     <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />

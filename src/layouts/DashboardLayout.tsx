@@ -221,7 +221,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps = {}) => {
     const hasEnterpriseAccess =
       (planLower === 'enterprise' || planLower === 'vip_access') && isActive
 
-    // CarrierPulse is included with any active subscription
+    // DataQ is included with any active subscription
     const hasPulseAccess = isActive || hasStandaloneCarrierPulse
 
     // Lead Generator is its own product (separate from the admin Leads CRM).
@@ -273,8 +273,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps = {}) => {
             ? [{ icon: FileSearch, label: 'Credit Reports', path: '/buyer/creditsafe' }]
             : [{ icon: FileSearch, label: 'Credit Reports', path: '/buyer/credit-report', badge: '$35/report' as const }]),
           hasPulseAccess
-            ? { icon: Activity, label: 'CarrierPulse', path: '/buyer/carrier-pulse' }
-            : { icon: Activity, label: 'CarrierPulse', path: '/buyer/carrier-pulse', badge: 'New' as const },
+            ? { icon: Activity, label: 'DataQ', path: '/buyer/carrier-pulse' }
+            : { icon: Activity, label: 'DataQ', path: '/buyer/carrier-pulse', badge: 'New' as const },
           hasLeadGenAccess
             ? { icon: UserSearch, label: 'Lead Generator', path: '/buyer/lead-generator' }
             : { icon: UserSearch, label: 'Lead Generator', path: '/buyer/lead-generator', badge: 'New' as const },
@@ -317,7 +317,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps = {}) => {
             ]
           },
           { icon: Plus, label: 'Create Listing', path: '/admin/create-listing' },
-          { icon: Activity, label: 'CarrierPulse', path: '/admin/carrier-pulse' },
+          { icon: Activity, label: 'DataQ', path: '/admin/carrier-pulse' },
           // Sales Pipeline category
           {
             label: 'Sales Pipeline',

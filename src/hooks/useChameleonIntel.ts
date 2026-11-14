@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { api } from '../services/api'
 import type { ChameleonIntel } from '../types'
 
-// One request per DOT per page session — CarrierPulse shows the same intel on
+// One request per DOT per page session — DataQ shows the same intel on
 // both the Fleet and Chameleon tabs, and the check takes several seconds.
 const cache = new Map<string, Promise<ChameleonIntel>>()
 

@@ -405,9 +405,9 @@ const BuyerSubscriptionPage = () => {
     }
   }
 
-  // Purchase CarrierPulse add-on
+  // Purchase DataQ add-on
   const handleCarrierPulseCheckout = () => {
-    requestConsent('CarrierPulse', async (signature) => {
+    requestConsent('DataQ', async (signature) => {
       const response = await api.createCarrierPulseCheckout(signature)
       if (response.data?.url) {
         window.location.href = response.data.url
@@ -952,7 +952,7 @@ const BuyerSubscriptionPage = () => {
                   <Sparkles className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
                   <div className="text-sm">
                     <p className="font-semibold text-amber-700 mb-1">$399.99 one-time — credited toward your MC purchase</p>
-                    <p className="text-gray-600">VIP / Deal Access Pass is a one-time payment, not a subscription. Get unlimited unlocks until you purchase, CarrierPulse with 20 company credit reports/mo, admin full support, a 1-on-1 consultation, and AI+ Reports. Your $399.99 is credited toward the final MC purchase price.</p>
+                    <p className="text-gray-600">VIP / Deal Access Pass is a one-time payment, not a subscription. Get unlimited unlocks until you purchase, DataQ with 20 company credit reports/mo, admin full support, a 1-on-1 consultation, and AI+ Reports. Your $399.99 is credited toward the final MC purchase price.</p>
                   </div>
                 </div>
               )}
@@ -988,11 +988,11 @@ const BuyerSubscriptionPage = () => {
           )
         })()}
 
-        {/* CarrierPulse Add-On */}
+        {/* DataQ Add-On */}
         {(() => {
           const planLower = subscription?.plan?.toLowerCase()
           const hasHigherPlan = planLower === 'package_tool' || planLower === 'professional' || planLower === 'premium' || planLower === 'enterprise' || planLower === 'vip_access'
-          // Show add-on card if: user doesn't have CarrierPulse AND doesn't have a plan that includes it
+          // Show add-on card if: user doesn't have DataQ AND doesn't have a plan that includes it
           if (!carrierPulseAccess && !hasHigherPlan) {
             return (
               <motion.div
@@ -1005,7 +1005,7 @@ const BuyerSubscriptionPage = () => {
                     <Zap className="w-4 h-4 text-indigo-600" />
                     <span className="text-sm font-medium text-indigo-700">Add-On</span>
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">CarrierPulse</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">DataQ</h2>
                   <p className="text-gray-600">Instant carrier intelligence — look up any carrier by DOT number</p>
                 </div>
 
@@ -1017,7 +1017,7 @@ const BuyerSubscriptionPage = () => {
                         <Zap className="w-7 h-7 text-white" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-lg font-bold text-gray-900">CarrierPulse</h3>
+                        <h3 className="text-lg font-bold text-gray-900">DataQ</h3>
                         <p className="text-sm text-gray-500 mt-1 mb-3">
                           Full safety reports, authority history, insurance, fleet data & more for any DOT number.
                         </p>
@@ -1040,7 +1040,7 @@ const BuyerSubscriptionPage = () => {
                             className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
                           >
                             <Zap className="w-4 h-4 mr-1.5" />
-                            Add CarrierPulse
+                            Add DataQ
                           </Button>
                         </div>
                       </div>
@@ -1050,7 +1050,7 @@ const BuyerSubscriptionPage = () => {
 
                 {!subscription && (
                   <p className="text-center text-xs text-gray-400 mt-3">
-                    Or upgrade to <span className="font-medium text-indigo-600">Professional</span> or higher to get CarrierPulse included
+                    Or upgrade to <span className="font-medium text-indigo-600">Professional</span> or higher to get DataQ included
                   </p>
                 )}
               </motion.div>
@@ -1074,7 +1074,7 @@ const BuyerSubscriptionPage = () => {
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <h3 className="text-base font-bold text-gray-900">CarrierPulse</h3>
+                          <h3 className="text-base font-bold text-gray-900">DataQ</h3>
                           <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                             <CheckCircle className="w-3 h-3" />
                             Included
@@ -1113,7 +1113,7 @@ const BuyerSubscriptionPage = () => {
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <h3 className="text-base font-bold text-gray-900">CarrierPulse</h3>
+                          <h3 className="text-base font-bold text-gray-900">DataQ</h3>
                           <span className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200">
                             <CheckCircle className="w-3 h-3" />
                             Active
