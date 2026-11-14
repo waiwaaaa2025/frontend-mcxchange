@@ -99,7 +99,7 @@ export default function PricingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Hero */}
-      <div className="text-center pt-16 sm:pt-20 pb-12 px-4">
+      <div className="text-center pt-16 sm:pt-20 pb-10 px-4">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900 mb-4">
             Simple, transparent pricing
@@ -135,8 +135,60 @@ export default function PricingPage() {
           </motion.div>
         </motion.div>
 
+      </div>
+
+      {/* DataQ subscription — featured first */}
+      <div className="max-w-5xl mx-auto px-4 pb-10">
+        <div className="relative overflow-hidden rounded-2xl border-2 border-indigo-300 bg-white shadow-lg shadow-indigo-500/10">
+          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-center py-1.5 text-xs font-bold uppercase tracking-wider">
+            Best Value
+          </div>
+          <div className="p-6 sm:p-8 grid gap-6 md:grid-cols-[1fr_auto] md:items-center">
+            <div>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg flex-shrink-0">
+                  <Activity className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">DataQ</h2>
+                  <p className="text-sm text-gray-500">CarrierPulse + DataQs challenges</p>
+                </div>
+              </div>
+              <p className="text-sm text-gray-600 mb-4">
+                Instant carrier intelligence — BASIC scores, inspections, crashes, violations, insurance, fleet data, plus Chameleon Check, the full Safety Improvement Report, and a step-by-step guide to challenge violations with FMCSA DataQs.
+              </p>
+              <ul className="grid sm:grid-cols-2 gap-2">
+                {[
+                  'BASIC scores, inspections & crashes',
+                  'Chameleon Check — carrier identity search',
+                  'Safety Improvement Report (A+ to D)',
+                  'DataQs violation challenge guide + letter',
+                ].map((f) => (
+                  <li key={f} className="flex items-center gap-2 text-sm">
+                    <Check className="w-4 h-4 text-indigo-500 flex-shrink-0" />
+                    <span className="text-gray-700">{f}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="md:w-56 md:text-center md:border-l md:border-gray-100 md:pl-6">
+              <div className="flex items-baseline gap-1 mb-1 md:justify-center">
+                <span className="text-3xl font-black text-gray-900">$19.99</span>
+                <span className="text-gray-500">/month</span>
+              </div>
+              <p className="text-xs text-emerald-600 font-medium mb-4">Included with Starter, Premium, Enterprise & VIP / Deal Access Pass</p>
+              <button onClick={() => handleGetStarted()} className="w-full py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold hover:from-indigo-600 hover:to-purple-700 transition-colors shadow-lg shadow-indigo-500/25">
+                Get DataQ
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Pricing Cards */}
+      <div className="max-w-7xl mx-auto px-4 pb-16">
         {/* Billing Toggle */}
-        <div className="flex justify-center mt-8">
+        <div className="flex justify-center mb-8">
           <div className="bg-white rounded-xl p-1 flex items-center gap-1 border border-gray-200 shadow-sm">
             <button
               onClick={() => setBillingCycle('monthly')}
@@ -157,10 +209,6 @@ export default function PricingPage() {
             </button>
           </div>
         </div>
-      </div>
-
-      {/* Pricing Cards */}
-      <div className="max-w-7xl mx-auto px-4 pb-16">
         <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
           {plans.map((plan, index) => {
             const Icon = plan.icon
@@ -273,52 +321,7 @@ export default function PricingPage() {
           <h2 className="text-2xl font-bold text-gray-900">Add-Ons</h2>
           <p className="text-gray-500 mt-2">Enhance your experience with powerful tools.</p>
         </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* CarrierPulse */}
-          <div className="bg-white rounded-2xl border-2 border-indigo-300 p-6 hover:shadow-lg transition-shadow relative overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-center py-1.5 text-xs font-bold uppercase tracking-wider">
-              Best Value
-            </div>
-            <div className="flex items-center gap-3 mb-4 mt-6">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
-                <Activity className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-gray-900">DataQ</h3>
-                <p className="text-sm text-gray-500">CarrierPulse + DataQs challenges</p>
-              </div>
-            </div>
-            <p className="text-sm text-gray-600 mb-3">
-              Instant carrier intelligence — BASIC scores, inspections, crashes, violations, insurance, fleet data, plus Chameleon Check and the full Safety Improvement Report.
-            </p>
-            <ul className="space-y-2 mb-4">
-              <li className="flex items-center gap-2 text-sm">
-                <Check className="w-4 h-4 text-indigo-500 flex-shrink-0" />
-                <span className="text-gray-700">BASIC scores, inspections & crashes</span>
-              </li>
-              <li className="flex items-center gap-2 text-sm">
-                <Check className="w-4 h-4 text-indigo-500 flex-shrink-0" />
-                <span className="text-gray-700">Chameleon Check — carrier identity search</span>
-              </li>
-              <li className="flex items-center gap-2 text-sm">
-                <Check className="w-4 h-4 text-indigo-500 flex-shrink-0" />
-                <span className="text-gray-700">Safety Improvement Report (A+ to D)</span>
-              </li>
-              <li className="flex items-center gap-2 text-sm">
-                <Check className="w-4 h-4 text-indigo-500 flex-shrink-0" />
-                <span className="text-gray-700">DataQs violation challenge guide</span>
-              </li>
-            </ul>
-            <div className="flex items-baseline gap-1 mb-1">
-              <span className="text-2xl font-bold text-gray-900">$19.99</span>
-              <span className="text-gray-500">/month</span>
-            </div>
-            <p className="text-xs text-emerald-600 font-medium mb-4">Included free with Professional, Premium & VIP / Deal Access Pass</p>
-            <button onClick={() => handleGetStarted()} className="w-full py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold hover:from-indigo-600 hover:to-purple-700 transition-colors shadow-lg shadow-indigo-500/25">
-              Get DataQ
-            </button>
-          </div>
-
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg transition-shadow">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg">
