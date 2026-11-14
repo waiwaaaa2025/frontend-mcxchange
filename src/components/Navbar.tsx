@@ -165,7 +165,6 @@ const Navbar = () => {
           <div className="hidden lg:flex items-center gap-1">
             <Link to="/marketplace" className="px-3 py-2 text-sm font-medium text-domilea-ink/80 hover:text-domilea-ink rounded-lg" onMouseEnter={() => setOpenMenu(null)}>Marketplace</Link>
             <Link to="/equipment" className="px-3 py-2 text-sm font-medium text-domilea-ink/80 hover:text-domilea-ink rounded-lg" onMouseEnter={() => setOpenMenu(null)}>Equipment</Link>
-            <Link to="/parts" className="px-3 py-2 text-sm font-medium text-domilea-ink/80 hover:text-domilea-ink rounded-lg" onMouseEnter={() => setOpenMenu(null)}>Parts</Link>
             <Link to="/carrier-pulse-preview" className="px-3 py-2 text-sm font-medium text-domilea-ink/80 hover:text-domilea-ink rounded-lg" onMouseEnter={() => setOpenMenu(null)}>DataQ</Link>
             <NavTrigger label="Product" isOpen={openMenu === 'product'} onEnter={() => openMenuWithDelay('product')} onLeave={scheduleClose} />
             <Link to="/pricing" className="px-3 py-2 text-sm font-medium text-domilea-ink/80 hover:text-domilea-ink rounded-lg" onMouseEnter={() => setOpenMenu(null)}>Pricing</Link>
@@ -314,7 +313,6 @@ const Navbar = () => {
             <div className="px-4 py-4 space-y-1 max-h-[calc(100vh-4rem)] overflow-y-auto">
               <Link to="/marketplace" className="block px-3 py-2.5 text-sm font-medium text-domilea-ink" onClick={() => setMobileOpen(false)}>Marketplace</Link>
               <Link to="/equipment" className="block px-3 py-2.5 text-sm font-medium text-domilea-ink" onClick={() => setMobileOpen(false)}>Equipment</Link>
-              <Link to="/parts" className="block px-3 py-2.5 text-sm font-medium text-domilea-ink" onClick={() => setMobileOpen(false)}>Parts</Link>
               <Link to="/carrier-pulse-preview" className="block px-3 py-2.5 text-sm font-medium text-domilea-ink" onClick={() => setMobileOpen(false)}>DataQ</Link>
               <MobileSection label="Product" open={mobileSection === 'product'} onToggle={() => setMobileSection(s => (s === 'product' ? null : 'product'))}>
                 <MobileGroup items={productItems} onPick={() => setMobileOpen(false)} />
