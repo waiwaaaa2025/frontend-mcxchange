@@ -3093,7 +3093,7 @@ class ApiService {
    * Get available subscription plans (public endpoint)
    */
   async getSubscriptionPlans() {
-    return this.request<{
+    type PlansResponse = {
       success: boolean;
       data: Array<{
         id: string;
@@ -3107,7 +3107,21 @@ class ApiService {
         stripePriceIdYearly: string;
         features: string[];
       }>;
-    }>('/credits/plans');
+    };
+    // The Pricing and Subscription pages render nothing for plans without this
+    // feed, so ride out a backend restart instead of showing an empty grid.
+    let lastErr: unknown
+    for (let attempt = 0; attempt < 4; attempt++) {
+      try {
+        const res = await this.request<PlansResponse>('/credits/plans')
+        if (res?.data?.length) return res
+      } catch (err) {
+        lastErr = err
+      }
+      await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)))
+    }
+    if (lastErr) throw lastErr
+    return { success: false, data: [] } as PlansResponse
   }
 
   /**

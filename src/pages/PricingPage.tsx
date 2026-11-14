@@ -54,11 +54,14 @@ export default function PricingPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    Promise.all([
+    // Settled separately: a failed credit-pack call must not hide the plans.
+    Promise.allSettled([
       api.getSubscriptionPlans(),
       api.getCreditPacks(),
-    ]).then(([plansRes, packsRes]) => {
-      if (plansRes.data?.length) {
+    ]).then(([plansResult, packsResult]) => {
+      const plansRes = plansResult.status === 'fulfilled' ? plansResult.value : null
+      const packsRes = packsResult.status === 'fulfilled' ? packsResult.value : null
+      if (plansRes?.data?.length) {
         const offered = ['starter', 'premium', 'enterprise', 'vip_access']
         setPlans(plansRes.data
           .filter(plan => offered.includes(plan.id.toLowerCase()))
@@ -67,7 +70,7 @@ export default function PricingPage() {
             return { ...plan, ...(planStyles[key] || planStyles.starter), id: key }
           }))
       }
-      if (packsRes.data) setCreditPacks(packsRes.data.filter(p => p.credits !== 5))
+      if (packsRes?.data) setCreditPacks(packsRes.data.filter(p => p.credits !== 5))
     }).finally(() => setLoading(false))
   }, [])
 

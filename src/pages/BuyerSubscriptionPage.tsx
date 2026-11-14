@@ -145,12 +145,15 @@ const BuyerSubscriptionPage = () => {
     const fetchPricingData = async () => {
       try {
         setPlansLoading(true)
-        const [plansResponse, packsResponse] = await Promise.all([
+        // Settled separately: a failed credit-pack call must not hide the plans.
+        const [plansResult, packsResult] = await Promise.allSettled([
           api.getSubscriptionPlans(),  // Public endpoint: /credits/plans
           api.getCreditPacks(),         // Public endpoint: /credits/packs
         ])
+        const plansResponse = plansResult.status === 'fulfilled' ? plansResult.value : null
+        const packsResponse = packsResult.status === 'fulfilled' ? packsResult.value : null
 
-        if (plansResponse.data && plansResponse.data.length > 0) {
+        if (plansResponse?.data && plansResponse.data.length > 0) {
           // Transform API plans array into display plans
           // API returns id as 'STARTER', 'PREMIUM', 'ENTERPRISE' (uppercase)
           const displayPlans: DisplayPlan[] = plansResponse.data.map(plan => {
@@ -171,7 +174,7 @@ const BuyerSubscriptionPage = () => {
           setPlans(displayPlans)
         }
 
-        if (packsResponse.data) {
+        if (packsResponse?.data) {
           setCreditPacks(packsResponse.data)
         }
       } catch (err) {
