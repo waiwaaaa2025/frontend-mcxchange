@@ -125,7 +125,7 @@ const LoginPage = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Sign in as <span className="text-gray-400 font-normal">(optional)</span>
+                Are you a buyer or a seller? <span className="text-gray-400 font-normal">(optional)</span>
               </label>
               <div className="relative" ref={roleMenuRef}>
                 <button

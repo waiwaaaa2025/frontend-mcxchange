@@ -204,7 +204,7 @@ const RegisterPage = () => {
             )}
 
             <Select
-              label="I want to"
+              label="Are you a buyer or a seller?"
               value={role}
               onChange={(e) => {
                 setRole(e.target.value as UserRole)
@@ -212,9 +212,9 @@ const RegisterPage = () => {
                 setTermsAccepted(false)
               }}
               options={[
-                { value: 'buyer', label: 'Buy a trucking business' },
-                { value: 'seller', label: 'Sell my trucking business' },
-                { value: 'compliance_manager', label: 'Manage compliance for one or more carriers' },
+                { value: 'buyer', label: 'Buyer' },
+                { value: 'seller', label: 'Seller' },
+                { value: 'compliance_manager', label: 'Compliance' },
               ]}
             />
 
