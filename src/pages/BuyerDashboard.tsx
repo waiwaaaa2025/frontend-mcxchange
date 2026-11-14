@@ -58,7 +58,7 @@ const GUIDE_STEPS = [
   {
     icon: '🪪',
     title: 'Verify When You Buy',
-    desc: 'You only verify your identity when you buy a business. Once a seller accepts your offer, you\'ll verify with a government-issued ID through Stripe Identity (about 2 minutes) before paying the deposit. Browsing, unlocking listings, making offers, messaging, and our tools (DataQ, Chameleon Check, etc.) never require verification.',
+    desc: 'You only verify your identity when you buy a business. Once a seller accepts your offer, you\'ll verify with a government-issued ID through Stripe Identity (about 2 minutes) before paying the deposit. Browsing, unlocking listings, making offers, messaging, and our tools (Carrier Pulse, Chameleon Check, etc.) never require verification.',
   },
   {
     icon: '📊',

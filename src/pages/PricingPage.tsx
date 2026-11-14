@@ -271,7 +271,7 @@ export default function PricingPage() {
           <p className="text-gray-500 mt-2">Enhance your experience with powerful tools.</p>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* DataQ */}
+          {/* CarrierPulse */}
           <div className="bg-white rounded-2xl border-2 border-indigo-300 p-6 hover:shadow-lg transition-shadow relative overflow-hidden">
             <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-center py-1.5 text-xs font-bold uppercase tracking-wider">
               Best Value
@@ -282,7 +282,7 @@ export default function PricingPage() {
               </div>
               <div>
                 <h3 className="text-lg font-bold text-gray-900">DataQ</h3>
-                <p className="text-sm text-gray-500">All-in-one carrier intelligence</p>
+                <p className="text-sm text-gray-500">CarrierPulse + DataQs challenges</p>
               </div>
             </div>
             <p className="text-sm text-gray-600 mb-3">
@@ -387,8 +387,8 @@ export default function PricingPage() {
             { q: 'What are credits used for?', a: 'Credits are used to unlock full listing details. Each listing unlock costs 1 credit. Credit reports are included with Premium and VIP / Deal Access Pass; otherwise $35 per report.' },
             { q: 'Do unused credits roll over?', a: 'No, credits reset each billing period. You start fresh with your plan\'s credit allocation each month.' },
             { q: 'Can I upgrade or downgrade my plan?', a: 'Yes, you can change your plan at any time. Contact support and we\'ll help you switch plans.' },
-            { q: 'What is DataQ?', a: 'DataQ is our carrier intelligence tool. Look up any carrier by DOT or MC number and get instant safety scores, inspection history, insurance details, and more.' },
-            { q: 'What\'s included in the VIP / Deal Access Pass?', a: 'A one-time $399.99 pass (not a subscription) — unlimited listing unlocks until you purchase, DataQ with 20 company credit reports per month, $399.99 credited toward your final MC purchase, admin full support, a 1-on-1 consultation, and AI+ Reports.' },
+            { q: 'What is CarrierPulse?', a: 'CarrierPulse is our carrier intelligence tool. Look up any carrier by DOT or MC number and get instant safety scores, inspection history, insurance details, and more.' },
+            { q: 'What\'s included in the VIP / Deal Access Pass?', a: 'A one-time $399.99 pass (not a subscription) — unlimited listing unlocks until you purchase, CarrierPulse with 20 company credit reports per month, $399.99 credited toward your final MC purchase, admin full support, a 1-on-1 consultation, and AI+ Reports.' },
           ].map((faq, i) => (
             <div key={i} className="bg-white rounded-xl border border-gray-200 p-5">
               <h3 className="font-semibold text-gray-900 mb-2">{faq.q}</h3>

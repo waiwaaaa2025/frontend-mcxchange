@@ -128,7 +128,7 @@ const LeadGeneratorLandingPage = lazy(() => import('./pages/LeadGeneratorLanding
 const LeadGeneratorToolPage = lazy(() => import('./pages/LeadGeneratorToolPage'))
 const AdminLeadGeneratorSavesPage = lazy(() => import('./pages/AdminLeadGeneratorSavesPage'))
 
-// DataQ
+// CarrierPulse
 const CarrierPulsePage = lazy(() => import('./pages/CarrierPulsePage'))
 
 // Pending Insurance Leads

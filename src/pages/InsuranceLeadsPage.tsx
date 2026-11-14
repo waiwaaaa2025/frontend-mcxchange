@@ -105,7 +105,7 @@ export default function InsuranceLeadsPage({ previewMode = false }: { previewMod
   const [outreachSubmitting, setOutreachSubmitting] = useState(false)
   const [outreachDone, setOutreachDone] = useState<Set<string>>(new Set())
 
-  // carrier-pulse detail base path is role-aware (DataQ itself is unchanged)
+  // carrier-pulse detail base path is role-aware (Carrier Pulse itself is unchanged)
   const pulseBase = previewMode
     ? '/carrier-pulse-preview'
     : user?.role === 'seller'

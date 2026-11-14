@@ -37,7 +37,7 @@ export default function SellerCreateListingPage() {
   const [searchParams] = useSearchParams()
   const { user } = useAuth()
 
-  // Check if coming back from DataQ
+  // Check if coming back from CarrierPulse
   const fromPulse = searchParams.get('fromPulse') === 'true'
   const pulseMC = searchParams.get('mc') || ''
   const pulseDOT = searchParams.get('dot') || ''
@@ -97,7 +97,7 @@ export default function SellerCreateListingPage() {
   const [draftNotice, setDraftNotice] = useState('')
   const [photoNotice, setPhotoNotice] = useState('')
 
-  // Auto-fetch carrier data from MorPro when coming from DataQ
+  // Auto-fetch carrier data from MorPro when coming from CarrierPulse
   useEffect(() => {
     if (fromPulse && pulseDOT && !carrierData) {
       fetchCarrierData(pulseDOT)
@@ -169,7 +169,7 @@ export default function SellerCreateListingPage() {
     }
   }
 
-  // DOT search → navigate to DataQ
+  // DOT search → navigate to CarrierPulse
   const handleDOTSearch = async () => {
     const cleaned = mcInput.replace(/\D/g, '')
     if (!cleaned) {
@@ -418,7 +418,7 @@ export default function SellerCreateListingPage() {
           <p className="mt-6 text-xs text-gray-400">
             {searchMode === 'dot' ? (
               <>
-                This will open the full DataQ view. After reviewing, click "List This Authority" to create the listing.
+                This will open the full CarrierPulse view. After reviewing, click "List This Authority" to create the listing.
                 Your DOT number can be found on your FMCSA registration or at <a href="https://safer.fmcsa.dot.gov" target="_blank" rel="noopener noreferrer" className="text-indigo-500 hover:underline">SAFER</a>.
               </>
             ) : (
@@ -513,7 +513,7 @@ export default function SellerCreateListingPage() {
   }
 
   // ============================================
-  // FORM VIEW (coming from DataQ)
+  // FORM VIEW (coming from CarrierPulse)
   // ============================================
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-0">

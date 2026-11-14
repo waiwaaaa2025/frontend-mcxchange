@@ -56,7 +56,7 @@ export default function ChameleonCheckPage() {
   const [intelLoading, setIntelLoading] = useState(false)
   const [intelError, setIntelError] = useState<string | null>(null)
 
-  // Check access on mount — reuse DataQ access (same subscription tier)
+  // Check access on mount — reuse CarrierPulse access (same subscription tier)
   useEffect(() => {
     if (user?.role === 'admin' || user?.role === 'seller') {
       setHasAccess(true)
@@ -161,7 +161,7 @@ export default function ChameleonCheckPage() {
   const { requestConsent, modalProps } = usePaymentConsent()
 
   const handleCheckout = () => {
-    requestConsent('DataQ', async (signature) => {
+    requestConsent('CarrierPulse', async (signature) => {
       const res = await api.createCarrierPulseCheckout(signature)
       if (res.data?.url) {
         window.location.href = res.data.url
@@ -207,7 +207,7 @@ export default function ChameleonCheckPage() {
                 {isStarter ? 'Add Chameleon Check to your plan' : 'Get Chameleon Check access'}
               </h2>
               <p className="text-sm text-gray-500 mb-6">
-                Search any carrier by DOT number and instantly detect chameleon carrier risk — shared EINs, officers, addresses, VINs, and revocation patterns.
+                Search any carrier by DOT number and instantly detect chameleon carrier risk — shared EINs, officers, addresses, VINs, and revocation patterns. Included in the DataQ plan with CarrierPulse and DataQs challenges.
               </p>
 
               <div className="bg-gray-50 rounded-xl p-4 mb-6">
@@ -215,7 +215,7 @@ export default function ChameleonCheckPage() {
                   <span className="text-3xl font-black text-gray-900">$19.99</span>
                   <span className="text-gray-500 text-sm">/month</span>
                 </div>
-                <p className="text-xs text-gray-400 mt-1">Includes DataQ access. Cancel anytime.</p>
+                <p className="text-xs text-gray-400 mt-1">Includes CarrierPulse access. Cancel anytime.</p>
               </div>
 
               <div className="space-y-2 text-left mb-6">
@@ -225,7 +225,7 @@ export default function ChameleonCheckPage() {
                   'Revocation history & quick restart analysis',
                   'Shared equipment (VIN) cross-referencing',
                   'Detailed evidence & risk scoring',
-                  'Plus full DataQ carrier intelligence',
+                  'Plus full CarrierPulse carrier intelligence',
                 ].map((feature) => (
                   <div key={feature} className="flex items-center gap-2 text-sm">
                     <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
@@ -236,7 +236,7 @@ export default function ChameleonCheckPage() {
 
               <Button fullWidth size="lg" onClick={handleCheckout} loading={checkoutLoading}>
                 <ShieldAlert className="w-5 h-5 mr-2" />
-                {isStarter ? 'Add Chameleon Check — $19.99/mo' : 'Get Chameleon Check — $19.99/mo'}
+                {isStarter ? 'Add DataQ — $19.99/mo' : 'Get DataQ — $19.99/mo'}
               </Button>
 
               {!currentPlan && (

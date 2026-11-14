@@ -226,8 +226,8 @@ export default function LeadGeneratorToolPage() {
 
   const isBroker = tier === 'BROKER' || tier === 'ADMIN'
 
-  // Open a carrier's DataQ report (credit + risk intelligence) the same
-  // way admins can — the DataQ page already accepts a DOT. Each role has
+  // Open a carrier's CarrierPulse report (credit + risk intelligence) the same
+  // way admins can — the CarrierPulse page already accepts a DOT. Each role has
   // its own dashboard route; compliance/unknown roles fall back to the public
   // preview so the link never 404s.
   const carrierPulsePath = (dot: string) => {
@@ -720,7 +720,7 @@ export default function LeadGeneratorToolPage() {
                   <Link
                     to={carrierPulsePath(r.dotNumber)}
                     className="text-cyan-600 underline-offset-2 hover:text-cyan-800 hover:underline"
-                    title="Open DataQ details"
+                    title="Open CarrierPulse details"
                   >
                     {r.dotNumber}
                   </Link>

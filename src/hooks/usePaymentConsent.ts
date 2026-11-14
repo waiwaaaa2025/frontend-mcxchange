@@ -6,7 +6,7 @@ import { useRef, useState } from 'react'
  * Usage:
  *   const { requestConsent, modalProps, consentError } = usePaymentConsent()
  *   // on buy click (after your own auth check):
- *   requestConsent('DataQ', async (signature) => {
+ *   requestConsent('CarrierPulse', async (signature) => {
  *     const res = await api.createCarrierPulseCheckout(signature)
  *     if (res.data?.url) window.location.href = res.data.url
  *     else throw new Error('No checkout URL received')

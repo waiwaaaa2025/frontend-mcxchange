@@ -3930,7 +3930,7 @@ class ApiService {
     });
   }
 
-  // ===== DataQ Creditsafe =====
+  // ===== CarrierPulse Creditsafe =====
 
   async carrierPulseCreditsafeSearch(params: { name: string; state?: string }) {
     const searchParams = new URLSearchParams();

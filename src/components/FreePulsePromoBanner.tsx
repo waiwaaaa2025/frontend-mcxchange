@@ -41,14 +41,14 @@ const FreePulsePromoBanner = () => {
       <div className="max-w-7xl mx-auto px-10 py-2.5 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm text-center">
         <span className="flex items-center gap-1.5 font-semibold">
           <Activity className="w-4 h-4 shrink-0" />
-          DataQ is FREE until Oct 13
+          CarrierPulse is FREE until Oct 13
         </span>
         <span className="text-indigo-100 hidden sm:inline">Full carrier checks for every signed-in account. No card needed.</span>
         <Link
           to={to}
           className="font-semibold underline underline-offset-2 hover:text-indigo-100 whitespace-nowrap"
         >
-          {user ? 'Open DataQ →' : 'Sign up free →'}
+          {user ? 'Open CarrierPulse →' : 'Sign up free →'}
         </Link>
       </div>
       <button

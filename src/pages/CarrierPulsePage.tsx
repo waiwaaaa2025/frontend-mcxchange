@@ -2445,7 +2445,7 @@ export default function CarrierPulsePage({ previewMode = false }: { previewMode?
   useEffect(() => {
     // Preview mode (public /carrier-pulse-preview, where the home page search and
     // navbar land). Logged-out visitors get the free preview. A logged-in user who
-    // already has DataQ is sent to the full report on their own dashboard
+    // already has Carrier Pulse is sent to the full report on their own dashboard
     // route for the same DOT instead of seeing locked tabs and "View Plans".
     if (previewMode) {
       // Wait for the session to load so a subscriber never flashes the preview.
@@ -2519,7 +2519,7 @@ export default function CarrierPulsePage({ previewMode = false }: { previewMode?
   const { requestConsent, modalProps: consentModalProps } = usePaymentConsent()
 
   const handleCarrierPulseCheckout = () => {
-    requestConsent('DataQ', async (signature) => {
+    requestConsent('CarrierPulse', async (signature) => {
       const res = await api.createCarrierPulseCheckout(signature)
       if (res.data?.url) {
         window.location.href = res.data.url
@@ -2724,21 +2724,21 @@ export default function CarrierPulsePage({ previewMode = false }: { previewMode?
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/25">
             <Zap className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-black text-gray-900 tracking-tight">DataQ</h1>
+          <h1 className="text-3xl font-black text-gray-900 tracking-tight">CarrierPulse</h1>
           <p className="text-gray-500 mt-2 mb-8">Instant carrier intelligence by DOT number</p>
 
           <Card padding="lg">
             <div className="text-center">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-sm font-semibold mb-4">
                 <Zap className="w-4 h-4" />
-                {isStarter ? 'Add to Your Plan' : 'Unlock DataQ'}
+                {isStarter ? 'Add to Your Plan' : 'DataQ Plan'}
               </div>
 
               <h2 className="text-xl font-bold text-gray-900 mb-2">
-                {isStarter ? 'Add DataQ to your Starter plan' : 'Get DataQ access'}
+                {isStarter ? 'Add DataQ to your Starter plan' : 'Get the DataQ plan'}
               </h2>
               <p className="text-sm text-gray-500 mb-6">
-                Look up any carrier by DOT number. Get safety scores, authority history, insurance status, fleet details, and more — instantly.
+                DataQ includes full CarrierPulse access plus DataQs challenges. Look up any carrier by DOT number — safety scores, authority history, insurance, fleet details — and challenge bad violations with FMCSA DataQs.
               </p>
 
               <div className="bg-gray-50 rounded-xl p-4 mb-6">
@@ -2772,7 +2772,7 @@ export default function CarrierPulsePage({ previewMode = false }: { previewMode?
 
               {!currentPlan && (
                 <p className="text-xs text-gray-400 mt-4">
-                  Or <Link to="/buyer/subscription" className="text-indigo-600 hover:text-indigo-700 font-medium">upgrade to Professional</Link> to get DataQ included
+                  Or <Link to="/buyer/subscription" className="text-indigo-600 hover:text-indigo-700 font-medium">upgrade to Professional</Link> to get CarrierPulse included
                 </p>
               )}
             </div>
@@ -2820,7 +2820,7 @@ export default function CarrierPulsePage({ previewMode = false }: { previewMode?
           >
             <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
             <div>
-              <p className="text-sm font-semibold text-emerald-800">DataQ activated!</p>
+              <p className="text-sm font-semibold text-emerald-800">CarrierPulse activated!</p>
               <p className="text-xs text-emerald-600">You now have unlimited carrier lookups. Start searching below.</p>
             </div>
           </motion.div>
@@ -2832,9 +2832,9 @@ export default function CarrierPulsePage({ previewMode = false }: { previewMode?
             <Activity className="w-3.5 h-3.5 text-indigo-600" />
             <span className="text-xs font-semibold text-indigo-700 uppercase tracking-wider">Carrier Intelligence Platform</span>
           </div>
-          <h1 className="text-4xl font-black text-gray-900 tracking-tight mb-3">DataQ</h1>
+          <h1 className="text-4xl font-black text-gray-900 tracking-tight mb-3">CarrierPulse</h1>
           <p className="text-gray-500 max-w-xl mx-auto">
-            FMCSA gives you raw data. DataQ tells you what it means — health scores, risk detection, safety grades, and actionable recommendations.
+            FMCSA gives you raw data. CarrierPulse tells you what it means — health scores, risk detection, safety grades, and actionable recommendations.
           </p>
         </motion.div>
 
@@ -2920,11 +2920,11 @@ export default function CarrierPulsePage({ previewMode = false }: { previewMode?
               </div>
             )}
 
-            {/* What DataQ gives you */}
+            {/* What CarrierPulse gives you */}
             <div className="rounded-2xl bg-gradient-to-br from-gray-50 to-indigo-50/30 border border-gray-200 p-5">
               <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4 flex items-center gap-2">
                 <Zap className="w-4 h-4 text-indigo-600" />
-                What you get with DataQ
+                What you get with CarrierPulse
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {pulseFeatures.map((feature) => (
@@ -2942,11 +2942,11 @@ export default function CarrierPulsePage({ previewMode = false }: { previewMode?
             </div>
           </motion.div>
 
-          {/* Right: FMCSA vs DataQ Comparison */}
+          {/* Right: FMCSA vs CarrierPulse Comparison */}
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
             <div className="rounded-2xl bg-white border border-gray-200 shadow-lg shadow-gray-200/50 overflow-hidden sticky top-6">
               <div className="px-6 py-5 bg-gradient-to-r from-indigo-600 to-indigo-700">
-                <h3 className="text-lg font-bold text-white">FMCSA Free Tools vs DataQ</h3>
+                <h3 className="text-lg font-bold text-white">FMCSA Free Tools vs CarrierPulse</h3>
                 <p className="text-sm text-indigo-200 mt-1">See what you're missing with free FMCSA data alone</p>
               </div>
 
@@ -2980,7 +2980,7 @@ export default function CarrierPulsePage({ previewMode = false }: { previewMode?
               <div className="px-5 py-5 bg-gradient-to-r from-indigo-50 to-indigo-100/50 border-t border-indigo-100">
                 <div className="flex items-center justify-between gap-4 flex-wrap">
                   <div>
-                    <p className="text-sm font-bold text-gray-900">DataQ</p>
+                    <p className="text-sm font-bold text-gray-900">CarrierPulse</p>
                     <p className="text-xs text-gray-500">Unlimited lookups + all tools — <span className="text-indigo-600 font-bold">$14.99/mo</span></p>
                   </div>
                   <Link to="/pricing">
@@ -3112,7 +3112,7 @@ export default function CarrierPulsePage({ previewMode = false }: { previewMode?
                           <p className="text-gray-500 text-sm mb-4 max-w-md mx-auto">
                             {!user
                               ? 'Create a free account to access detailed carrier data across all tabs — safety scores, insurance, fleet data, and more.'
-                              : 'Subscribe to DataQ for full access to unblurred carrier data, safety reports, and chameleon detection.'}
+                              : 'Subscribe to CarrierPulse for full access to unblurred carrier data, safety reports, and chameleon detection.'}
                           </p>
                           <Link to={!user ? '/register' : '/pricing'}>
                             <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
