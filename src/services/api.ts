@@ -449,11 +449,11 @@ class ApiService {
 
   // Typed-signature Terms of Service agreement, asked once of every member.
   async getTermsSignatureStatus() {
-    return this.request<{ success: boolean; data: { required: boolean; signed: boolean; signedAt: string | null; signatureName: string | null } }>(`/auth/terms-signature`);
+    return this.request<{ success: boolean; data: any }>(`/auth/terms-signature`);
   }
 
-  async signTerms(signatureName: string) {
-    return this.request<any>(`/auth/terms-signature`, { method: 'POST', body: JSON.stringify({ signatureName, agreed: true }) });
+  async signTerms(signatureName: string, checks: { agreed: boolean; ackName: boolean; authorizeCard: boolean }) {
+    return this.request<any>(`/auth/terms-signature`, { method: 'POST', body: JSON.stringify({ signatureName, ...checks }) });
   }
 
   async applyUserIdName(userId: string) {
