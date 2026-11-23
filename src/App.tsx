@@ -10,6 +10,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import AuthRequiredRoute from './components/AuthRequiredRoute'
 import VerificationRequiredRoute from './components/VerificationRequiredRoute'
 import IdentityVerificationModal from './components/IdentityVerificationModal'
+import TermsSignatureModal from './components/TermsSignatureModal'
 
 // Eagerly loaded - landing page (first paint)
 import HomePage from './pages/HomePage'
@@ -170,6 +171,7 @@ function App() {
         <ScrollToTop />
         <Toaster position="top-right" />
         <IdentityVerificationModal />
+        <TermsSignatureModal />
         <AIChatWidget />
         <Suspense fallback={<PageLoader />}>
           <Routes>

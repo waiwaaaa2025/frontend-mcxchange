@@ -246,10 +246,10 @@ const BuyerSubscriptionPage = () => {
           return
         }
 
-        // Every plan that unlocks MCs requires ID verification right after
-        // purchase (the name on the ID must match the account and the card).
+        // Every plan that unlocks MCs asks for ID verification right after
+        // purchase; the legal name on the ID becomes the account name.
         if (!user.identityVerified) {
-          setSuccessMessage('Subscription activated! Next step: verify your identity. The name on your ID must match your account name and the card you paid with before you can unlock MCs.')
+          setSuccessMessage('Subscription activated! Next step: verify your identity with a government ID. The legal name on your ID will be used as your account name.')
           window.dispatchEvent(new CustomEvent('identity-verification-required'))
         } else {
           setSuccessMessage('Subscription activated successfully! Your credits have been added.')

@@ -170,9 +170,6 @@ class ApiService {
         if (data.code === 'IDENTITY_VERIFICATION_REQUIRED') {
           window.dispatchEvent(new CustomEvent('identity-verification-required'));
         }
-        if (data.code === 'IDENTITY_NAME_MISMATCH') {
-          window.dispatchEvent(new CustomEvent('identity-name-mismatch', { detail: data.data?.problems || [] }));
-        }
         const err = new Error(data.error || data.message || 'API request failed') as Error & { code?: string };
         err.code = data.code;
         throw err;
@@ -450,9 +447,13 @@ class ApiService {
     return this.request<any>(`/admin/users/${userId}/name-check`);
   }
 
-  // Let a buyer unlock listings despite an account / ID / card name mismatch.
-  async approveUserNameMatch(userId: string, approve = true) {
-    return this.request<any>(`/admin/users/${userId}/approve-name-match`, { method: 'POST', body: JSON.stringify({ approve }) });
+  // Typed-signature Terms of Service agreement, asked once of every member.
+  async getTermsSignatureStatus() {
+    return this.request<{ success: boolean; data: { required: boolean; signed: boolean; signedAt: string | null; signatureName: string | null } }>(`/auth/terms-signature`);
+  }
+
+  async signTerms(signatureName: string) {
+    return this.request<any>(`/auth/terms-signature`, { method: 'POST', body: JSON.stringify({ signatureName, agreed: true }) });
   }
 
   async applyUserIdName(userId: string) {

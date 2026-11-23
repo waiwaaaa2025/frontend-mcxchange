@@ -86,11 +86,12 @@ interface NameCheck {
   idMatchesAccount: boolean | null
   cardMatchesId: boolean | null
   cardMatchesAccount: boolean | null
-  nameMatchApprovedAt?: string | null
+  signupName?: string | null
+  idMatchesSignup?: boolean | null
 }
 
 const hasNameMismatch = (n?: NameCheck | null) =>
-  !!n && (n.idMatchesAccount === false || n.cardMatchesId === false || (!n.idName && n.cardMatchesAccount === false))
+  !!n && (n.idMatchesAccount === false || n.idMatchesSignup === false || n.cardMatchesId === false || (!n.idName && n.cardMatchesAccount === false))
 
 const MatchPill = ({ ok, label }: { ok: boolean | null; label: string }) =>
   ok === null ? null : (
@@ -547,21 +548,6 @@ const AdminUsersPage = () => {
     }
   }
 
-  const [approvingNameMatch, setApprovingNameMatch] = useState(false)
-  const handleApproveNameMatch = async (approve: boolean) => {
-    if (!selectedUser) return
-    if (approve && !confirm('Approve this buyer even though the names don\'t match? They will be able to unlock listings.')) return
-    setApprovingNameMatch(true)
-    try {
-      const r = await api.approveUserNameMatch(selectedUser.id, approve)
-      setNameCheck(r.data)
-    } catch (err: any) {
-      alert(err.message || 'Failed to update approval')
-    } finally {
-      setApprovingNameMatch(false)
-    }
-  }
-
   const openUserDetail = async (user: UserData) => {
     setSelectedUser(user)
     setIsEditingProfile(false)
@@ -997,7 +983,7 @@ const AdminUsersPage = () => {
                     {hasNameMismatch(user.nameCheck) && (
                       <span
                         className="px-2 py-0.5 rounded-lg text-xs font-medium bg-red-50 text-red-700 border border-red-200 flex items-center gap-1"
-                        title={`Account: ${user.nameCheck?.accountName || '—'} · ID: ${user.nameCheck?.idName || '—'} · Card: ${user.nameCheck?.cardholderName || '—'}`}
+                        title={`Signed up as: ${user.nameCheck?.signupName || user.nameCheck?.accountName || '—'} · ID: ${user.nameCheck?.idName || '—'} · Card: ${user.nameCheck?.cardholderName || '—'}`}
                       >
                         <AlertCircle className="w-3 h-3" />
                         Name mismatch
@@ -1561,6 +1547,15 @@ const AdminUsersPage = () => {
                       )}
                       {(selectedUser.identityVerified || nameCheck?.cardholderName) && (
                         <div className={`mt-1 p-2 rounded-lg border text-sm space-y-1 ${hasNameMismatch(nameCheck) ? 'bg-red-50 border-red-200' : 'bg-white border-gray-200'}`}>
+                          {nameCheck?.signupName && nameCheck.signupName !== nameCheck.accountName && (
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-500">Signed up as</span>
+                              <span className="text-gray-800 font-medium text-right">
+                                {nameCheck.signupName}
+                                <MatchPill ok={nameCheck.idMatchesSignup ?? null} label="ID" />
+                              </span>
+                            </div>
+                          )}
                           <div className="flex justify-between items-center">
                             <span className="text-gray-500">Name on ID</span>
                             <span className="text-gray-800 font-medium text-right">
@@ -1585,31 +1580,6 @@ const AdminUsersPage = () => {
                             >
                               {applyingIdName ? 'Updating…' : `Update account name to "${nameCheck.idName}"`}
                             </button>
-                          )}
-                          {hasNameMismatch(nameCheck) && selectedUser.role === 'BUYER' && (
-                            nameCheck?.nameMatchApprovedAt ? (
-                              <div className="flex items-center justify-between gap-2 mt-1 text-xs">
-                                <span className="text-emerald-700 font-semibold">Approved by admin. Can unlock listings.</span>
-                                <button
-                                  onClick={() => handleApproveNameMatch(false)}
-                                  disabled={approvingNameMatch}
-                                  className="px-2 py-1 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-                                >
-                                  Revoke
-                                </button>
-                              </div>
-                            ) : (
-                              <>
-                                <p className="text-xs text-red-700 mt-1">Blocked from unlocking listings until names match or you approve.</p>
-                                <button
-                                  onClick={() => handleApproveNameMatch(true)}
-                                  disabled={approvingNameMatch}
-                                  className="w-full mt-1 px-2 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50"
-                                >
-                                  {approvingNameMatch ? 'Saving…' : 'Approve anyway (allow unlocks)'}
-                                </button>
-                              </>
-                            )
                           )}
                         </div>
                       )}
