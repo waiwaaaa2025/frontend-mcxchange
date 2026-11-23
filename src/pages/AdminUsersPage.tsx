@@ -1038,6 +1038,22 @@ const AdminUsersPage = () => {
                     )}
                   </div>
 
+                  {/* Names on file: signup / government ID / card (dispute evidence) */}
+                  {(user.nameCheck?.idName || user.nameCheck?.cardholderName) && (
+                    <div className={`flex flex-wrap items-center gap-x-4 gap-y-1 text-xs mb-1 px-2 py-1 rounded-lg ${hasNameMismatch(user.nameCheck) ? 'bg-red-50' : 'bg-gray-50'}`}>
+                      {user.nameCheck?.signupName && user.nameCheck.signupName !== user.name && (
+                        <span><span className="text-gray-500">Signed up as:</span> <span className="font-medium text-gray-800">{user.nameCheck.signupName}</span>
+                          <MatchPill ok={user.nameCheck.idMatchesSignup ?? null} label="ID" /></span>
+                      )}
+                      <span><span className="text-gray-500">ID:</span> <span className="font-medium text-gray-800">{user.nameCheck?.idName || '—'}</span>
+                        <MatchPill ok={user.nameCheck?.idMatchesAccount ?? null} label="account" /></span>
+                      <span><span className="text-gray-500">Card:</span> <span className="font-medium text-gray-800">{user.nameCheck?.cardholderName || '—'}</span>
+                        {user.nameCheck?.idName
+                          ? <MatchPill ok={user.nameCheck?.cardMatchesId ?? null} label="ID" />
+                          : <MatchPill ok={user.nameCheck?.cardMatchesAccount ?? null} label="account" />}</span>
+                    </div>
+                  )}
+
                   {/* Contact Info */}
                   <div className="flex items-center gap-4 text-sm text-gray-500 mb-2 flex-wrap">
                     <div className="flex items-center gap-1">
