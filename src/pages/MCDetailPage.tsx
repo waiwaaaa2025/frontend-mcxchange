@@ -200,7 +200,7 @@ const MCDetailPage = () => {
       await unlock()
     } catch (err: any) {
       console.error('Failed to unlock listing:', err)
-      if (err.code !== 'IDENTITY_VERIFICATION_REQUIRED') alert(err.message || 'Failed to unlock listing. Please try again.')
+      if (!['IDENTITY_VERIFICATION_REQUIRED', 'IDENTITY_NAME_MISMATCH'].includes(err.code)) alert(err.message || 'Failed to unlock listing. Please try again.')
     }
   }
 
@@ -318,7 +318,7 @@ const MCDetailPage = () => {
         setOfferSuccess(false)
       }, 2000)
     } catch (err: any) {
-      if (err.code !== 'IDENTITY_VERIFICATION_REQUIRED') alert(err.message || 'Failed to submit offer. Please try again.')
+      if (!['IDENTITY_VERIFICATION_REQUIRED', 'IDENTITY_NAME_MISMATCH'].includes(err.code)) alert(err.message || 'Failed to submit offer. Please try again.')
     } finally {
       setSubmittingOffer(false)
     }
@@ -345,7 +345,7 @@ const MCDetailPage = () => {
         setBuyNowSuccess(false)
       }, 2000)
     } catch (err: any) {
-      if (err.code !== 'IDENTITY_VERIFICATION_REQUIRED') alert(err.message || 'Failed to submit offer. Please try again.')
+      if (!['IDENTITY_VERIFICATION_REQUIRED', 'IDENTITY_NAME_MISMATCH'].includes(err.code)) alert(err.message || 'Failed to submit offer. Please try again.')
     } finally {
       setSubmittingBuyNow(false)
     }

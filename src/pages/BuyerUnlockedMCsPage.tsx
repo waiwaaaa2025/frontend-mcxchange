@@ -98,7 +98,7 @@ const BuyerUnlockedMCsPage = () => {
       alert('Offer submitted successfully! Admin will review shortly.')
     } catch (err: any) {
       setSubmittingOffer(false)
-      if (err.code !== 'IDENTITY_VERIFICATION_REQUIRED') alert(err.message || 'Failed to submit offer. Please try again.')
+      if (!['IDENTITY_VERIFICATION_REQUIRED', 'IDENTITY_NAME_MISMATCH'].includes(err.code)) alert(err.message || 'Failed to submit offer. Please try again.')
     }
   }
 
@@ -121,7 +121,7 @@ const BuyerUnlockedMCsPage = () => {
         setBuyNowSuccess(false)
       }, 2000)
     } catch (err: any) {
-      if (err.code !== 'IDENTITY_VERIFICATION_REQUIRED') alert(err.message || 'Failed to submit buy request. Please try again.')
+      if (!['IDENTITY_VERIFICATION_REQUIRED', 'IDENTITY_NAME_MISMATCH'].includes(err.code)) alert(err.message || 'Failed to submit buy request. Please try again.')
     } finally {
       setSubmittingBuyNow(false)
     }

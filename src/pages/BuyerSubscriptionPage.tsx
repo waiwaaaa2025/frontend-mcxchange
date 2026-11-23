@@ -246,7 +246,14 @@ const BuyerSubscriptionPage = () => {
           return
         }
 
-        setSuccessMessage('Subscription activated successfully! Your credits have been added.')
+        // Every plan that unlocks MCs requires ID verification right after
+        // purchase (the name on the ID must match the account and the card).
+        if (!user.identityVerified) {
+          setSuccessMessage('Subscription activated! Next step: verify your identity. The name on your ID must match your account name and the card you paid with before you can unlock MCs.')
+          window.dispatchEvent(new CustomEvent('identity-verification-required'))
+        } else {
+          setSuccessMessage('Subscription activated successfully! Your credits have been added.')
+        }
         // Clear the success param from URL to prevent re-fetch on refresh
         window.history.replaceState({}, '', '/buyer/subscription')
       }

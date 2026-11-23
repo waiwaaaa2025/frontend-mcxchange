@@ -3809,7 +3809,7 @@ export default function MCDetailPageV2() {
     if (userCredits < 1) { navigate('/buyer/subscription'); return }
     try { await unlock() } catch (err: any) {
       console.error('Failed to unlock listing:', err)
-      if (err.code !== 'IDENTITY_VERIFICATION_REQUIRED') alert(err.message || 'Failed to unlock listing. Please try again.')
+      if (!['IDENTITY_VERIFICATION_REQUIRED', 'IDENTITY_NAME_MISMATCH'].includes(err.code)) alert(err.message || 'Failed to unlock listing. Please try again.')
     }
   }
 
@@ -3904,7 +3904,7 @@ export default function MCDetailPageV2() {
       await api.createOffer({ listingId: listing.id, amount: parseFloat(offerAmount), message: offerMessage || 'I am interested in purchasing this MC authority.' })
       setOfferSuccess(true)
       setTimeout(() => { setShowOfferModal(false); setOfferAmount(''); setOfferMessage(''); setOfferSuccess(false) }, 2000)
-    } catch (err: any) { if (err.code !== 'IDENTITY_VERIFICATION_REQUIRED') alert(err.message || 'Failed to submit offer.') }
+    } catch (err: any) { if (!['IDENTITY_VERIFICATION_REQUIRED', 'IDENTITY_NAME_MISMATCH'].includes(err.code)) alert(err.message || 'Failed to submit offer.') }
     finally { setSubmittingOffer(false) }
   }
 
@@ -3916,7 +3916,7 @@ export default function MCDetailPageV2() {
       await api.createOffer({ listingId: listing.id, amount: price, message: buyNowMessage || 'I want to buy this MC at the listed price.', isBuyNow: true })
       setBuyNowSuccess(true)
       setTimeout(() => { setShowBuyNowModal(false); setBuyNowMessage(''); setBuyNowSuccess(false) }, 2000)
-    } catch (err: any) { if (err.code !== 'IDENTITY_VERIFICATION_REQUIRED') alert(err.message || 'Failed to submit offer.') }
+    } catch (err: any) { if (!['IDENTITY_VERIFICATION_REQUIRED', 'IDENTITY_NAME_MISMATCH'].includes(err.code)) alert(err.message || 'Failed to submit offer.') }
     finally { setSubmittingBuyNow(false) }
   }
 

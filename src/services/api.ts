@@ -170,6 +170,9 @@ class ApiService {
         if (data.code === 'IDENTITY_VERIFICATION_REQUIRED') {
           window.dispatchEvent(new CustomEvent('identity-verification-required'));
         }
+        if (data.code === 'IDENTITY_NAME_MISMATCH') {
+          window.dispatchEvent(new CustomEvent('identity-name-mismatch', { detail: data.data?.problems || [] }));
+        }
         const err = new Error(data.error || data.message || 'API request failed') as Error & { code?: string };
         err.code = data.code;
         throw err;
@@ -445,6 +448,11 @@ class ApiService {
   // Account name vs name on government ID (Stripe Identity) vs cardholder name — re-pulled live from Stripe.
   async getUserNameCheck(userId: string) {
     return this.request<any>(`/admin/users/${userId}/name-check`);
+  }
+
+  // Let a buyer unlock listings despite an account / ID / card name mismatch.
+  async approveUserNameMatch(userId: string, approve = true) {
+    return this.request<any>(`/admin/users/${userId}/approve-name-match`, { method: 'POST', body: JSON.stringify({ approve }) });
   }
 
   async applyUserIdName(userId: string) {
